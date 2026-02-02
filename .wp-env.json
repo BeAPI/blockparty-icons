@@ -1,0 +1,8 @@
+{
+	"plugins": [
+		"."
+	],
+	"themes": [
+		"./.wp-env/themes/"
+	]
+}

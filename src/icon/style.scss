@@ -1,0 +1,48 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-blockparty-icon {
+	// background-color: transparent !important;
+	// text-align: center;
+
+	// > span,
+	// > a > span {
+	// 	display: inline-flex;
+	// 	margin: 0 auto var(--blockparty-icon-svg-margin-bottom, 0);
+	// }
+
+	// svg {
+	// 	display: block;
+	// 	margin: 0 auto var(--blockparty-icon-svg-margin-bottom, 0);
+	// 	box-sizing: content-box;
+	// }
+
+	// .block-list-appender__toggle {
+	// 	display: flex !important;
+	// }
+
+	.wp-block-blockparty-icons__icon-component--raw svg {
+		fill: none;
+
+		*:not([fill]):not([stroke]),
+		[fill] {
+			fill: currentColor;
+		}
+
+		[fill="transparent"] {
+			fill: transparent;
+		}
+
+		[stroke] {
+			stroke: currentColor;
+		}
+	}
+
+	.wp-block-blockparty-icons__icon-component--sprite {
+		fill: currentColor;
+	}
+}

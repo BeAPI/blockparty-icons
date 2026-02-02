@@ -1,0 +1,49 @@
+/**
+ * The following styles get applied inside the editor only.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-blockparty-icon {
+	.components-button {
+		width: 100%;
+		height: auto;
+		padding: 0;
+
+		&:hover,
+		&[aria-expanded="true"] {
+			color: var(--wp--preset--color--dark, #000);
+		}
+
+		> svg {
+			margin: 0 auto var(--blockparty-icon-svg-margin-bottom, 0);
+		}
+	}
+}
+
+.block-editor-block-types-list__item-title {
+	text-align: center;
+	text-transform: capitalize;
+}
+
+// @see https://developer.wordpress.org/news/2023/06/02/using-block-inspector-sidebar-groups/
+.full-width-control-wrapper {
+	grid-column: 1 / -1;
+}
+
+.wp-block-blockparty-icons__icon-component--raw svg {
+	fill: none !important;
+
+	*:not([fill]):not([stroke]),
+	[fill] {
+		fill: currentColor;
+	}
+
+	[fill="transparent"] {
+		fill: transparent;
+	}
+
+	[stroke] {
+		stroke: currentColor;
+	}
+}

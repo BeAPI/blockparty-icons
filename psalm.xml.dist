@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<psalm
+		errorLevel="1"
+		resolveFromConfigFile="true"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns="https://getpsalm.org/schema/config"
+		xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
+>
+	<plugins>
+		<pluginClass class="PsalmWordPress\Plugin"/>
+	</plugins>
+
+	<projectFiles>
+		<directory name="includes"/>
+		<directory name="views"/>
+		<file name="blockparty-icons.php"/>
+	</projectFiles>
+	<stubs>
+		<file name="vendor/php-stubs/wordpress-seo-stubs/wordpress-seo-stubs.php" />
+    </stubs>
+</psalm>
