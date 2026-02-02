@@ -13,10 +13,11 @@ $block_attributes = $args['block_attributes'];
 $size             = $block_attributes['size'] ?? 24;
 $content          = $block_attributes['content'];
 $icon             = $block_attributes['icon'];
+$icon_color       = $block_attributes['iconColorValue'] ?? '';
 $icon_style       = '';
 
-if ( ! empty( $block_attributes['iconColorValue'] ) ) {
-	$icon_style .= 'fill:' . $block_attributes['iconColorValue'] . ';';
+if ( ! empty( $icon_color ) ) {
+	$icon_style .= 'fill:' . $icon_color . ';';
 }
 
 if ( ! empty( $size ) ) {

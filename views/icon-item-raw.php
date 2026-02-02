@@ -15,10 +15,13 @@ $block_attributes = $args['block_attributes'];
 $size             = $block_attributes['size'] ?? 24;
 $content          = $block_attributes['content'] ?? '';
 $icon             = $block_attributes['icon'] ?? [];
+$icon_color       = $block_attributes['iconColorValue'] ?? '';
 $icon_style       = '';
+$extra_attrs      = '';
 
-if ( ! empty( $block_attributes['iconColorValue'] ) ) {
-	$icon_style .= 'color:' . $block_attributes['iconColorValue'] . ';';
+if ( ! empty( $icon_color ) ) {
+	$icon_style  .= 'fill:' . $icon_color . ';';
+	$extra_attrs .= ' fill="' . esc_attr( $icon_color ) . '"';
 }
 
 if ( ! empty( $size ) ) {
@@ -29,50 +32,7 @@ if ( empty( $content ) || ! is_string( $content ) ) {
 	return;
 }
 
-// Allowed SVG elements and attributes for wp_kses.
-$allowed_svg = array(
-	'svg'   => array(
-		'xmlns'       => true,
-		'width'       => true,
-		'height'      => true,
-		'viewbox'     => true,
-		'viewBox'     => true,
-		'class'       => true,
-		'style'       => true,
-		'fill'        => true,
-		'stroke'      => true,
-		'aria-hidden' => true,
-		'focusable'   => true,
-		'role'        => true,
-	),
-	'path'  => array(
-		'd'     => true,
-		'fill'  => true,
-		'stroke' => true,
-		'class'  => true,
-	),
-	'circle' => array(
-		'cx' => true,
-		'cy' => true,
-		'r'  => true,
-		'fill' => true,
-		'stroke' => true,
-		'class' => true,
-	),
-	'rect'   => array(
-		'x'      => true,
-		'y'      => true,
-		'width'  => true,
-		'height' => true,
-		'fill'   => true,
-		'stroke' => true,
-		'class'  => true,
-	),
-	'g'      => array( 'class' => true ),
-	'defs'   => array(),
-	'use'    => array( 'href' => true, 'xlink:href' => true ),
-);
-
+$allowed_svg = \Blockparty\Icons\Helper\SvgKses::get_allowed_svg_kses();
 $content_safe = wp_kses( $content, $allowed_svg );
 
 // Merge our class with existing class on the opening <svg> to avoid duplicate attribute.
@@ -87,10 +47,10 @@ if ( preg_match( '/<svg\s[^>]*\bclass=(["\'])([^"\']*)\1/', $content_safe, $clas
 }
 
 // Inject aria-hidden, focusable, style (and class if not already present) into the opening <svg> tag.
-$extra_attrs = ' aria-hidden="true" focusable="false"';
 if ( ! empty( $icon_style ) ) {
 	$extra_attrs .= ' style="' . esc_attr( $icon_style ) . '"';
 }
+
 if ( is_string( $block_class ) && strpos( $block_class, '=' ) !== false ) {
 	$extra_attrs .= $block_class;
 }
