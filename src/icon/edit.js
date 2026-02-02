@@ -54,7 +54,6 @@ import {
 	capitalize,
 	getAllIcons,
 	getCollections,
-	hasBlockAncestors,
 	setStoredIcons,
 } from '../utils';
 import { link, linkOff, replace, trash } from '@wordpress/icons';
@@ -86,9 +85,7 @@ const MIN_SIZE = 8;
  * @param {string}   root0.attributes.text
  * @param {string}   root0.attributes.url
  * @param {string}   root0.clientId
- * @param {Object}   root0.context
  * @param {boolean}  root0.isSelected
- * @param {string}   root0.name
  * @param {Function} root0.setAttributes
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
  *
@@ -97,9 +94,7 @@ const MIN_SIZE = 8;
 export default function Edit( {
 	attributes,
 	clientId,
-	context,
 	isSelected,
-	name,
 	setAttributes,
 } ) {
 	const {
@@ -114,7 +109,6 @@ export default function Edit( {
 		url,
 	} = attributes;
 
-	const hasAncestor = hasBlockAncestors( clientId, name );
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
 	const [ iconColor, setIconColor ] = useState( iconColorValue );
@@ -185,24 +179,13 @@ export default function Edit( {
 
 	const colorSettings = [
 		{
-			// Use custom attribute as fallback to prevent loss of named color selection when
-			// switching themes to a new theme that does not have a matching named color.
-			value: iconColorValue || context.iconColor,
+			value: iconColorValue,
 			onChange: ( colorValue ) => {
 				setIconColor( colorValue );
 				setAttributes( { iconColorValue: colorValue } );
 			},
 			label: __( 'Icon color', 'blockparty-icons' ),
 			resetAllFilter: () => {
-				if ( context?.iconColor ) {
-					setIconColor( context?.iconColor );
-					setAttributes( {
-						iconColorValue: context?.iconColor,
-					} );
-
-					return;
-				}
-
 				setIconColor( undefined );
 				setAttributes( { iconColorValue: undefined } );
 			},
@@ -210,26 +193,6 @@ export default function Edit( {
 	];
 	const colorGradientSettings = useMultipleOriginColorsAndGradients();
 	const style = {};
-
-	useEffect( () => {
-		if ( context?.icon && ( ! content || ! icon ) ) {
-			setAttributes( {
-				content: context?.icon?.content,
-				icon: {
-					label: context?.icon?.label,
-					name: context?.icon?.name,
-					type: context?.icon?.type,
-				},
-			} );
-		}
-
-		if ( ! iconColor ) {
-			setAttributes( {
-				iconColorValue: context?.iconColor,
-			} );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ context ] );
 
 	// Load available collections when the component is mount.
 	useEffect( () => {
@@ -265,7 +228,7 @@ export default function Edit( {
 	}
 
 	return (
-		<div { ...useBlockProps( { ref: blockRef } ) }>
+		<div { ...useBlockProps( { ref: blockRef } ) } style={ style }>
 			{ isModalVisible && (
 				<IconModal
 					collections={ collections }
@@ -325,6 +288,9 @@ export default function Edit( {
 						>
 							<TextControl
 								label={ __( 'Icon text', 'blockparty-icons' ) }
+								help={ __(
+									'Add text to the icon to describe its purpose.'
+								) }
 								value={ text || '' }
 								onChange={ ( value ) =>
 									setAttributes( { text: value } )
@@ -396,26 +362,24 @@ export default function Edit( {
 					</InspectorControls>
 					<InspectorControls group="dimensions">
 						<div className="full-width-control-wrapper">
-							{ ! hasAncestor && (
-								<RangeControl
-									label={ __(
-										'Icon size',
-										'blockparty-icons'
-									) }
-									value={ size }
-									onChange={ ( newSize ) => {
-										setAttributes( { size: newSize } );
-									} }
-									initialPosition={ DEFAULT_SIZE }
-									min={ MIN_SIZE }
-									max={ MAX_SIZE }
-									allowReset={ true }
-									withInputField={ true }
-									renderTooltipContent={ ( value ) =>
-										`${ value }px`
-									}
-								/>
-							) }
+							<RangeControl
+								label={ __(
+									'Icon size',
+									'blockparty-icons'
+								) }
+								value={ size }
+								onChange={ ( newSize ) => {
+									setAttributes( { size: newSize } );
+								} }
+								initialPosition={ DEFAULT_SIZE }
+								min={ MIN_SIZE }
+								max={ MAX_SIZE }
+								allowReset={ true }
+								withInputField={ true }
+								renderTooltipContent={ ( value ) =>
+									`${ value }px`
+								}
+							/>
 						</div>
 					</InspectorControls>
 					<InspectorControls group="advanced">

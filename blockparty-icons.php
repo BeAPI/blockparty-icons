@@ -41,18 +41,15 @@ function init() {
 	// Load available translations.
 	load_plugin_textdomain( 'blockparty-icons', false, dirname( BLOCKPARTY_ICONS_PLUGIN_BASENAME ) . '/languages' );
 
-	register_block_type( __DIR__ . '/build/icons' );
 	register_block_type( __DIR__ . '/build/icon', [ 'render_callback' => __NAMESPACE__ . '\\render_callback' ] );
 
 	// Load translations for JS
-	wp_set_script_translations( 'blockparty-icons-editor-script', 'blockparty-icons', BLOCKPARTY_ICONS_DIR . '/languages' );
 	wp_set_script_translations( 'blockparty-icon-editor-script', 'blockparty-icons', BLOCKPARTY_ICONS_DIR . '/languages' );
 
 	// Expose sprite hashes to editor for cache busting in icon selector/modal.
 	$sprite_hashes = get_sprite_hashes_for_script();
 	if ( ! empty( $sprite_hashes ) ) {
 		$config = [ 'spriteHashes' => $sprite_hashes ];
-		wp_localize_script( 'blockparty-icons-editor-script', 'blockpartyIconsConfig', $config );
 		wp_localize_script( 'blockparty-icon-editor-script', 'blockpartyIconsConfig', $config );
 	}
 

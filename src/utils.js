@@ -13,7 +13,6 @@ import {
 } from '@wordpress/primitives';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-import { select } from '@wordpress/data';
 
 /**
  * Cache configuration
@@ -486,51 +485,4 @@ export function getSpriteUrlWithHash( spriteUrl ) {
 	} catch {
 		return spriteUrl;
 	}
-}
-
-/**
- * Check if block icons has ancestors block registred in const ANCESTORS_BLOCKS
- *
- * @param {string}                                 clientId block client id
- * @param {('blockparty/icons'|'blockparty/icon')} name     block name
- *
- * @return {boolean} True if block has ancestor blocks
- */
-export function hasBlockAncestors( clientId, name ) {
-	if ( name !== 'blockparty/icons' && name !== 'blockparty/icon' ) {
-		return false;
-	}
-
-	const ICON_BLOCK_NAME = 'blockparty/icons';
-	const ANCESTORS_BLOCKS = [
-		'beapi/accordion-summary',
-		'beapi/mega-menu-list-item-head',
-		'beapi/tabs-nav-item',
-	];
-	const parentBlock =
-		name !== ICON_BLOCK_NAME
-			? select( 'core/block-editor' ).getBlockParentsByBlockName(
-					clientId,
-					ICON_BLOCK_NAME
-			  )
-			: [ clientId ];
-	const parentBlocks = select( 'core/block-editor' ).getBlockParents(
-		parentBlock[ 0 ]
-	);
-	const parentAttributes =
-		select( 'core/block-editor' ).getBlocksByClientId( parentBlocks );
-
-	return parentAttributes
-		.map( ( parentAttribute ) => ( {
-			...{
-				blockName: parentAttribute.name,
-				innerBlocks: parentAttribute.innerBlocks,
-			},
-		} ) )
-		.some(
-			( { blockName, innerBlocks } ) =>
-				innerBlocks.some(
-					( innerBlock ) => innerBlock.name === ICON_BLOCK_NAME
-				) && ANCESTORS_BLOCKS.includes( blockName )
-		);
 }

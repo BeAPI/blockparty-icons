@@ -6,24 +6,28 @@
  */
 
 .wp-block-blockparty-icon {
-	// background-color: transparent !important;
-	// text-align: center;
+	--wp-block-blockparty-icon-max-width: max-content;
+	--wp-block-blockparty-icon-flex-direction: column;
+	--wp-block-blockparty-icon-align-items: center;
+	--wp-block-blockparty-icon-justify-content: center;
+	--wp-block-blockparty-icon-gap: 8px;
 
-	// > span,
-	// > a > span {
-	// 	display: inline-flex;
-	// 	margin: 0 auto var(--blockparty-icon-svg-margin-bottom, 0);
-	// }
+	background-color: transparent !important;
+	text-align: center;
+	max-width: var(--wp-block-blockparty-icon-max-width, max-content);
 
-	// svg {
-	// 	display: block;
-	// 	margin: 0 auto var(--blockparty-icon-svg-margin-bottom, 0);
-	// 	box-sizing: content-box;
-	// }
+	&:has(.wp-block-blockparty-icon__text):not(:has(.wp-block-blockparty-icon__link)),
+	.wp-block-blockparty-icon__link {
+		display: flex;
+		gap: var(--wp-block-blockparty-icon-gap, 0);
+		flex-direction: var(--wp-block-blockparty-icon-flex-direction, column);
+		align-items: var(--wp-block-blockparty-icon-align-items, center);
+		justify-content: var(--wp-block-blockparty-icon-justify-content, center);
+	}
 
-	// .block-list-appender__toggle {
-	// 	display: flex !important;
-	// }
+	.wp-block-blockparty-icon__text {
+		margin: 0;
+	}
 
 	.wp-block-blockparty-icons__icon-component--raw svg {
 		fill: none;
@@ -40,9 +44,5 @@
 		[stroke] {
 			stroke: currentColor;
 		}
-	}
-
-	.wp-block-blockparty-icons__icon-component--sprite {
-		fill: currentColor;
 	}
 }

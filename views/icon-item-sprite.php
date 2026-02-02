@@ -16,7 +16,7 @@ $icon             = $block_attributes['icon'];
 $icon_style       = '';
 
 if ( ! empty( $block_attributes['iconColorValue'] ) ) {
-	$icon_style .= 'color:' . $block_attributes['iconColorValue'] . ';';
+	$icon_style .= 'fill:' . $block_attributes['iconColorValue'] . ';';
 }
 
 if ( ! empty( $size ) ) {

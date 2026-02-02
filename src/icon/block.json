@@ -6,7 +6,6 @@
 	"title": "Icon",
 	"category": "widgets",
 	"description": "Easily add custom vector icon to your content.",
-	"parent": [ "blockparty/icons" ],
 	"supports": {
 		"reusable": false,
 		"html": false,
@@ -59,7 +58,6 @@
 			"type": "string"
 		}
 	},
-	"usesContext": [ "icon", "iconColor" ],
 	"textdomain": "blockparty-icons",
 	"editorScript": "file:./index.js",
 	"editorStyle": "file:./index.css",
