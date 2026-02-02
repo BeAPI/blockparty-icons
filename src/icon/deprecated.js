@@ -60,7 +60,9 @@ const v3 = {
 			const name = svgClassMatch[ 1 ].replace( /\s.*$/, '' );
 			const label = name
 				.split( '-' )
-				.map( ( part ) => part.charAt( 0 ).toUpperCase() + part.slice( 1 ) )
+				.map(
+					( part ) => part.charAt( 0 ).toUpperCase() + part.slice( 1 )
+				)
 				.join( ' ' );
 			migrated.icon = {
 				label,
@@ -75,7 +77,9 @@ const v3 = {
 			const name = hashPart || 'icon';
 			const label = name
 				.split( '-' )
-				.map( ( part ) => part.charAt( 0 ).toUpperCase() + part.slice( 1 ) )
+				.map(
+					( part ) => part.charAt( 0 ).toUpperCase() + part.slice( 1 )
+				)
 				.join( ' ' );
 			migrated.icon = {
 				label,

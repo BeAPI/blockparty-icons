@@ -242,32 +242,29 @@ export default function Edit( {
 						<ToolbarButton
 							icon={ url ? linkOff : link }
 							onClick={ url ? removeLink : openLinkPopover }
-							label={ __(
-								'Link',
-								'blockparty-icons'
-							) }
+							label={ __( 'Link', 'blockparty-icons' ) }
 						/>
 					</BlockControls>
 					<BlockControls>
-							<ToolbarGroup>
-								<ToolbarButton
-									icon={ replace }
-									onClick={ openIconModal }
-									disabled={ ! Boolean( icons ) }
-									label={ __(
-										'Replace icon',
-										'blockparty-icons'
-									) }
-								/>
-								<ToolbarButton
-									icon={ trash }
-									onClick={ removeIconBlock }
-									label={ __(
-										'Remove icon',
-										'blockparty-icons'
-									) }
-								/>
-							</ToolbarGroup>
+						<ToolbarGroup>
+							<ToolbarButton
+								icon={ replace }
+								onClick={ openIconModal }
+								disabled={ ! Boolean( icons ) }
+								label={ __(
+									'Replace icon',
+									'blockparty-icons'
+								) }
+							/>
+							<ToolbarButton
+								icon={ trash }
+								onClick={ removeIconBlock }
+								label={ __(
+									'Remove icon',
+									'blockparty-icons'
+								) }
+							/>
+						</ToolbarGroup>
 					</BlockControls>
 					{ showURLPopover && (
 						<LinkURLPopover
@@ -363,10 +360,7 @@ export default function Edit( {
 					<InspectorControls group="dimensions">
 						<div className="full-width-control-wrapper">
 							<RangeControl
-								label={ __(
-									'Icon size',
-									'blockparty-icons'
-								) }
+								label={ __( 'Icon size', 'blockparty-icons' ) }
 								value={ size }
 								onChange={ ( newSize ) => {
 									setAttributes( { size: newSize } );

@@ -233,10 +233,10 @@ export async function getIcons( collection, args = {} ) {
 	// With index.php?rest_route= (e.g. WP Env), query params must use & not ?
 	// so we get ?rest_route=/icons/v1/Bootstrap&context=edit&per_page=50
 	const isRestRouteFormat = restUrl.includes( 'rest_route' );
-	const path = isRestRouteFormat
-		? pathBase
-		: addQueryArgs( pathBase, args );
-	const queryString = isRestRouteFormat ? addQueryArgs( '', args ).replace( /^\?/, '' ) : '';
+	const path = isRestRouteFormat ? pathBase : addQueryArgs( pathBase, args );
+	const queryString = isRestRouteFormat
+		? addQueryArgs( '', args ).replace( /^\?/, '' )
+		: '';
 	const url =
 		restUrl.replace( /\/$/, '' ) +
 		'/' +
