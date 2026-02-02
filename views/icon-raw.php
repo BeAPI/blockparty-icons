@@ -32,7 +32,7 @@ if ( empty( $content ) || ! is_string( $content ) ) {
 	return;
 }
 
-$allowed_svg = \Blockparty\Icons\Helper\SvgKses::get_allowed_svg_kses();
+$allowed_svg  = \Blockparty\Icons\Helper\SvgKses::get_allowed_svg_kses();
 $content_safe = wp_kses( $content, $allowed_svg );
 
 // Merge our class with existing class on the opening <svg> to avoid duplicate attribute.
