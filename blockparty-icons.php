@@ -451,7 +451,7 @@ function render_callback( $attributes, $content, $block ) {
 
 	// Otherwise use default template.
 	ob_start();
-	load_template( plugin_dir_path( __FILE__ ) . 'views/icon-item.php', false, $template_args );
+	load_template( plugin_dir_path( __FILE__ ) . 'views/default.php', false, $template_args );
 
 	return ob_get_clean();
 }

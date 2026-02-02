@@ -39,11 +39,11 @@ $has_link_aria_label = ! empty( $link_aria_label );
 	<?php endif; ?>
 		<?php
 		if ( 'raw' === $icon_type ) {
-			load_template( plugin_dir_path( __FILE__ ) . 'icon-item-raw.php', false, $args );
+			load_template( plugin_dir_path( __FILE__ ) . 'icon-raw.php', false, $args );
 		}
 
 		if ( 'sprite' === $icon_type ) {
-			load_template( plugin_dir_path( __FILE__ ) . 'icon-item-sprite.php', false, $args );
+			load_template( plugin_dir_path( __FILE__ ) . 'icon-sprite.php', false, $args );
 		}
 
 		if ( ! empty( $text ) ) :
