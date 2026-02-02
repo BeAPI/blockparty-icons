@@ -470,7 +470,6 @@ export function getSpriteUrlWithHash( spriteUrl ) {
 	try {
 		const url = new URL( spriteUrl, window.location.origin );
 		const path = url.pathname || '';
-		const fragment = url.hash || '';
 		// Match JSON keys like "icons/social.svg" - path segment after "dist/".
 		const distMatch = path.match( /\/dist\/(.+)$/ );
 		const key = distMatch
