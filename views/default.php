@@ -38,12 +38,10 @@ $has_link_aria_label = ! empty( $link_aria_label );
 	<a class="wp-block-blockparty-icon__link" href="<?php echo esc_url( $url ); ?>" <?php echo wp_kses_data( $has_link_aria_label ? $link_aria_label : '' ); ?>>
 	<?php endif; ?>
 		<?php
-		if ( 'raw' === $icon_type ) {
-			load_template( plugin_dir_path( __FILE__ ) . 'icon-raw.php', false, $args );
-		}
-
 		if ( 'sprite' === $icon_type ) {
 			load_template( plugin_dir_path( __FILE__ ) . 'icon-sprite.php', false, $args );
+		} else {
+			load_template( plugin_dir_path( __FILE__ ) . 'icon-raw.php', false, $args );
 		}
 
 		if ( ! empty( $text ) ) :
