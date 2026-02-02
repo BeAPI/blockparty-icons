@@ -46,8 +46,6 @@ import {
 /**
  * Internal dependencies
  */
-import IconContent from '../components/icon-content';
-
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import {
@@ -71,22 +69,11 @@ const MIN_SIZE = 8;
  * The edit function describes the structure of your block in the context of the
  * editor. This represents what the editor will render when the block is used.
  *
- * @param {Object}   root0
- * @param {Object}   root0.attributes
- * @param {number}   root0.attributes.borderRadius
- * @param {string}   root0.attributes.className
- * @param {string}   root0.attributes.content
- * @param {string}   root0.attributes.iconColorValue
- * @param {Object}   root0.attributes.icon
- * @param {string}   root0.attributes.label
- * @param {Object}   root0.attributes.padding
- * @param {string}   root0.attributes.rel
- * @param {number}   root0.attributes.size
- * @param {string}   root0.attributes.text
- * @param {string}   root0.attributes.url
- * @param {string}   root0.clientId
- * @param {boolean}  root0.isSelected
- * @param {Function} root0.setAttributes
+ * @param {Object}   root0               Block props.
+ * @param {Object}   root0.attributes    Block attributes.
+ * @param {string}   root0.clientId      Block client ID.
+ * @param {boolean}  root0.isSelected    Whether the block is selected.
+ * @param {Function} root0.setAttributes Set block attributes.
  * @see https://developer.wordpress.org/block-editor/reference-guides/block-api/block-edit-save/#edit
  *
  * @return {Element} Element to render.
@@ -111,7 +98,7 @@ export default function Edit( {
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
-	const [ iconColor, setIconColor ] = useState( iconColorValue );
+	const [ , setIconColor ] = useState( iconColorValue );
 	const [ collections, setCollections ] = useState( null );
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
 	const [ showURLPopover, setPopover ] = useState( false );
