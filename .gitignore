@@ -37,5 +37,4 @@ build/
 .idea
 .DS_Store
 .nvmrc
-package-lock.json
 phpcs.xml
