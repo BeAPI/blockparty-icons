@@ -30,9 +30,6 @@ build/
 # dotenv environment variables file
 .env
 
-# WP Env
-.wp-env/
-
 # Editors and OS
 .idea
 .DS_Store
