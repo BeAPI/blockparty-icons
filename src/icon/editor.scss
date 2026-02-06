@@ -57,23 +57,14 @@
 
 	.components-modal__content {
 		padding-bottom: 0;
+		padding-left: 0;
+		padding-right: 0;
+		height: 80vh;
 
-		&.has-scrolled-content {
-			.blockparty-icons-modal__toolbar {
-				margin-inline: -32px;
-				padding-inline: 32px;
-			}
-
-			.components-base-control__help {
-				opacity: 0;
-				height: 0;
-				margin: 0;
-				pointer-events: none;
-			}
-
-			.blockparty-icons-modal__collection-name {
-				top: 36px;
-			}
+		> div:not(.components-modal__header),
+		.blockparty-icons-modal__content,
+		.blockparty-icons-modal__content > .components-flex {
+			height: 100%;
 		}
 	}
 	.components-spinner {
@@ -82,46 +73,83 @@
 	}
 
 	&__toolbar,
+	&__collections-list {
+		padding: 32px;
+	}
+
+	&__toolbar {
+		border-top: 1px solid #e0e0e0;
+		border-bottom: 1px solid #e0e0e0;
+	}
+
+	&__sidebar-wrapper {
+		overflow: hidden;
+		transition: min-width 0.25s ease-in-out, width 0.25s ease-in-out;
+		min-width: 0;
+		width: 280px;
+
+		&--closed {
+			min-width: 0;
+			width: 0;
+		}
+	}
+
+	&__sidebar {
+		min-width: 280px;
+
+		&,
+		.components-panel {
+			height: 100%;
+		}
+	}
+
+	&__toolbar,
 	&__collection-name {
 		background-color: #fff;
 	}
 
-	&__toolbar {
-		position: absolute;
-		z-index: 2;
-		top: 72px;
-		left: 32px;
-		right: 32px;
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		justify-content: space-between;
-		gap: 24px;
-		transition: margin-inline 300ms ease-in-out, padding-inline 300ms ease-in-out;
+	// &__toolbar {
+	// 	position: absolute;
+	// 	z-index: 2;
+	// 	top: 72px;
+	// 	left: 32px;
+	// 	right: 32px;
+	// 	display: flex;
+	// 	flex-direction: row;
+	// 	align-items: center;
+	// 	justify-content: space-between;
+	// 	gap: 24px;
+	// 	transition: margin-inline 300ms ease-in-out, padding-inline 300ms ease-in-out;
 
-		.components-search-control {
-			flex: 1;
-			min-width: 0;
-		}
+	// 	.components-search-control {
+	// 		flex: 1;
+	// 		min-width: 0;
+	// 	}
 
-		.components-range-control {
-			flex-shrink: 0;
-			width: 200px;
-			margin-bottom: 0;
-		}
-	}
+	// 	.components-range-control {
+	// 		flex-shrink: 0;
+	// 		width: 200px;
+	// 		margin-bottom: 0;
+	// 	}
+	// }
 
 	.components-base-control__help {
 		transition: opacity 100ms ease-in-out;
 	}
 
-	&__collections-list {
-		margin-top: 100px;
-		min-width: 621px;
+	&__spinner {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&__no-results {
+		margin: 32px 0;
 	}
 
 	&__list-icon {
 		display: grid;
+		margin-bottom: 0;
 		grid-template-columns: repeat(
 			auto-fill,
 			minmax(
@@ -132,9 +160,12 @@
 		gap: 12px;
 
 		> li {
-			overflow: hidden;
-			white-space: nowrap;
-			text-overflow: ellipsis;
+
+			.block-editor-block-types-list__item-title {
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
 		}
 
 		.block-editor-block-icon {
@@ -152,14 +183,73 @@
 		}
 	}
 
-	&__load-more {
-		text-align: center;
+	&__spinner,
+	&__body {
+		height: calc(100vh - 520px);
+	}
+
+	&__body {
+		overflow: auto;
+	}
+
+	@media(max-width: 599px) {
+		.components-modal__content:has(.blockparty-icons-modal__sidebar-wrapper:not(.blockparty-icons-modal__sidebar-wrapper--closed)) {
+			overflow: hidden;
+		}
+
+		&__sidebar-wrapper {
+			position: absolute;
+			top: 181px;
+			width: 100%;
+			bottom: 0;
+			left: 100%;
+			transition: left 0.25s ease-in-out;
+
+			&:not(.blockparty-icons-modal__sidebar-wrapper--closed) {
+				left: 0;
+			}
+
+			.components-panel {
+				border-right: none;
+			}
+		}
 	}
 
 	@media(min-width: 600px) {
 		// Override core style to avoid the modal to become too small during search and make it moving.
 		width: 1480px;
 		max-width: calc(100% - 32px);
-		height: 80vh;
+
+		&__collections-list {
+			min-width: 621px;
+		}
+
+		&__spinner,
+		&__body {
+			height: 618px;
+		}
+	}
+}
+
+.blockparty-icons-pagination {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 16px;
+	margin: 0 -32px -32px;
+	padding: 16px 32px;
+	border-top: 1px solid #e0e0e0;
+
+	&__pages {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	&__ellipsis {
+		padding: 0 4px;
+		font-size: 13px;
+		color: #1e1e1e;
+		user-select: none;
 	}
 }

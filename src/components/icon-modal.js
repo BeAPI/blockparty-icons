@@ -6,23 +6,34 @@ import {
 	useRef,
 } from '@wordpress/element';
 import {
+	Animate,
+	Button,
+	Flex,
+	FlexBlock,
+	FlexItem,
 	Modal,
+	Notice,
+	Panel,
+	PanelBody,
 	RangeControl,
 	SearchControl,
 	Spinner,
-	Button,
 	TabPanel,
+	TextHighlight,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, settings } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 
 import { capitalize, getIcons } from '../utils';
+import { useCollectionSearch } from '../hooks/useCollectionSearch';
+import IconPagination from './icon-pagination';
 import IconSelector from './icon-selector';
 
-const ICONS_PER_PAGE = 50;
 const PREFERENCES_NAME = 'blockparty-icons';
 const DEFAULT_ICON_PREVIEW_SIZE = 24;
+const DEFAULT_ICONS_PER_PAGE = 50;
 
 function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ isOpen, setOpen ] = useState( true );
@@ -30,7 +41,6 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ searchInput, setSearchInput ] = useState( '' );
 	const [ debouncedSearchInput, setDebouncedSearchInput ] = useState( '' );
 	const [ loading, setLoading ] = useState( false );
-	const [ loadingMore, setLoadingMore ] = useState( false );
 
 	// Get icon preview size from preferences store (persisted)
 	const iconPreviewSize = useSelect(
@@ -39,6 +49,24 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 				PREFERENCES_NAME,
 				'iconPreviewSize'
 			) ?? DEFAULT_ICON_PREVIEW_SIZE,
+		[]
+	);
+
+	// Get icons per page from preferences store (persisted)
+	const iconsPerPage = useSelect(
+		( select ) =>
+			select( preferencesStore ).get(
+				PREFERENCES_NAME,
+				'iconsPerPage'
+			) ?? DEFAULT_ICONS_PER_PAGE,
+		[]
+	);
+
+	// Get sidebar open state from preferences store (persisted)
+	const isSidebarOpen = useSelect(
+		( select ) =>
+			select( preferencesStore ).get( PREFERENCES_NAME, 'sidebarOpen' ) ??
+			false,
 		[]
 	);
 
@@ -90,7 +118,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 		async ( collectionName, page = 1, search = '' ) => {
 			const args = {
 				context: 'edit',
-				per_page: ICONS_PER_PAGE,
+				per_page: iconsPerPage,
 				page,
 			};
 
@@ -108,7 +136,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 			const totalPages = headers.totalPages || 1;
 			const hasMore =
 				currentPage < totalPages ||
-				( ! headers.totalPages && icons.length === ICONS_PER_PAGE );
+				( ! headers.totalPages && icons.length === iconsPerPage );
 
 			return {
 				icons,
@@ -117,7 +145,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 				currentPage,
 			};
 		},
-		[]
+		[ iconsPerPage ]
 	);
 
 	/**
@@ -137,7 +165,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 				);
 
 				for ( const collectionItem of collectionsArray ) {
-					const { icons, hasMore } = await loadIcons(
+					const { icons, hasMore, totalPages } = await loadIcons(
 						collectionItem.name,
 						1,
 						''
@@ -146,6 +174,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 					collectionItem.icons = icons;
 					collectionItem.currentPage = 1;
 					collectionItem.hasMore = hasMore;
+					collectionItem.totalPages = totalPages ?? 1;
 					collectionItem.loading = false;
 				}
 
@@ -159,40 +188,46 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	}, [ collections, loadIcons ] );
 
 	/**
-	 * Load more icons for a specific collection
+	 * Go to a specific page for a collection (replaces current icons with that page)
+	 *
+	 * @param {string} collectionName Collection name
+	 * @param {number} page           Page number (1-indexed)
 	 */
-	const loadMoreIcons = useCallback(
-		async ( collectionName ) => {
-			setLoadingMore( true );
-
-			setCollectionsArr( ( prevCollections ) => {
-				return prevCollections.map( ( collectionItem ) => {
-					if ( collectionItem.name !== collectionName ) {
-						return collectionItem;
-					}
-
-					const nextPage = ( collectionItem.currentPage || 1 ) + 1;
-					collectionItem.loading = true;
-
-					loadIcons(
-						collectionName,
-						nextPage,
-						debouncedSearchInput
-					).then( ( { icons, hasMore } ) => {
-						collectionItem.icons = [
-							...collectionItem.icons,
-							...icons,
-						];
-						collectionItem.currentPage = nextPage;
-						collectionItem.hasMore = hasMore;
-						collectionItem.loading = false;
-						setCollectionsArr( ( prev ) => [ ...prev ] );
-						setLoadingMore( false );
-					} );
-
-					return collectionItem;
-				} );
-			} );
+	const goToPage = useCallback(
+		( collectionName, page ) => {
+			setCollectionsArr( ( prevCollections ) =>
+				prevCollections.map( ( collectionItem ) =>
+					collectionItem.name !== collectionName
+						? collectionItem
+						: { ...collectionItem, loading: true }
+				)
+			);
+			loadIcons( collectionName, page, debouncedSearchInput ).then(
+				( {
+					icons,
+					hasMore,
+					totalPages: nextTotalPages,
+					currentPage: nextPage,
+				} ) => {
+					setCollectionsArr( ( prev ) =>
+						prev.map( ( item ) =>
+							item.name !== collectionName
+								? item
+								: {
+										...item,
+										icons,
+										currentPage: nextPage,
+										hasMore,
+										totalPages:
+											nextTotalPages ??
+											item.totalPages ??
+											1,
+										loading: false,
+								  }
+						)
+					);
+				}
+			);
 		},
 		[ loadIcons, debouncedSearchInput ]
 	);
@@ -209,55 +244,16 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	}, [ searchInput ] );
 
 	/**
-	 * Handle search - use API search instead of client-side filtering
+	 * Sync collections list with search: restore initial data or run API search
 	 */
-	useEffect( () => {
-		// Only wait for collections metadata, not for initial icons to load
-		if ( ! collections ) {
-			return;
-		}
-
-		// If search is empty, restore initial icons (or wait for them to load)
-		if ( ! debouncedSearchInput.trim() ) {
-			if ( initialCollectionsArr.length ) {
-				setCollectionsArr( initialCollectionsArr );
-			}
-			return;
-		}
-
-		// Allow search even if initial icons haven't loaded yet
-		setLoading( true );
-
-		async function searchIcons() {
-			const collectionsData = Object.keys( collections ).map(
-				( collectionKey ) => collections[ collectionKey ]
-			);
-
-			const updatedCollections = await Promise.all(
-				collectionsData.map( async ( collectionItem ) => {
-					const { icons, hasMore } = await loadIcons(
-						collectionItem.name,
-						1,
-						debouncedSearchInput
-					);
-
-					return {
-						...collectionItem,
-						icons,
-						currentPage: 1,
-						hasMore,
-						loading: false,
-					};
-				} )
-			);
-
-			setCollectionsArr( updatedCollections );
-			setLoading( false );
-		}
-
-		searchIcons();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ debouncedSearchInput ] );
+	useCollectionSearch( {
+		collections,
+		debouncedSearchInput,
+		initialCollectionsArr,
+		loadIcons,
+		setCollectionsArr,
+		setLoading,
+	} );
 
 	return (
 		<>
@@ -272,241 +268,346 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 				>
 					{ ! collectionsArr.length && <Spinner /> }
 					{ !! collectionsArr.length && (
-						<>
-							<div className="blockparty-icons-modal__toolbar">
-								<SearchControl
-									label={ __(
-										'Search an icon',
-										'blockparty-icons'
-									) }
-									value={ searchInput }
-									onChange={ setSearchInput }
-									hideLabelFromVision={ false }
-									placeholder={ __(
-										'wordpress, heart, star...',
-										'blockparty-icons'
-									) }
-								/>
-								<RangeControl
-									label={ __(
-										'Icon preview size',
-										'blockparty-icons'
-									) }
-									help={ __(
-										'Adjust preview size of the icons',
-										'blockparty-icons'
-									) }
-									value={ displaySize }
-									min={ 8 }
-									initialPosition={ displaySize }
-									max={ 256 }
-									onChange={ ( newSize ) => {
-										setLocalPreviewSize( newSize );
-										if ( persistSizeTimeoutRef.current ) {
-											clearTimeout(
-												persistSizeTimeoutRef.current
-											);
-										}
-										persistSizeTimeoutRef.current =
-											setTimeout( () => {
-												setPreference(
-													PREFERENCES_NAME,
-													'iconPreviewSize',
-													newSize
-												);
-												persistSizeTimeoutRef.current =
-													null;
-											}, 300 );
-									} }
-								/>
-							</div>
-							<div
-								className="blockparty-icons-modal__collections-list"
-								style={ {
-									'--blockparty-icon-preview-size': `${ displaySize }px`,
-								} }
-							>
-								{ loading && <Spinner /> }
-								{ ! loading &&
-									( () => {
-										const filteredCollections =
-											collectionsArr.filter( ( c ) => {
-												// During search, show all collections (even if empty)
-												// Otherwise, only show collections with icons or loading
-												if (
-													debouncedSearchInput.trim()
-												) {
-													return true;
-												}
-												return (
-													c.icons?.length > 0 ||
-													c.loading
-												);
-											} );
+						<div className="blockparty-icons-modal__content">
+							<Flex align="stretch" gap="0">
+								<FlexBlock>
+									<div className="blockparty-icons-modal__toolbar">
+										<Flex
+											align="center"
+											justify="space-between"
+										>
+											<FlexBlock>
+												<SearchControl
+													label={ __(
+														'Search an icon',
+														'blockparty-icons'
+													) }
+													value={ searchInput }
+													onChange={ setSearchInput }
+													placeholder={ __(
+														'wordpress, heart, star...',
+														'blockparty-icons'
+													) }
+													__nextHasNoMarginBottom
+												/>
+											</FlexBlock>
+											<FlexItem>
+												<Button
+													label={ __(
+														'Settings',
+														'blockparty-icons'
+													) }
+													className="has-icon"
+													size="compact"
+													isPressed={ isSidebarOpen }
+													onClick={ () =>
+														setPreference(
+															PREFERENCES_NAME,
+															'sidebarOpen',
+															! isSidebarOpen
+														)
+													}
+												>
+													<Icon icon={ settings } />
+												</Button>
+											</FlexItem>
+										</Flex>
+									</div>
+									<div
+										className="blockparty-icons-modal__collections-list"
+										style={ {
+											'--blockparty-icon-preview-size': `${ displaySize }px`,
+										} }
+									>
+										{ loading && <Spinner /> }
+										{ ! loading &&
+											( () => {
+												const filteredCollections =
+													collectionsArr.filter(
+														( c ) => {
+															// During search, show all collections (even if empty)
+															// Otherwise, only show collections with icons or loading
+															if (
+																debouncedSearchInput.trim()
+															) {
+																return true;
+															}
+															return (
+																c.icons
+																	?.length >
+																	0 ||
+																c.loading
+															);
+														}
+													);
 
-										// Check if any collection has icons
-										const hasAnyIcons =
-											filteredCollections.some(
-												( c ) => c.icons?.length > 0
-											);
-
-										// Show global "no results" message if searching and no icons found
-										if (
-											debouncedSearchInput.trim() &&
-											! hasAnyIcons
-										) {
-											return (
-												<div className="blockparty-icons-modal__no-results">
-													<p>
-														{ __(
-															'No icons found matching your search.',
-															'blockparty-icons'
-														) }
-													</p>
-												</div>
-											);
-										}
-
-										return (
-											<TabPanel
-												tabs={ filteredCollections.map(
-													( c ) => ( {
-														name: c.name,
-														title: capitalize(
-															c.name
-														),
-													} )
-												) }
-											>
-												{ ( tab ) =>
-													filteredCollections.map(
+												// Check if any collection has icons
+												const hasAnyIcons =
+													filteredCollections.some(
 														( c ) =>
-															tab.name ===
-																c.name && (
-																<Fragment
-																	key={
-																		c.name
-																	}
-																>
-																	{ c.loading && (
-																		<Spinner />
-																	) }
-																	{ !! c.icons
-																		?.length && (
-																		<>
-																			<ul className="blockparty-icons-modal__list-icon">
-																				{ c.icons.map(
-																					(
-																						i
-																					) => (
-																						<li
-																							key={
-																								i.name
-																							}
-																						>
-																							<IconSelector
-																								icon={
-																									i
+															c.icons?.length > 0
+													);
+
+												// Show global "no results" message if searching and no icons found
+												if (
+													debouncedSearchInput.trim() &&
+													! hasAnyIcons
+												) {
+													return (
+														<div className="blockparty-icons-modal__no-results">
+															<p>
+																{ __(
+																	'No icons found matching your search.',
+																	'blockparty-icons'
+																) }
+															</p>
+														</div>
+													);
+												}
+
+												return (
+													<TabPanel
+														tabs={ filteredCollections.map(
+															( c ) => ( {
+																name: c.name,
+																title: capitalize(
+																	c.name
+																),
+															} )
+														) }
+													>
+														{ ( tab ) =>
+															filteredCollections.map(
+																( c ) =>
+																	tab.name ===
+																		c.name && (
+																		<Fragment
+																			key={
+																				c.name
+																			}
+																		>
+																			{ !! c
+																				.icons
+																				?.length && (
+																				<Flex
+																					direction="column"
+																					gap="0"
+																				>
+																					<FlexBlock>
+																						{ c.loading && (
+																							<div className="blockparty-icons-modal__spinner">
+																								<Spinner />
+																							</div>
+																						) }
+																						{ !! c
+																							.icons
+																							?.length &&
+																							! c.loading && (
+																								<div className="blockparty-icons-modal__body">
+																									<ul className="blockparty-icons-modal__list-icon">
+																										{ c.icons.map(
+																											(
+																												i
+																											) => (
+																												<li
+																													key={
+																														i.name
+																													}
+																												>
+																													<IconSelector
+																														icon={
+																															i
+																														}
+																														handleIconSelectButtonClick={
+																															handleSelectIcon
+																														}
+																													>
+																														<TextHighlight
+																															text={ capitalize(
+																																i.label ||
+																																	i.name
+																															) }
+																															highlight={
+																																debouncedSearchInput
+																															}
+																														/>
+																													</IconSelector>
+																												</li>
+																											)
+																										) }
+																									</ul>
+																								</div>
+																							) }
+																					</FlexBlock>
+																					{ ( c.totalPages ??
+																						1 ) >
+																						1 && (
+																						<FlexItem>
+																							<IconPagination
+																								currentPage={
+																									c.currentPage ??
+																									1
 																								}
-																								handleIconSelectButtonClick={
-																									handleSelectIcon
+																								totalPages={
+																									c.totalPages ??
+																									1
+																								}
+																								onPageChange={ (
+																									page
+																								) =>
+																									goToPage(
+																										c.name,
+																										page
+																									)
+																								}
+																								isLoading={
+																									c.loading
 																								}
 																							/>
-																						</li>
-																					)
+																						</FlexItem>
+																					) }
+																				</Flex>
+																			) }
+																			{ ! c.loading &&
+																				! c
+																					.icons
+																					?.length && (
+																					<div className="blockparty-icons-modal__no-results">
+																						<Notice
+																							status="info"
+																							isDismissible={
+																								false
+																							}
+																						>
+																							{ __(
+																								'No Icon found in this collection.',
+																								'blockparty-icons'
+																							) }
+																						</Notice>
+																					</div>
 																				) }
-																			</ul>
-																		</>
-																	) }
-																</Fragment>
+																		</Fragment>
+																	)
 															)
-													)
-												}
-											</TabPanel>
-										);
-
-										// return filteredCollections.map(
-										// 	( c ) => (
-										// 		<ul key={ c.name }>
-										// 			<li>
-										// 				<p className="blockparty-icons-modal__collection-name">
-										// 					{ capitalize(
-										// 						c.name
-										// 					) }
-										// 				</p>
-										// 				{ c.loading && (
-										// 					<Spinner />
-										// 				) }
-										// 				{ !! c.icons
-										// 					?.length && (
-										// 					<>
-										// 						<ul className="blockparty-icons-modal__list-icon">
-										// 							{ c.icons.map(
-										// 								(
-										// 									i
-										// 								) => (
-										// 									<li
-										// 										key={
-										// 											i.name
-										// 										}
-										// 									>
-										// 										<IconSelector
-										// 											icon={
-										// 												i
-										// 											}
-										// 											size={
-										// 												iconPreviewSize
-										// 											}
-										// 											handleIconSelectButtonClick={ () => {
-										// 												handleIconSelectButtonClick(
-										// 													i
-										// 												);
-										// 												setOpen(
-										// 													false
-										// 												);
-										// 												onClose();
-										// 											} }
-										// 										/>
-										// 									</li>
-										// 								)
-										// 							) }
-										// 						</ul>
-										// 						{ c.hasMore && (
-										// 							<div className="blockparty-icons-modal__load-more">
-										// 								<Button
-										// 									variant="secondary"
-										// 									onClick={ () =>
-										// 										loadMoreIcons(
-										// 											c.name
-										// 										)
-										// 									}
-										// 									disabled={
-										// 										loadingMore ||
-										// 										c.loading
-										// 									}
-										// 								>
-										// 									{ loadingMore ||
-										// 									c.loading
-										// 										? __(
-										// 												'Loading…',
-										// 												'blockparty-icons'
-										// 										  )
-										// 										: __(
-										// 												'Load More',
-										// 												'blockparty-icons'
-										// 										  ) }
-										// 								</Button>
-										// 							</div>
-										// 						) }
-										// 					</>
-										// 				) }
-										// 			</li>
-										// 		</ul>
-										// 	)
-										// );
-									} )() }
-							</div>
-						</>
+														}
+													</TabPanel>
+												);
+											} )() }
+									</div>
+								</FlexBlock>
+								<FlexItem
+									className={ `blockparty-icons-modal__sidebar-wrapper${
+										! isSidebarOpen
+											? ' blockparty-icons-modal__sidebar-wrapper--closed'
+											: ''
+									}` }
+								>
+									<Animate
+										type="slide-in"
+										options={ { origin: 'left' } }
+									>
+										{ ( { className } ) => (
+											<div
+												className={ `${ className } blockparty-icons-modal__sidebar` }
+												aria-hidden={ ! isSidebarOpen }
+											>
+												<Panel
+													header={ __(
+														'Modal settings',
+														'blockparty-icons'
+													) }
+												>
+													<PanelBody
+														title={ __(
+															'Icon preview size',
+															'blockparty-icons'
+														) }
+													>
+														<RangeControl
+															label={ __(
+																'Icon preview size',
+																'blockparty-icons'
+															) }
+															help={ __(
+																'Adjust preview size of the icons',
+																'blockparty-icons'
+															) }
+															value={
+																displaySize
+															}
+															min={ 8 }
+															initialPosition={
+																displaySize
+															}
+															max={ 256 }
+															onChange={ (
+																newSize
+															) => {
+																setLocalPreviewSize(
+																	newSize
+																);
+																if (
+																	persistSizeTimeoutRef.current
+																) {
+																	clearTimeout(
+																		persistSizeTimeoutRef.current
+																	);
+																}
+																persistSizeTimeoutRef.current =
+																	setTimeout(
+																		() => {
+																			setPreference(
+																				PREFERENCES_NAME,
+																				'iconPreviewSize',
+																				newSize
+																			);
+																			persistSizeTimeoutRef.current =
+																				null;
+																		},
+																		300
+																	);
+															} }
+														/>
+													</PanelBody>
+													<PanelBody
+														title={ __(
+															'Pager',
+															'blockparty-icons'
+														) }
+													>
+														<RangeControl
+															label={ __(
+																'Icons per page',
+																'blockparty-icons'
+															) }
+															help={ __(
+																'Number of icons displayed per page',
+																'blockparty-icons'
+															) }
+															value={
+																iconsPerPage
+															}
+															min={ 12 }
+															max={ 100 }
+															step={ 2 }
+															onChange={ (
+																value
+															) => {
+																setPreference(
+																	PREFERENCES_NAME,
+																	'iconsPerPage',
+																	value
+																);
+															} }
+														/>
+													</PanelBody>
+												</Panel>
+											</div>
+										) }
+									</Animate>
+								</FlexItem>
+							</Flex>
+						</div>
 					) }
 				</Modal>
 			) }
