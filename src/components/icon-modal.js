@@ -1,4 +1,10 @@
-import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
+import {
+	Fragment,
+	useEffect,
+	useState,
+	useCallback,
+	useRef,
+} from '@wordpress/element';
 import {
 	Modal,
 	RangeControl,
@@ -377,7 +383,11 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 														( c ) =>
 															tab.name ===
 																c.name && (
-																<>
+																<Fragment
+																	key={
+																		c.name
+																	}
+																>
 																	{ c.loading && (
 																		<Spinner />
 																	) }
@@ -408,7 +418,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																			</ul>
 																		</>
 																	) }
-																</>
+																</Fragment>
 															)
 													)
 												}
