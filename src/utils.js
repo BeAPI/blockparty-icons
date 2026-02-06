@@ -16,153 +16,6 @@ import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
 
 /**
- * Cache configuration
- */
-const CACHE_CONFIG = {
-	STORAGE_KEY: '@beapi/icons-block-cache',
-	TTL: 30 * 60 * 1000, // 30 minutes in milliseconds
-};
-
-/**
- * Cache utilities
- */
-
-/**
- * Get cache key for API requests
- *
- * @param {string} endpoint The API endpoint
- * @param {Object} args     Query arguments
- * @return {string} Cache key
- */
-function getCacheKey( endpoint, args = {} ) {
-	const argsString = JSON.stringify( args );
-	return `${ endpoint }_${ argsString }`;
-}
-
-/**
- * Get cached data from sessionStorage
- *
- * @param {string} key Cache key
- * @return {object|null} Cached data or null if not found/expired
- */
-function getCachedData( key ) {
-	try {
-		if ( typeof window === 'undefined' || ! window.sessionStorage ) {
-			return null;
-		}
-
-		const cached = window.sessionStorage.getItem( key );
-		if ( ! cached ) {
-			return null;
-		}
-
-		const { data, timestamp } = JSON.parse( cached );
-		const now = Date.now();
-
-		// Check if cache is expired
-		if ( now - timestamp > CACHE_CONFIG.TTL ) {
-			window.sessionStorage.removeItem( key );
-			return null;
-		}
-
-		return data;
-	} catch ( error ) {
-		// Silently handle cache read errors
-		return null;
-	}
-}
-
-/**
- * Set data in sessionStorage cache
- *
- * @param {string} key  Cache key
- * @param {any}    data Data to cache
- */
-function setCachedData( key, data ) {
-	try {
-		if ( typeof window === 'undefined' || ! window.sessionStorage ) {
-			return;
-		}
-
-		const cacheData = {
-			data,
-			timestamp: Date.now(),
-		};
-
-		window.sessionStorage.setItem( key, JSON.stringify( cacheData ) );
-	} catch ( error ) {
-		// Silently handle cache write errors
-	}
-}
-
-/**
- * Clear all cached data
- */
-export function clearIconCache() {
-	try {
-		if ( typeof window === 'undefined' || ! window.sessionStorage ) {
-			return;
-		}
-
-		const keys = Object.keys( window.sessionStorage );
-		keys.forEach( ( key ) => {
-			if ( key.startsWith( CACHE_CONFIG.STORAGE_KEY ) ) {
-				window.sessionStorage.removeItem( key );
-			}
-		} );
-	} catch ( error ) {
-		// Silently handle cache clear errors
-	}
-}
-
-/**
- * Get cache statistics
- *
- * @return {Object} Cache statistics
- */
-export function getCacheStats() {
-	try {
-		if ( typeof window === 'undefined' || ! window.sessionStorage ) {
-			return { total: 0, expired: 0, valid: 0 };
-		}
-
-		const keys = Object.keys( window.sessionStorage );
-		const cacheKeys = keys.filter( ( key ) =>
-			key.startsWith( CACHE_CONFIG.STORAGE_KEY )
-		);
-
-		let expired = 0;
-		let valid = 0;
-		const now = Date.now();
-
-		cacheKeys.forEach( ( key ) => {
-			try {
-				const cached = window.sessionStorage.getItem( key );
-				if ( cached ) {
-					const { timestamp } = JSON.parse( cached );
-					if ( now - timestamp > CACHE_CONFIG.TTL ) {
-						expired++;
-					} else {
-						valid++;
-					}
-				}
-			} catch ( error ) {
-				expired++;
-			}
-		} );
-
-		return {
-			total: cacheKeys.length,
-			expired,
-			valid,
-		};
-	} catch ( error ) {
-		// Silently handle cache stats errors
-		return { total: 0, expired: 0, valid: 0 };
-	}
-}
-
-/**
  * Capitalize string and replace all hyphens with blank space
  *
  * @param {string} str source
@@ -183,57 +36,108 @@ export function capitalize( str ) {
 }
 
 /**
- * Get icons collections with cache
+ * In-memory API cache (one entry per page load).
+ * Stored on window so all callers share the same cache until page reload.
+ * In-flight requests are deduplicated: same key reuses the same promise until resolved.
+ */
+const CACHE_NS = 'blockpartyIconsApiCache';
+const IN_FLIGHT_NS = 'blockpartyIconsApiCacheInFlight';
+
+function getCache() {
+	if ( typeof window === 'undefined' ) {
+		return null;
+	}
+	if ( ! window[ CACHE_NS ] ) {
+		window[ CACHE_NS ] = Object.create( null );
+	}
+	return window[ CACHE_NS ];
+}
+
+function getInFlight() {
+	if ( typeof window === 'undefined' ) {
+		return null;
+	}
+	if ( ! window[ IN_FLIGHT_NS ] ) {
+		window[ IN_FLIGHT_NS ] = Object.create( null );
+	}
+	return window[ IN_FLIGHT_NS ];
+}
+
+function cacheKey( prefix, ...parts ) {
+	return (
+		prefix +
+		'_' +
+		parts.map( ( p ) => JSON.stringify( p ?? {} ) ).join( '_' )
+	);
+}
+
+/**
+ * Get icons collections (cached per page load, requests deduplicated)
  *
  * @param {Object} args Query arguments
  * @return {Promise<Object>} Promise resolving to collections object
  */
 export async function getCollections( args = {} ) {
-	const cacheKey = getCacheKey( 'collections', args );
+	const cache = getCache();
+	const inFlight = getInFlight();
+	const key = cacheKey( 'collections', args );
 
-	// Try to get from cache first
-	const cached = getCachedData( cacheKey );
-	if ( cached ) {
-		return cached;
+	if ( cache && key in cache ) {
+		return cache[ key ];
+	}
+	if ( inFlight && key in inFlight ) {
+		return inFlight[ key ];
 	}
 
-	// If not in cache, fetch from API
-	const path = addQueryArgs( 'icons/v1/collections', args );
-	const collections = await apiFetch( { path } );
+	const promise = apiFetch( {
+		path: addQueryArgs( 'icons/v1/collections', args ),
+	} )
+		.then( ( data ) => {
+			if ( cache ) {
+				cache[ key ] = data;
+			}
+			if ( inFlight && key in inFlight ) {
+				delete inFlight[ key ];
+			}
+			return data;
+		} )
+		.catch( ( err ) => {
+			if ( inFlight && key in inFlight ) {
+				delete inFlight[ key ];
+			}
+			throw err;
+		} );
 
-	// Store in cache
-	setCachedData( cacheKey, collections );
-
-	return collections;
+	if ( inFlight ) {
+		inFlight[ key ] = promise;
+	}
+	return promise;
 }
 
 /**
- * Get icon data with cache
+ * Get icon data (cached per page load, requests deduplicated)
  *
  * @param {string} collection icon collection
  * @param {Object} args       Query arguments
  * @return {Promise<{data: object, headers: object}>} Promise resolving to icon data with pagination headers
  */
 export async function getIcons( collection, args = {} ) {
-	const cacheKey = getCacheKey( `icons_${ collection }`, args );
+	const cache = getCache();
+	const inFlight = getInFlight();
+	const key = cacheKey( 'icons', collection, args );
 
-	// Try to get from cache first
-	const cached = getCachedData( cacheKey );
-	if ( cached ) {
-		return cached;
+	if ( cache && key in cache ) {
+		return cache[ key ];
+	}
+	if ( inFlight && key in inFlight ) {
+		return inFlight[ key ];
 	}
 
-	// If not in cache, fetch from API
 	const pathBase = `icons/v1/${ collection }`;
-
-	// Use fetch to access response headers for pagination info
-	// WordPress REST API settings
 	const wpApiSettings = window.wpApiSettings || {};
 	const restUrl = wpApiSettings.root || '/wp-json/';
 	const restNonce = wpApiSettings.nonce || '';
 
-	// With index.php?rest_route= (e.g. WP Env), query params must use & not ?
-	// so we get ?rest_route=/icons/v1/Bootstrap&context=edit&per_page=50
 	const isRestRouteFormat = restUrl.includes( 'rest_route' );
 	const path = isRestRouteFormat ? pathBase : addQueryArgs( pathBase, args );
 	const queryString = isRestRouteFormat
@@ -245,57 +149,63 @@ export async function getIcons( collection, args = {} ) {
 		path.replace( /^\//, '' ) +
 		( queryString ? '&' + queryString : '' );
 
-	const response = await fetch( url, {
+	const promise = fetch( url, {
 		method: 'GET',
 		headers: {
 			'X-WP-Nonce': restNonce,
 			'Content-Type': 'application/json',
 		},
 		credentials: 'include',
-	} );
+	} )
+		.then( ( response ) => {
+			if ( ! response.ok ) {
+				throw new Error( `API request failed: ${ response.status }` );
+			}
+			return response;
+		} )
+		.then( async ( response ) => {
+			const icons = await response.json();
+			const headers = {
+				total: parseInt(
+					response.headers.get( 'X-WP-Total' ) || '0',
+					10
+				),
+				totalPages: parseInt(
+					response.headers.get( 'X-WP-TotalPages' ) || '0',
+					10
+				),
+			};
+			return { data: icons, headers };
+		} )
+		.then( ( result ) => {
+			if ( cache ) {
+				cache[ key ] = result;
+			}
+			if ( inFlight && key in inFlight ) {
+				delete inFlight[ key ];
+			}
+			return result;
+		} )
+		.catch( ( err ) => {
+			if ( inFlight && key in inFlight ) {
+				delete inFlight[ key ];
+			}
+			throw err;
+		} );
 
-	if ( ! response.ok ) {
-		throw new Error( `API request failed: ${ response.status }` );
+	if ( inFlight ) {
+		inFlight[ key ] = promise;
 	}
-
-	const icons = await response.json();
-
-	// Extract pagination headers
-	const headers = {
-		total: parseInt( response.headers.get( 'X-WP-Total' ) || '0', 10 ),
-		totalPages: parseInt(
-			response.headers.get( 'X-WP-TotalPages' ) || '0',
-			10
-		),
-	};
-
-	const result = {
-		data: icons,
-		headers,
-	};
-
-	// Store in cache
-	setCachedData( cacheKey, result );
-
-	return result;
+	return promise;
 }
 
 /**
- * Get all icon data with cache
+ * Get all icon data
  *
  * @param {Object} args Query arguments
  * @return {Promise<Array>} Promise resolving to array of all icons
  */
 export async function getAllIcons( args = {} ) {
-	const cacheKey = getCacheKey( 'all_icons', args );
-
-	// Try to get from cache first
-	const cached = getCachedData( cacheKey );
-	if ( cached ) {
-		return cached;
-	}
-
-	// If not in cache, fetch from API
 	const collections = await getCollections( args );
 	const icons = [];
 
@@ -309,12 +219,7 @@ export async function getAllIcons( args = {} ) {
 		);
 	}
 
-	const flatIcons = icons.flat();
-
-	// Store in cache
-	setCachedData( cacheKey, flatIcons );
-
-	return flatIcons;
+	return icons.flat();
 }
 
 export const SvgComponent = ( { svgText, size, style } ) => {
