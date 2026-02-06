@@ -33,7 +33,7 @@ export default function IconSelector( {
 				</span>
 			</span>
 			<span className="block-editor-block-types-list__item-title">
-				{ capitalize( icon.label ) }
+				{ capitalize( icon.label || icon.name ) }
 			</span>
 		</Button>
 	);

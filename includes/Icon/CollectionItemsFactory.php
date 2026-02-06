@@ -194,6 +194,11 @@ class CollectionItemsFactory {
 		// Remix values into one with spaces
 		$text = implode( ' ', $ex );
 
+		// When result is empty (e.g. name is only digits or has no hyphen), use original id
+		if ( '' === (string) $text ) {
+			return $id;
+		}
+
 		// Add uppercase to the first word
 		return ucfirst( $text );
 	}

@@ -267,7 +267,7 @@ export default function Edit( {
 							title={ sprintf(
 								/* translators: %s: name of the icon name. */
 								__( '%s label' ),
-								capitalize( icon?.label )
+								capitalize( icon?.label || icon?.name )
 							) }
 						>
 							<TextControl

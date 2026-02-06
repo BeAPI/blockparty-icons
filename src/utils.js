@@ -13,6 +13,7 @@ import {
 } from '@wordpress/primitives';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Cache configuration
@@ -169,15 +170,16 @@ export function getCacheStats() {
  * @return {string} Capitalized string with hyphens replaced by spaces
  */
 export function capitalize( str ) {
-	if ( typeof str === 'undefined' ) {
-		return '';
+	if ( str === undefined || str === null ) {
+		return __( 'No name icon', 'blockparty-icons' );
 	}
 
-	if ( ! str.length ) {
-		return str;
+	const s = String( str );
+	if ( ! s.length ) {
+		return s;
 	}
 
-	return ( str[ 0 ].toUpperCase() + str.slice( 1 ) ).replaceAll( '-', ' ' );
+	return ( s[ 0 ].toUpperCase() + s.slice( 1 ) ).replaceAll( '-', ' ' );
 }
 
 /**
