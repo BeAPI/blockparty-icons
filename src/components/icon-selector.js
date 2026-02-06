@@ -1,12 +1,13 @@
 /**
  * WordPress dependencies
  */
+import { memo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 
 import IconContent from './icon-content';
 import { capitalize } from '../utils';
 
-export default function IconSelector( {
+function IconSelector( {
 	handleIconSelectButtonClick,
 	icon,
 	iconColorValue,
@@ -38,3 +39,5 @@ export default function IconSelector( {
 		</Button>
 	);
 }
+
+export default memo( IconSelector );

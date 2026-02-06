@@ -51,6 +51,10 @@
 }
 
 .blockparty-icons-modal {
+	.components-tab-panel__tabs {
+		overflow: auto;
+	}
+
 	.components-modal__content {
 		padding-bottom: 0;
 
@@ -104,28 +108,11 @@
 			flex-shrink: 0;
 			width: 200px;
 			margin-bottom: 0;
-			.components-base-control__label{
-				width: 1px;
-				height: 100%;
-				overflow: hidden;
-				background-clip: content-box;
-				position: absolute;
-			}
 		}
 	}
 
 	.components-base-control__help {
 		transition: opacity 100ms ease-in-out;
-	}
-
-	&__collection-name {
-		position: sticky;
-		z-index: 1;
-		top: 100px;
-		margin-inline: -32px;
-		padding: 10px 32px;
-		border-bottom: 1px solid #ddd;
-		transition: top 300ms ease-in-out;
 	}
 
 	&__collections-list {
@@ -135,7 +122,13 @@
 
 	&__list-icon {
 		display: grid;
-		grid-template-columns: repeat(4, 1fr);
+		grid-template-columns: repeat(
+			auto-fill,
+			minmax(
+				calc(var(--blockparty-icon-preview-size, 24px) + 32px),
+				1fr
+			)
+		);
 		gap: 12px;
 
 		> li {
@@ -146,15 +139,17 @@
 
 		.block-editor-block-icon {
 			width: 100%;
+			height: auto;
 		}
 
 		svg {
+			width: var(--blockparty-icon-preview-size, 24px);
+			height: var(--blockparty-icon-preview-size, 24px);
 			max-height: none;
 			max-width: none;
 			min-height: 8px;
 			min-width: 8px;
 		}
-
 	}
 
 	&__load-more {
@@ -165,12 +160,6 @@
 		// Override core style to avoid the modal to become too small during search and make it moving.
 		width: 1480px;
 		max-width: calc(100% - 32px);
-		min-height: 400px;
-	}
-
-	@media(min-width: 1280px) {
-		&__list-icon {
-			grid-template-columns: repeat(6, 1fr);
-		}
+		height: 80vh;
 	}
 }

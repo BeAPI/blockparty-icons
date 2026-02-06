@@ -1,10 +1,11 @@
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import {
 	Modal,
 	RangeControl,
 	SearchControl,
 	Spinner,
 	Button,
+	TabPanel,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -25,7 +26,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ loading, setLoading ] = useState( false );
 	const [ loadingMore, setLoadingMore ] = useState( false );
 
-	// Get icon preview size from preferences store
+	// Get icon preview size from preferences store (persisted)
 	const iconPreviewSize = useSelect(
 		( select ) =>
 			select( preferencesStore ).get(
@@ -35,8 +36,41 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 		[]
 	);
 
+	// Local state for immediate slider feedback; avoids store updates on every tick
+	const [ localPreviewSize, setLocalPreviewSize ] = useState( null );
+	const persistSizeTimeoutRef = useRef( null );
+
+	const displaySize = localPreviewSize ?? iconPreviewSize;
+
+	// Sync local from store when modal opens
+	useEffect( () => {
+		if ( isOpen ) {
+			setLocalPreviewSize( iconPreviewSize );
+		}
+	}, [ isOpen, iconPreviewSize ] );
+
+	// Clear debounce on unmount
+	useEffect(
+		() => () => {
+			if ( persistSizeTimeoutRef.current ) {
+				clearTimeout( persistSizeTimeoutRef.current );
+			}
+		},
+		[]
+	);
+
 	// Get dispatcher to update preferences
 	const { set: setPreference } = useDispatch( preferencesStore );
+
+	// Stable callback so IconSelector (memo) doesn't re-render when only size changes
+	const handleSelectIcon = useCallback(
+		( icon ) => {
+			handleIconSelectButtonClick( icon );
+			setOpen( false );
+			onClose();
+		},
+		[ handleIconSelectButtonClick, onClose ]
+	);
 
 	/**
 	 * Load icons for a collection with pagination support
@@ -223,7 +257,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 		<>
 			{ isOpen && (
 				<Modal
-					title={ __( 'Pick an icon', 'blockparty-icons' ) }
+					title={ __( 'Select an icon', 'blockparty-icons' ) }
 					onRequestClose={ () => {
 						setOpen( false );
 						onClose();
@@ -241,12 +275,9 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 									) }
 									value={ searchInput }
 									onChange={ setSearchInput }
+									hideLabelFromVision={ false }
 									placeholder={ __(
-										'category/icon',
-										'blockparty-icons'
-									) }
-									help={ __(
-										'Prefix your search with the category name followed by a slash to search for an icon in a specific category.',
+										'wordpress, heart, star...',
 										'blockparty-icons'
 									) }
 								/>
@@ -259,21 +290,36 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 										'Adjust preview size of the icons',
 										'blockparty-icons'
 									) }
-									value={ iconPreviewSize }
+									value={ displaySize }
 									min={ 8 }
-									initialPosition={ iconPreviewSize }
-									max={ 58 }
-									step={ 2 }
+									initialPosition={ displaySize }
+									max={ 256 }
 									onChange={ ( newSize ) => {
-										setPreference(
-											PREFERENCES_NAME,
-											'iconPreviewSize',
-											newSize
-										);
+										setLocalPreviewSize( newSize );
+										if ( persistSizeTimeoutRef.current ) {
+											clearTimeout(
+												persistSizeTimeoutRef.current
+											);
+										}
+										persistSizeTimeoutRef.current =
+											setTimeout( () => {
+												setPreference(
+													PREFERENCES_NAME,
+													'iconPreviewSize',
+													newSize
+												);
+												persistSizeTimeoutRef.current =
+													null;
+											}, 300 );
 									} }
 								/>
 							</div>
-							<div className="blockparty-icons-modal__collections-list">
+							<div
+								className="blockparty-icons-modal__collections-list"
+								style={ {
+									'--blockparty-icon-preview-size': `${ displaySize }px`,
+								} }
+							>
 								{ loading && <Spinner /> }
 								{ ! loading &&
 									( () => {
@@ -315,85 +361,139 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 											);
 										}
 
-										return filteredCollections.map(
-											( c ) => (
-												<ul key={ c.name }>
-													<li>
-														<p className="blockparty-icons-modal__collection-name">
-															{ capitalize(
-																c.name
-															) }
-														</p>
-														{ c.loading && (
-															<Spinner />
-														) }
-														{ !! c.icons
-															?.length && (
-															<>
-																<ul className="blockparty-icons-modal__list-icon">
-																	{ c.icons.map(
-																		(
-																			i
-																		) => (
-																			<li
-																				key={
-																					i.name
-																				}
-																			>
-																				<IconSelector
-																					icon={
-																						i
-																					}
-																					size={
-																						iconPreviewSize
-																					}
-																					handleIconSelectButtonClick={ () => {
-																						handleIconSelectButtonClick(
-																							i
-																						);
-																						setOpen(
-																							false
-																						);
-																						onClose();
-																					} }
-																				/>
-																			</li>
-																		)
+										return (
+											<TabPanel
+												tabs={ filteredCollections.map(
+													( c ) => ( {
+														name: c.name,
+														title: capitalize(
+															c.name
+														),
+													} )
+												) }
+											>
+												{ ( tab ) =>
+													filteredCollections.map(
+														( c ) =>
+															tab.name ===
+																c.name && (
+																<>
+																	{ c.loading && (
+																		<Spinner />
 																	) }
-																</ul>
-																{ c.hasMore && (
-																	<div className="blockparty-icons-modal__load-more">
-																		<Button
-																			variant="secondary"
-																			onClick={ () =>
-																				loadMoreIcons(
-																					c.name
-																				)
-																			}
-																			disabled={
-																				loadingMore ||
-																				c.loading
-																			}
-																		>
-																			{ loadingMore ||
-																			c.loading
-																				? __(
-																						'Loading…',
-																						'blockparty-icons'
-																				  )
-																				: __(
-																						'Load More',
-																						'blockparty-icons'
-																				  ) }
-																		</Button>
-																	</div>
-																) }
-															</>
-														) }
-													</li>
-												</ul>
-											)
+																	{ !! c.icons
+																		?.length && (
+																		<>
+																			<ul className="blockparty-icons-modal__list-icon">
+																				{ c.icons.map(
+																					(
+																						i
+																					) => (
+																						<li
+																							key={
+																								i.name
+																							}
+																						>
+																							<IconSelector
+																								icon={
+																									i
+																								}
+																								handleIconSelectButtonClick={
+																									handleSelectIcon
+																								}
+																							/>
+																						</li>
+																					)
+																				) }
+																			</ul>
+																		</>
+																	) }
+																</>
+															)
+													)
+												}
+											</TabPanel>
 										);
+
+										// return filteredCollections.map(
+										// 	( c ) => (
+										// 		<ul key={ c.name }>
+										// 			<li>
+										// 				<p className="blockparty-icons-modal__collection-name">
+										// 					{ capitalize(
+										// 						c.name
+										// 					) }
+										// 				</p>
+										// 				{ c.loading && (
+										// 					<Spinner />
+										// 				) }
+										// 				{ !! c.icons
+										// 					?.length && (
+										// 					<>
+										// 						<ul className="blockparty-icons-modal__list-icon">
+										// 							{ c.icons.map(
+										// 								(
+										// 									i
+										// 								) => (
+										// 									<li
+										// 										key={
+										// 											i.name
+										// 										}
+										// 									>
+										// 										<IconSelector
+										// 											icon={
+										// 												i
+										// 											}
+										// 											size={
+										// 												iconPreviewSize
+										// 											}
+										// 											handleIconSelectButtonClick={ () => {
+										// 												handleIconSelectButtonClick(
+										// 													i
+										// 												);
+										// 												setOpen(
+										// 													false
+										// 												);
+										// 												onClose();
+										// 											} }
+										// 										/>
+										// 									</li>
+										// 								)
+										// 							) }
+										// 						</ul>
+										// 						{ c.hasMore && (
+										// 							<div className="blockparty-icons-modal__load-more">
+										// 								<Button
+										// 									variant="secondary"
+										// 									onClick={ () =>
+										// 										loadMoreIcons(
+										// 											c.name
+										// 										)
+										// 									}
+										// 									disabled={
+										// 										loadingMore ||
+										// 										c.loading
+										// 									}
+										// 								>
+										// 									{ loadingMore ||
+										// 									c.loading
+										// 										? __(
+										// 												'Loading…',
+										// 												'blockparty-icons'
+										// 										  )
+										// 										: __(
+										// 												'Load More',
+										// 												'blockparty-icons'
+										// 										  ) }
+										// 								</Button>
+										// 							</div>
+										// 						) }
+										// 					</>
+										// 				) }
+										// 			</li>
+										// 		</ul>
+										// 	)
+										// );
 									} )() }
 							</div>
 						</>

@@ -42,8 +42,7 @@ export default function IconContent( {
 
 	return (
 		<SVG
-			width={ size }
-			height={ size }
+			{ ...( size !== null ? { width: size, height: size } : {} ) }
 			viewBox="0 0 24 24"
 			version="1.1"
 			xmlns="http://www.w3.org/2000/svg"

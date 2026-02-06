@@ -399,8 +399,10 @@ export const SvgComponent = ( { svgText, size, style } ) => {
 	const { svgAttributes, svgElements } = parseSvg( svgText );
 
 	svgAttributes.style = { ...svgAttributes.style, ...style };
-	svgAttributes.width = size;
-	svgAttributes.height = size;
+	if ( size !== null ) {
+		svgAttributes.width = size;
+		svgAttributes.height = size;
+	}
 	svgAttributes.viewBox = svgAttributes.viewBox || '0 0 24 24';
 
 	return <SVG { ...svgAttributes }>{ svgElements }</SVG>;
