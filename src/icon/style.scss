@@ -25,8 +25,9 @@
 		justify-content: var(--wp-block-blockparty-icon-justify-content, center);
 	}
 
-	.wp-block-blockparty-icon__text {
-		margin: 0;
+	.wp-block-blockparty-icon__icon-container,
+	.wp-block-blockparty-icon__icon-container svg {
+		display: block;
 	}
 
 	.wp-block-blockparty-icons__icon-component--raw svg {

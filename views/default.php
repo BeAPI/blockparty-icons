@@ -24,8 +24,7 @@ if ( empty( $icon_type ) ) {
 
 $url             = $block_attributes['url'] ?? '';
 $link_aria_label = $block_attributes['label'] ?? '';
-$text            = $block_attributes['text'] ?? '';
-$radius          = $block_attributes['borderRadius'] ?? 0;
+$radius          = $block_attributes['borderRadius'] ?? '0';
 
 if ( ! empty( $link_aria_label ) && ! empty( $url ) ) {
 	$link_aria_label = 'aria-label="' . $link_aria_label . '"';
@@ -37,17 +36,15 @@ $has_link_aria_label = ! empty( $link_aria_label );
 	<?php if ( ! empty( $url ) ) : ?>
 	<a class="wp-block-blockparty-icon__link" href="<?php echo esc_url( $url ); ?>" <?php echo wp_kses_data( $has_link_aria_label ? $link_aria_label : '' ); ?>>
 	<?php endif; ?>
-		<?php
-		if ( 'sprite' === $icon_type ) {
-			load_template( plugin_dir_path( __FILE__ ) . 'icon-sprite.php', false, $args );
-		} else {
-			load_template( plugin_dir_path( __FILE__ ) . 'icon-raw.php', false, $args );
-		}
-
-		if ( ! empty( $text ) ) :
+		<span class="wp-block-blockparty-icon__icon-container">
+			<?php
+			if ( 'sprite' === $icon_type ) {
+				load_template( plugin_dir_path( __FILE__ ) . 'icon-sprite.php', false, $args );
+			} else {
+				load_template( plugin_dir_path( __FILE__ ) . 'icon-raw.php', false, $args );
+			}
 			?>
-		<p class="wp-block-blockparty-icon__text"><?php echo esc_html( $text ); ?></p>
-		<?php endif; ?>
+		</span>
 	<?php if ( ! empty( $url ) ) : ?>
 	</a>
 	<?php endif; ?>

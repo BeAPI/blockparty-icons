@@ -5,7 +5,9 @@
  */
 
 .wp-block-blockparty-icon {
-	overflow: hidden;
+	&.has-background.block-editor-block-list__block {
+		background-color: transparent !important;
+	}
 
 	.components-button {
 		width: 100%;
@@ -107,31 +109,6 @@
 	&__collection-name {
 		background-color: #fff;
 	}
-
-	// &__toolbar {
-	// 	position: absolute;
-	// 	z-index: 2;
-	// 	top: 72px;
-	// 	left: 32px;
-	// 	right: 32px;
-	// 	display: flex;
-	// 	flex-direction: row;
-	// 	align-items: center;
-	// 	justify-content: space-between;
-	// 	gap: 24px;
-	// 	transition: margin-inline 300ms ease-in-out, padding-inline 300ms ease-in-out;
-
-	// 	.components-search-control {
-	// 		flex: 1;
-	// 		min-width: 0;
-	// 	}
-
-	// 	.components-range-control {
-	// 		flex-shrink: 0;
-	// 		width: 200px;
-	// 		margin-bottom: 0;
-	// 	}
-	// }
 
 	.components-base-control__help {
 		transition: opacity 100ms ease-in-out;

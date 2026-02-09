@@ -13,7 +13,7 @@ $block_attributes = $args['block_attributes'];
 $size             = $block_attributes['size'] ?? 24;
 $content          = $block_attributes['content'];
 $icon             = $block_attributes['icon'];
-$icon_color       = $block_attributes['iconColorValue'] ?? '';
+$icon_color       = $block_attributes['iconColor'] ?? '';
 $icon_style       = '';
 
 if ( ! empty( $icon_color ) ) {

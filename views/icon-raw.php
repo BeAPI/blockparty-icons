@@ -15,7 +15,7 @@ $block_attributes = $args['block_attributes'];
 $size             = $block_attributes['size'] ?? 24;
 $content          = $block_attributes['content'] ?? '';
 $icon             = $block_attributes['icon'] ?? [];
-$icon_color       = $block_attributes['iconColorValue'] ?? '';
+$icon_color       = $block_attributes['iconColor'] ?? '';
 $icon_style       = '';
 $extra_attrs      = '';
 
@@ -32,7 +32,7 @@ if ( empty( $content ) || ! is_string( $content ) ) {
 	return;
 }
 
-$allowed_svg  = \Blockparty\Icons\Helper\SvgKses::get_allowed_svg_kses();
+$allowed_svg  = \Blockparty\Icons\Helpers\SvgKses::get_allowed_svg_kses();
 $content_safe = wp_kses( $content, $allowed_svg );
 
 // Merge our class with existing class on the opening <svg> to avoid duplicate attribute.

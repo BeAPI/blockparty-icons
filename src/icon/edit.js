@@ -84,21 +84,12 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const {
-		borderRadius,
-		content,
-		iconColorValue,
-		icon,
-		label,
-		rel,
-		size,
-		text,
-		url,
-	} = attributes;
+	const { borderRadius, content, iconColor, icon, label, size, url } =
+		attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
-	const [ , setIconColor ] = useState( iconColorValue );
+	const [ , setIconColor ] = useState( iconColor );
 	const [ collections, setCollections ] = useState( null );
 	const [ isModalVisible, setIsModalVisible ] = useState( false );
 	const [ showURLPopover, setPopover ] = useState( false );
@@ -166,20 +157,19 @@ export default function Edit( {
 
 	const colorSettings = [
 		{
-			value: iconColorValue,
+			value: iconColor,
 			onChange: ( colorValue ) => {
 				setIconColor( colorValue );
-				setAttributes( { iconColorValue: colorValue } );
+				setAttributes( { iconColor: colorValue } );
 			},
 			label: __( 'Icon color', 'blockparty-icons' ),
 			resetAllFilter: () => {
 				setIconColor( undefined );
-				setAttributes( { iconColorValue: undefined } );
+				setAttributes( { iconColor: undefined } );
 			},
 		},
 	];
 	const colorGradientSettings = useMultipleOriginColorsAndGradients();
-	const style = {};
 
 	// Load available collections when the component is mount.
 	useEffect( () => {
@@ -210,12 +200,8 @@ export default function Edit( {
 		}
 	}, [ isSelected, icon, content, collections ] );
 
-	if ( borderRadius ) {
-		style.borderRadius = `${ borderRadius }%`;
-	}
-
 	return (
-		<div { ...useBlockProps( { ref: blockRef } ) } style={ style }>
+		<div { ...useBlockProps( { ref: blockRef } ) }>
 			{ isModalVisible && (
 				<IconModal
 					collections={ collections }
@@ -262,36 +248,28 @@ export default function Edit( {
 							clientId={ clientId }
 						/>
 					) }
-					<InspectorControls>
-						<PanelBody
-							title={ sprintf(
-								/* translators: %s: name of the icon name. */
-								__( '%s label' ),
-								capitalize( icon?.label || icon?.name )
-							) }
-						>
-							<TextControl
-								label={ __( 'Icon text', 'blockparty-icons' ) }
-								help={ __(
-									'Add text to the icon to describe its purpose.'
+					{ url && url.length > 0 && (
+						<InspectorControls>
+							<PanelBody
+								title={ sprintf(
+									/* translators: %s: name of the icon name. */
+									__( '%s label' ),
+									capitalize( icon?.label || icon?.name )
 								) }
-								value={ text || '' }
-								onChange={ ( value ) =>
-									setAttributes( { text: value } )
-								}
-							/>
-							<TextControl
-								label={ __( 'Link label' ) }
-								help={ __(
-									'Briefly describe the link to help screen reader users.'
-								) }
-								value={ label || '' }
-								onChange={ ( value ) =>
-									setAttributes( { label: value } )
-								}
-							/>
-						</PanelBody>
-					</InspectorControls>
+							>
+								<TextControl
+									label={ __( 'Link label' ) }
+									help={ __(
+										'Briefly describe the link to help screen reader users.'
+									) }
+									value={ label || '' }
+									onChange={ ( value ) =>
+										setAttributes( { label: value } )
+									}
+								/>
+							</PanelBody>
+						</InspectorControls>
+					) }
 					<InspectorControls group="color">
 						{ colorSettings.map(
 							( {
@@ -363,17 +341,6 @@ export default function Edit( {
 							/>
 						</div>
 					</InspectorControls>
-					<InspectorControls group="advanced">
-						<div className="full-width-control-wrapper">
-							<TextControl
-								label={ __( 'Link rel' ) }
-								value={ rel || '' }
-								onChange={ ( value ) =>
-									setAttributes( { rel: value } )
-								}
-							/>
-						</div>
-					</InspectorControls>
 				</>
 			) }
 
@@ -381,7 +348,6 @@ export default function Edit( {
 				<ServerSideRender
 					block="blockparty/icon"
 					attributes={ attributes }
-					skipBlockSupportAttributes={ true }
 				/>
 			</Disabled>
 		</div>

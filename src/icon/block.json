@@ -10,6 +10,7 @@
 		"reusable": false,
 		"html": false,
 		"color": {
+			"text": false,
 			"background": true
 		},
 		"dimensions": {
@@ -34,7 +35,7 @@
 		"icon": {
 			"type": "object"
 		},
-		"iconColorValue": {
+		"iconColor": {
 			"type": "string"
 		},
 		"size": {
@@ -49,12 +50,6 @@
 			"type": "string"
 		},
 		"label": {
-			"type": "string"
-		},
-		"rel": {
-			"type": "string"
-		},
-		"text": {
 			"type": "string"
 		}
 	},

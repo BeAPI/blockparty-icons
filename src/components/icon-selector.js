@@ -13,7 +13,7 @@ import { capitalize } from '../utils';
  * @param {Object} props
  * @param {Function} props.handleIconSelectButtonClick
  * @param {Object} props.icon
- * @param {string} props.iconColorValue
+ * @param {string} props.iconColor
  * @param {number} props.padding
  * @param {number} props.size
  * @param {React.ReactNode} props.children
@@ -21,7 +21,7 @@ import { capitalize } from '../utils';
 function IconSelector( {
 	handleIconSelectButtonClick,
 	icon,
-	iconColorValue,
+	iconColor,
 	padding,
 	size,
 	children,
@@ -37,7 +37,7 @@ function IconSelector( {
 						iconData={ {
 							content: icon.content,
 							icon,
-							iconColor: iconColorValue,
+							iconColor,
 							padding,
 							size,
 						} }

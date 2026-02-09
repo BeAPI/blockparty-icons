@@ -8,7 +8,7 @@
  * @package Blockparty\Icons
  */
 
-namespace Blockparty\Icons\Helper;
+namespace Blockparty\Icons\Helpers;
 
 /**
  * Helper for SVG sanitization with wp_kses.
