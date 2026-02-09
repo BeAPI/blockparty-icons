@@ -5,9 +5,14 @@
  */
 
 .wp-block-blockparty-icon {
-	&.has-background.block-editor-block-list__block {
-		background-color: transparent !important;
+	&.block-editor-block-list__block {
+		padding: 0 !important;
+
+		&.has-background {
+			background-color: transparent !important;
+		}
 	}
+
 
 	.components-button {
 		width: 100%;
