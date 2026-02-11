@@ -15,5 +15,5 @@ grumphp:
             jobs: ~
             triggered_by: ['php']
         phpcs:
-            standard: ['phpcs.xml']
+            standard: ['phpcs.xml.dist']
             triggered_by: [php]
