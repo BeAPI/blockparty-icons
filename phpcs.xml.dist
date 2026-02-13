@@ -8,7 +8,6 @@
 	<!-- Scan all files in directory -->
 	<file>blockparty-icons.php</file>
 	<file>./includes/</file>
-	<file>./views/</file>
 
 	<exclude-pattern>./build/</exclude-pattern>
 	<exclude-pattern>./node_modules/</exclude-pattern>

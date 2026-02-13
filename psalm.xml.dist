@@ -12,10 +12,6 @@
 
 	<projectFiles>
 		<directory name="includes"/>
-		<directory name="views"/>
 		<file name="blockparty-icons.php"/>
 	</projectFiles>
-	<stubs>
-		<file name="vendor/php-stubs/wordpress-seo-stubs/wordpress-seo-stubs.php" />
-    </stubs>
 </psalm>
