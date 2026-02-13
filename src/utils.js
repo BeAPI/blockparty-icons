@@ -36,147 +36,44 @@ export function capitalize( str ) {
 }
 
 /**
- * In-memory API cache (one entry per page load).
- * Stored on window so all callers share the same cache until page reload.
- * In-flight requests are deduplicated: same key reuses the same promise until resolved.
- */
-const CACHE_NS = 'blockpartyIconsApiCache';
-const IN_FLIGHT_NS = 'blockpartyIconsApiCacheInFlight';
-
-function getCache() {
-	if ( typeof window === 'undefined' ) {
-		return null;
-	}
-	if ( ! window[ CACHE_NS ] ) {
-		window[ CACHE_NS ] = Object.create( null );
-	}
-	return window[ CACHE_NS ];
-}
-
-function getInFlight() {
-	if ( typeof window === 'undefined' ) {
-		return null;
-	}
-	if ( ! window[ IN_FLIGHT_NS ] ) {
-		window[ IN_FLIGHT_NS ] = Object.create( null );
-	}
-	return window[ IN_FLIGHT_NS ];
-}
-
-function cacheKey( prefix, ...parts ) {
-	return (
-		prefix +
-		'_' +
-		parts.map( ( p ) => JSON.stringify( p ?? {} ) ).join( '_' )
-	);
-}
-
-/**
- * Get icons collections (cached per page load, requests deduplicated)
+ * Get icons collections.
  *
  * @param {Object} args Query arguments
  * @return {Promise<Object>} Promise resolving to collections object
  */
 export async function getCollections( args = {} ) {
-	const cache = getCache();
-	const inFlight = getInFlight();
-	const key = cacheKey( 'collections', args );
-
-	if ( cache && key in cache ) {
-		return cache[ key ];
-	}
-	if ( inFlight && key in inFlight ) {
-		return inFlight[ key ];
-	}
-
-	const promise = apiFetch( {
+	return apiFetch( {
 		path: addQueryArgs( '/icons/v1/collections', args ),
-	} )
-		.then( ( data ) => {
-			if ( cache ) {
-				cache[ key ] = data;
-			}
-			if ( inFlight && key in inFlight ) {
-				delete inFlight[ key ];
-			}
-			return data;
-		} )
-		.catch( ( err ) => {
-			if ( inFlight && key in inFlight ) {
-				delete inFlight[ key ];
-			}
-			throw err;
-		} );
-
-	if ( inFlight ) {
-		inFlight[ key ] = promise;
-	}
-	return promise;
+	} );
 }
 
 /**
- * Get icon data (cached per page load, requests deduplicated)
+ * Get icon data.
  *
  * @param {string} collection icon collection
  * @param {Object} args       Query arguments
  * @return {Promise<{data: object, headers: object}>} Promise resolving to icon data with pagination headers
  */
 export async function getIcons( collection, args = {} ) {
-	const cache = getCache();
-	const inFlight = getInFlight();
-	const key = cacheKey( 'icons', collection, args );
-
-	if ( cache && key in cache ) {
-		return cache[ key ];
-	}
-	if ( inFlight && key in inFlight ) {
-		return inFlight[ key ];
-	}
-
-	const promise = apiFetch( {
+	const response = await apiFetch( {
 		path: addQueryArgs( `/icons/v1/${ collection }`, args ),
 		parse: false,
-	} )
-		.then( ( response ) => {
-			if ( ! response.ok ) {
-				throw new Error( `API request failed: ${ response.status }` );
-			}
-			return response;
-		} )
-		.then( async ( response ) => {
-			const icons = await response.json();
-			const headers = {
-				total: parseInt(
-					response.headers.get( 'X-WP-Total' ) || '0',
-					10
-				),
-				totalPages: parseInt(
-					response.headers.get( 'X-WP-TotalPages' ) || '0',
-					10
-				),
-			};
-			return { data: icons, headers };
-		} )
-		.then( ( result ) => {
-			if ( cache ) {
-				cache[ key ] = result;
-			}
-			if ( inFlight && key in inFlight ) {
-				delete inFlight[ key ];
-			}
-			return result;
-		} )
-		.catch( ( err ) => {
-			if ( inFlight && key in inFlight ) {
-				delete inFlight[ key ];
-			}
-			throw err;
-		} );
-
-	if ( inFlight ) {
-		inFlight[ key ] = promise;
+	} );
+	if ( ! response.ok ) {
+		throw new Error( `API request failed: ${ response.status }` );
 	}
-	return promise;
+	const icons = await response.json();
+	const headers = {
+		total: parseInt(
+			response.headers.get( 'X-WP-Total' ) || '0',
+			10
+		),
+		totalPages: parseInt(
+			response.headers.get( 'X-WP-TotalPages' ) || '0',
+			10
+		),
+	};
+	return { data: icons, headers };
 }
 
 /**
