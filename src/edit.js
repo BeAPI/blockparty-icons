@@ -54,10 +54,10 @@ import {
 	getAllIcons,
 	getCollections,
 	setStoredIcons,
-} from '../utils';
+} from './utils';
 import { link, linkOff, replace, trash } from '@wordpress/icons';
-import IconModal from '../components/icon-modal';
-import LinkURLPopover from '../components/link-url-popover';
+import IconModal from './components/icon-modal';
+import LinkURLPopover from './components/link-url-popover';
 
 const DEFAULT_SIZE = 48;
 const MAX_SIZE = 256;

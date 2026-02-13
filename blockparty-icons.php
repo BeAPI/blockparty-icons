@@ -41,7 +41,7 @@ function init() {
 	// Load available translations.
 	load_plugin_textdomain( 'blockparty-icons', false, dirname( BLOCKPARTY_ICONS_PLUGIN_BASENAME ) . '/languages' );
 
-	register_block_type( __DIR__ . '/build/icon', [ 'render_callback' => [ BlockRenderer::class, 'render' ] ] );
+	register_block_type( __DIR__ . '/build/', [ 'render_callback' => [ BlockRenderer::class, 'render' ] ] );
 
 	// Load translations for JS
 	wp_set_script_translations( 'blockparty-icon-editor-script', 'blockparty-icons', BLOCKPARTY_ICONS_DIR . '/languages' );
