@@ -5,18 +5,18 @@ import { memo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 
 import IconContent from './icon-content';
-import { capitalize } from '../utils';
 
 /**
  * IconSelector component
  *
- * @param {Object} props
- * @param {Function} props.handleIconSelectButtonClick
- * @param {Object} props.icon
- * @param {string} props.iconColor
- * @param {number} props.padding
- * @param {number} props.size
- * @param {React.ReactNode} props.children
+ * @param {Object}   props
+ * @param {Object}   props.collection                  Collection object
+ * @param {Function} props.handleIconSelectButtonClick Called when icon is selected
+ * @param {Object}   props.icon                        Icon object
+ * @param {string}   props.iconColor                   Icon color
+ * @param {number}   props.padding                     Padding value
+ * @param {number}   props.size                        Icon size
+ * @param {*}        props.children                    Child content
  */
 function IconSelector( {
 	handleIconSelectButtonClick,

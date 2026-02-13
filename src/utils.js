@@ -64,10 +64,7 @@ export async function getIcons( collection, args = {} ) {
 	}
 	const icons = await response.json();
 	const headers = {
-		total: parseInt(
-			response.headers.get( 'X-WP-Total' ) || '0',
-			10
-		),
+		total: parseInt( response.headers.get( 'X-WP-Total' ) || '0', 10 ),
 		totalPages: parseInt(
 			response.headers.get( 'X-WP-TotalPages' ) || '0',
 			10

@@ -114,19 +114,21 @@ export default function Edit( {
 	 * Update state icon and add it to localStorage
 	 *
 	 * @typedef {Object} CollectionObject
-	 * @property {string} CollectionObject.name    Collection name
-	 * @property {string} CollectionObject.label   Collection label
-	 * @property {Number} CollectionObject.count   Collection icons count
-	 *
+	 * @property {string} name  Collection name
+	 * @property {string} label Collection label
+	 * @property {number} count Collection icons count
+	 */
+
+	/**
 	 * @typedef {Object} IconObject
-	 * @property {string} IconObject.content Icon SVG content
-	 * @property {string} IconObject.label   Icon label
-	 * @property {string} IconObject.name    Icon name
-	 * @property {string} IconObject.type    Icon type
-	 * @property {string} IconObject.version Icon version
+	 * @property {string}           content      Icon SVG content
+	 * @property {string}           label        Icon label
+	 * @property {string}           name         Icon name
+	 * @property {string}           type         Icon type
+	 * @property {string}           version      Icon version
 	 *
-	 * @param {CollectionObject} collection Icon object to select
-	 * @param {IconObject} selectedIcon Icon object to select
+	 * @param    {CollectionObject} collection   Collection to select from
+	 * @param    {IconObject}       selectedIcon Icon object to select
 	 */
 	const selectIcon = useCallback(
 		( collection, selectedIcon ) => {

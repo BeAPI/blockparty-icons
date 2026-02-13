@@ -288,7 +288,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 											value={ searchInput }
 											onChange={ setSearchInput }
 											placeholder={ __(
-												'wordpress, heart, star...',
+												'wordpress, heart, star…',
 												'blockparty-icons'
 											) }
 											__nextHasNoMarginBottom
