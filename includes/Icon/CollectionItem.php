@@ -7,13 +7,15 @@ class CollectionItem {
 	private $name;
 	private $label;
 	private $type;
+	private $version;
 	private $content;
 
-	public function __construct( string $name, string $type, string $content, string $label = null ) {
+	public function __construct( string $name, string $type, string $content, string $label = null, string $version = null ) {
 		$this->name    = $name;
 		$this->type    = $type;
 		$this->content = $content;
 		$this->label   = $label ?? $name;
+		$this->version = $version;
 	}
 
 	/**
@@ -50,5 +52,14 @@ class CollectionItem {
 	 */
 	public function content(): string {
 		return $this->content;
+	}
+
+	/**
+	 * Get icon's version.
+	 *
+	 * @return string|null
+	 */
+	public function version(): ?string {
+		return $this->version;
 	}
 }

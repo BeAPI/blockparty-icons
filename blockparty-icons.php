@@ -76,7 +76,15 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\rest' );
  * Register new icon collection.
  *
  * @param string|Collection $name
- * @param array             $args
+ * @param array $args {
+ *   Optional. An array of additional arguments. Default empty array.
+ *
+ *   @type string      $label    Optional. A human friendly name for the collection.
+ *   @type string      $type     Optional. The type of icons. Supported values are 'folder', 'sprite' or 'raw'.
+ *   @type string      $source   Optional. The path to load the collection's icons. Depending on the 'type' can be a path to a folder or a SVG file.
+ *   @type array       $icon_map Optional. Use an array to override default labels for the icons.
+ *   @type string|null $version  Optional. The collection version, use for cache busting in the sprite URL.
+ * }
  *
  * @return Collection|bool
  */
@@ -105,6 +113,7 @@ function register_icon_collection( $name, array $args = [] ) {
 			'type'     => '',
 			'source'   => '',
 			'icon_map' => [],
+			'version'  => null,
 		]
 	);
 
@@ -143,10 +152,16 @@ function register_icon_collection( $name, array $args = [] ) {
 /**
  * Add icons to an existing collection.
  *
- * @param string $collection_name
- * @param string $type
- * @param string $source
- * @param array  $args
+ * @param string $collection_name The collection to add the icons to.
+ * @param string $type            The type of icons. Supported values are 'folder', 'sprite' or 'raw'.
+ * @param string $source          The path to load the collection's icons. Depending on the 'type' can be a path to a folder or a SVG file.
+ * @param array  $args {
+ *   Optional. An array of additional arguments. Default empty array.
+ *
+ *   @type string      $label    Optional. A human friendly name for the icon(s).
+ *   @type array       $icon_map Optional. Use an array to override default labels for the icons.
+ *   @type string|null $version  Optional. The collection version, use for cache busting in the sprite URL.
+ * }
  *
  * @return bool
  */
@@ -160,6 +175,7 @@ function add_icons( string $collection_name, string $type, string $source, array
 		[
 			'label'    => '',
 			'icon_map' => [],
+			'version'  => null,
 		]
 	);
 
@@ -174,7 +190,7 @@ function add_icons( string $collection_name, string $type, string $source, array
 			break;
 		case 'sprite':
 			try {
-				$items = CollectionItemsFactory::from_sprite( $source, $args['icon_map'] );
+				$items = CollectionItemsFactory::from_sprite( $source, $args['icon_map'], $args['version'] );
 			} catch ( CollectionCreationException $e ) {
 				return false;
 			}

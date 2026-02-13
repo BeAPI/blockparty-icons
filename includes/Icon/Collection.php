@@ -21,7 +21,7 @@ class Collection implements \Iterator {
 	 */
 	public static function from_folder( string $name, string $folder, array $args = [] ): self {
 		if ( ! is_readable( $folder ) ) {
-			throw CollectionCreationException::unreadable_path( $folder );
+			throw CollectionCreationException::unreadable_path( esc_html( $folder ) );
 		}
 
 		$collection = new self( $name, $args['label'] ?? null );
@@ -49,13 +49,13 @@ class Collection implements \Iterator {
 	 */
 	public static function from_sprite( string $name, string $path, array $args = [] ): self {
 		if ( ! is_readable( $path ) ) {
-			throw CollectionCreationException::unreadable_path( $path );
+			throw CollectionCreationException::unreadable_path( esc_html( $path ) );
 		}
 
 		$collection = new self( $name, $args['label'] ?? null );
 
 		try {
-			$items = CollectionItemsFactory::from_sprite( $path, $args['icon_map'] ?? [] );
+			$items = CollectionItemsFactory::from_sprite( $path, $args['icon_map'] ?? [], $args['version'] ?? null );
 		} catch ( CollectionCreationException $e ) {
 			return $collection;
 		}

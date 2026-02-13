@@ -149,6 +149,10 @@ class IconsController extends \WP_REST_Controller {
 			$data['content'] = $item->content();
 		}
 
+		if ( in_array( 'version', $fields, true ) ) {
+			$data['version'] = $item->version();
+		}
+
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$data    = $this->add_additional_fields_to_object( $data, $request );
 		$data    = $this->filter_response_by_context( $data, $context );
@@ -199,6 +203,12 @@ class IconsController extends \WP_REST_Controller {
 				],
 				'content' => [
 					'description' => __( 'Content of the icon', 'blockparty-icons' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'version' => [
+					'description' => __( 'Version of the icon', 'blockparty-icons' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,

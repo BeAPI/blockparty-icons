@@ -18,7 +18,7 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_folder( string $folder, array $icon_map = [] ): array {
-		$cache_key = 'from_folder' . $folder;
+		$cache_key = 'from_folder:' . $folder;
 		$salt      = md5( wp_json_encode( $icon_map ) );
 
 		$items = Cache::get_cache( $cache_key, self::CACHE_GROUP, $salt );
@@ -60,7 +60,7 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_sprite( string $path, array $icon_map = [], ?string $version = null ): array {
-		$cache_key = 'from_sprite' . $path;
+		$cache_key = 'from_sprite:' . $path;
 		$salts     = [ md5( wp_json_encode( $icon_map ) ) ];
 		if ( $version ) {
 			$salts[] = $version;
@@ -95,7 +95,7 @@ class CollectionItemsFactory {
 			$item_content = sprintf( '%s#%s', add_query_arg( [ 'v' => $version ], $base_url ), $name );
 
 			$label   = $icon_map[ $name ] ?? self::format_svg_name( $name );
-			$items[] = new CollectionItem( $name, 'sprite', $item_content, $label );
+			$items[] = new CollectionItem( $name, 'sprite', $item_content, $label, $version );
 		}
 
 		Cache::set_cache( $cache_key, $items, self::CACHE_GROUP, $salts, DAY_IN_SECONDS );
@@ -113,7 +113,7 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_file( string $path, array $args = [] ): array {
-		$cache_key = 'from_file' . $path;
+		$cache_key = 'from_file:' . $path;
 		$salt      = md5( wp_json_encode( $args ) );
 
 		$items = Cache::get_cache( $cache_key, self::CACHE_GROUP, $salt );
