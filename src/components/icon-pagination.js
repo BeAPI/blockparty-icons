@@ -71,7 +71,7 @@ export default function IconPagination( {
 
 	return (
 		<nav
-			className="blockparty-icons-pagination"
+			className="blockparty-icons__pagination"
 			aria-label={
 				ariaLabel ?? __( 'Icon pagination', 'blockparty-icons' )
 			}

@@ -76,15 +76,30 @@
 	}
 
 	.components-modal__content {
-		height: 80vh;
-		padding-bottom: 0;
-		padding-left: 0;
-		padding-right: 0;
+		padding: 0;
 
-		> div:not(.components-modal__header),
-		.blockparty-icons-modal__content,
-		.blockparty-icons-modal__content > .components-flex {
-			height: 100%;
+		&.has-scrolled-content {
+			.blockparty-icons-modal__toolbar {
+				border-top: 0;
+			}
+		}
+
+		.blockparty-icons-modal__grid {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 280px;
+			transition: grid-template-columns 0.25s ease-in-out;
+
+			&:has(.blockparty-icons-modal__sidebar-wrapper--closed) {
+				grid-template-columns:  minmax(0, 1fr) 0;
+			}
+		}
+
+		.blockparty-icons-modal__sidebar-wrapper {
+			grid-row: span 2;
+		}
+
+		.blockparty-icons-modal__wrapper {
+			height: calc(100vh - 156px);
 		}
 	}
 
@@ -100,6 +115,9 @@
 	}
 
 	&__toolbar {
+		position: sticky;
+		top: 0;
+		z-index: 1;
 		border-top: 1px solid #e0e0e0;
 		border-bottom: 1px solid #e0e0e0;
 	}
@@ -133,15 +151,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-	}
-
-	&__spinner,
-	&__body {
-		height: calc(100vh - 520px);
-	}
-
-	&__body {
-		overflow: auto;
 	}
 
 	&__no-results {
@@ -187,14 +196,22 @@
 // Pagination (inside modal)
 // -----------------------------------------------------------------------------
 
-.blockparty-icons-pagination {
+.blockparty-icons__pagination-wrapper {
+	position: sticky;
+	bottom: 0;
+	z-index: 1;
+	padding: 16px 32px;
+	margin: 0 -32px -32px;
+	border-top: 1px solid #e0e0e0;
+	max-width: none !important;
+	background-color: #fff;
+}
+
+.blockparty-icons__pagination {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 16px;
-	margin: 0 -32px -32px;
-	padding: 16px 32px;
-	border-top: 1px solid #e0e0e0;
 
 	&__pages {
 		display: flex;
@@ -216,13 +233,18 @@
 
 @media (max-width: 599px) {
 	.blockparty-icons-modal {
+		.blockparty-icons-modal__grid {
+			grid-template-columns: minmax(0, 1fr) !important;
+		}
+
 		.components-modal__content:has(.blockparty-icons-modal__sidebar-wrapper:not(.blockparty-icons-modal__sidebar-wrapper--closed)) {
 			overflow: hidden;
 		}
 
 		&__sidebar-wrapper {
 			position: absolute;
-			top: 181px;
+			top: 177px;
+			z-index: 1;
 			bottom: 0;
 			left: 100%;
 			width: 100%;
@@ -247,11 +269,6 @@
 
 		&__collections-list {
 			min-width: 621px;
-		}
-
-		&__spinner,
-		&__body {
-			height: 618px;
 		}
 	}
 }
