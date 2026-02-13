@@ -86,7 +86,7 @@
 
 		> div:not(.components-modal__header),
 		.blockparty-icons-modal__grid {
-			height: 100%;
+			min-height: 100%;
 		}
 
 		.blockparty-icons-modal__grid {
@@ -134,7 +134,7 @@
 
 		> div,
 		.components-tab-panel__tab-content {
-			height: 100%;
+			min-height: 100%;
 		}
 	}
 
@@ -283,7 +283,11 @@
 		// Override core so the modal doesn’t shrink during search.
 		width: 1480px;
 		max-width: calc(100% - 32px);
+	}
+}
 
+@media (min-width: 992px) {
+	.blockparty-icons-modal {
 		&__collections-list {
 			min-width: 621px;
 		}
