@@ -82,8 +82,7 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const { borderRadius, iconColor, icon, label, size, url } =
-		attributes;
+	const { borderRadius, iconColor, icon, label, size, url } = attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
@@ -322,7 +321,10 @@ export default function Edit( {
 						<div className="full-width-control-wrapper">
 							<RangeControl
 								label={ __( 'Icon size', 'blockparty-icons' ) }
-								help={ __( 'Adjust the size of the icon (value in pixels)', 'blockparty-icons' ) }
+								help={ __(
+									'Adjust the size of the icon (value in pixels)',
+									'blockparty-icons'
+								) }
 								value={ size }
 								onChange={ ( newSize ) => {
 									setAttributes( { size: newSize } );
