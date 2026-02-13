@@ -66,6 +66,25 @@ function rest() {
 add_action( 'rest_api_init', __NAMESPACE__ . '\\rest' );
 
 /**
+ * Preload collections and icons endpoint.
+ *
+ * @param array $paths
+ * @param \WP_Block_Editor_Context $context
+ *
+ * @return array
+ */
+function preload_rest_endpoints( $paths, $context ) {
+	$paths[] = '/icons/v1/collections?context=view&_locale=user';
+	foreach ( get_icon_collections() as $collection ) {
+		$paths[] = sprintf( '/icons/v1/%s?context=edit', $collection->name() );
+	}
+
+	return $paths;
+}
+
+add_filter( 'block_editor_rest_api_preload_paths', __NAMESPACE__ . '\\preload_rest_endpoints', 10, 2 );
+
+/**
  * Register new icon collection.
  *
  * @param string|Collection $name
