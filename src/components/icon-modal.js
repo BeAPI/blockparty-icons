@@ -98,8 +98,8 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 
 	// Stable callback so IconSelector (memo) doesn't re-render when only size changes
 	const handleSelectIcon = useCallback(
-		( icon ) => {
-			handleIconSelectButtonClick( icon );
+		( collection, icon ) => {
+			handleIconSelectButtonClick( collection, icon );
 			setOpen( false );
 			onClose();
 		},
@@ -417,6 +417,9 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																													<IconSelector
 																														icon={
 																															i
+																														}
+																														collection={
+																															c
 																														}
 																														handleIconSelectButtonClick={
 																															handleSelectIcon

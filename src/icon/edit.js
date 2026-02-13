@@ -116,31 +116,37 @@ export default function Edit( {
 	/**
 	 * Update state icon and add it to localStorage
 	 *
-	 * @typedef {Object} IconObject
-	 * @property {string}     content      Icon SVG content
-	 * @property {string}     label        Icon label
-	 * @property {string}     name         Icon name
-	 * @property {string}     type         Icon type
+	 * @typedef {Object} CollectionObject
+	 * @property {string} CollectionObject.name    Collection name
+	 * @property {string} CollectionObject.label   Collection label
+	 * @property {Number} CollectionObject.count   Collection icons count
 	 *
-	 * @param    {IconObject} selectedIcon Icon object to select
+	 * @typedef {Object} IconObject
+	 * @property {string} IconObject.content Icon SVG content
+	 * @property {string} IconObject.label   Icon label
+	 * @property {string} IconObject.name    Icon name
+	 * @property {string} IconObject.type    Icon type
+	 * @property {string} IconObject.version Icon version
+	 *
+	 * @param {CollectionObject} collection Icon object to select
+	 * @param {IconObject} selectedIcon Icon object to select
 	 */
 	const selectIcon = useCallback(
-		( selectedIcon ) => {
+		( collection, selectedIcon ) => {
 			setStoredIcons( selectedIcon );
 
 			const {
-				content: iconContent,
 				label: iconLabel,
 				name: iconName,
 				type: iconType,
 			} = selectedIcon;
 
 			setAttributes( {
-				content: iconContent,
 				icon: {
 					label: iconLabel,
 					name: iconName,
 					type: iconType,
+					collection: collection.name,
 				},
 			} );
 		},
@@ -148,8 +154,8 @@ export default function Edit( {
 	);
 
 	const handleIconSelectFromModal = useCallback(
-		( selectedIcon ) => {
-			selectIcon( selectedIcon );
+		( collection, selectedIcon ) => {
+			selectIcon( collection, selectedIcon );
 			setIsModalVisible( false );
 		},
 		[ selectIcon ]

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Blockparty Icons
  * Description:       Provides blocks in WordPress editor to add custom SVG icons.
- * Requires at least: 6.1
+ * Requires at least: 6.2
  * Requires PHP:      8.1
  * Version:           1.0.0
  * Author:            Blockparty
@@ -41,17 +41,10 @@ function init() {
 	// Load available translations.
 	load_plugin_textdomain( 'blockparty-icons', false, dirname( BLOCKPARTY_ICONS_PLUGIN_BASENAME ) . '/languages' );
 
-	register_block_type( __DIR__ . '/build/icon', [ 'render_callback' => __NAMESPACE__ . '\\render_callback' ] );
+	register_block_type( __DIR__ . '/build/icon', [ 'render_callback' => [ BlockRenderer::class, 'render' ] ] );
 
 	// Load translations for JS
 	wp_set_script_translations( 'blockparty-icon-editor-script', 'blockparty-icons', BLOCKPARTY_ICONS_DIR . '/languages' );
-
-	// Expose sprite hashes to editor for cache busting in icon selector/modal.
-	$sprite_hashes = get_sprite_hashes_for_script();
-	if ( ! empty( $sprite_hashes ) ) {
-		$config = [ 'spriteHashes' => $sprite_hashes ];
-		wp_localize_script( 'blockparty-icon-editor-script', 'blockpartyIconsConfig', $config );
-	}
 
 	do_action( 'blockparty_icons_init' );
 }
@@ -322,152 +315,3 @@ function allow_css_attributes( $attr ) {
 }
 
 add_filter( 'safe_style_css', __NAMESPACE__ . '\\allow_css_attributes' );
-
-/**
- * Get sprite hashes array for use in wp_localize_script (editor icon selector).
- *
- * @return array<string, string> Map of sprite path keys (e.g. "icons/social.svg") to hash values.
- */
-function get_sprite_hashes_for_script(): array {
-	$hashes_file = get_sprite_hashes_file_path();
-	if ( '' === $hashes_file || ! is_readable( $hashes_file ) ) {
-		return [];
-	}
-
-	$json = @file_get_contents( $hashes_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-	if ( false === $json ) {
-		return [];
-	}
-
-	$hashes = json_decode( $json, true );
-	return is_array( $hashes ) ? $hashes : [];
-}
-
-/**
- * Get the path to the sprite hashes JSON file.
- *
- * @return string Path to sprite-hashes.json (empty if disabled or not set).
- */
-function get_sprite_hashes_file_path(): string {
-	$default = '';
-	if ( function_exists( 'get_theme_file_path' ) ) {
-		$default = get_theme_file_path( 'dist/sprite-hashes.json' );
-	}
-
-	/**
-	 * Filter the path to the sprite hashes JSON file.
-	 *
-	 * @param string|false $path Absolute path to sprite-hashes.json. Return false or empty string to disable cache busting.
-	 */
-	$path = apply_filters( 'blockparty_icons_sprite_hashes_file', $default );
-	if ( false === $path || '' === $path ) {
-		return '';
-	}
-	return (string) $path;
-}
-
-/**
- * Append cache-busting hash to sprite URL when sprite-hashes.json exists and icon type is sprite.
- *
- * @param  string $sprite_url Full sprite URL (e.g. https://example.com/.../dist/icons/social.svg#icon-id).
- * @return string URL with ?v=hash query if hash found, unchanged otherwise.
- */
-function get_sprite_url_with_hash( string $sprite_url ): string {
-	$hashes_file = get_sprite_hashes_file_path();
-	if ( '' === $hashes_file || ! is_readable( $hashes_file ) ) {
-		return $sprite_url;
-	}
-
-	// Local file path from filter; file_get_contents is appropriate here.
-	$json = @file_get_contents( $hashes_file ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-	if ( false === $json ) {
-		return $sprite_url;
-	}
-
-	$hashes = json_decode( $json, true );
-	if ( ! is_array( $hashes ) ) {
-		return $sprite_url;
-	}
-
-	$parsed   = wp_parse_url( $sprite_url );
-	$path     = isset( $parsed['path'] ) ? $parsed['path'] : '';
-	$fragment = isset( $parsed['fragment'] ) ? '#' . $parsed['fragment'] : '';
-
-	// Match JSON keys like "icons/social.svg" - path segment after "dist/".
-	if ( preg_match( '#/dist/(.+)$#', $path, $m ) ) {
-		$key = $m[1];
-	} else {
-		// Fallback: last two path segments (e.g. icons/social.svg).
-		$parts = array_filter( explode( '/', trim( $path, '/' ) ) );
-		$key   = implode( '/', array_slice( $parts, -2, 2 ) );
-	}
-
-	if ( empty( $hashes[ $key ] ) ) {
-		return $sprite_url;
-	}
-
-	$hash   = $hashes[ $key ];
-	$base   = $fragment ? strstr( $sprite_url, '#', true ) : $sprite_url;
-	$with_v = add_query_arg( 'v', $hash, $base );
-
-	return $with_v . $fragment;
-}
-
-/**
- * Render the icon item block.
- *
- * @param array    $attributes
- * @param string   $content
- * @param WP_Block $block
- *
- * @return string
- */
-function render_callback( $attributes, $content, $block ) {
-	/**
-	 * Filter block's template slug.
-	 *
-	 * Template must be located in the theme as it will be loaded via `get_template_part`.
-	 *
-	 * @param string $template_slug block's template slug
-	 * @param array $attributes block's attributes
-	 * @param \WP_Block $block block's \WP_Block instance
-	 */
-	$template_slug = apply_filters( 'blockparty_icons_template_slug', 'components/gutenberg/dynamic-block', $attributes, $block );
-
-	/**
-	 * Filter block's template name.
-	 *
-	 * @param string $template_name block's template name
-	 * @param string $template_slug block's template slug
-	 * @param array $attributes block's attributes
-	 * @param \WP_Block $block block's \WP_Block instance
-	 */
-	$template_name = apply_filters( 'blockparty_icons_template_name', '', $template_slug, $attributes, $block );
-
-	/**
-	 * Filter block's template args.
-	 *
-	 * @param string $template_name block's template name
-	 * @param string $template_slug block's template slug
-	 * @param array $attributes block's attributes
-	 * @param \WP_Block $block block's \WP_Block instance
-	 */
-	$template_args = apply_filters(
-		'blockparty_icons_template_args',
-		[
-			'block_attributes'         => $attributes,
-			'block_wrapper_attributes' => get_block_wrapper_attributes(),
-			'is_preview'               => isset( $_GET['is_block_editor'] ), //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		],
-		$template_slug,
-		$template_name,
-		$attributes,
-		$block
-	);
-
-	// Otherwise use default template.
-	ob_start();
-	load_template( plugin_dir_path( __FILE__ ) . 'views/default.php', false, $template_args );
-
-	return ob_get_clean();
-}

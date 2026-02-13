@@ -20,6 +20,7 @@ import { capitalize } from '../utils';
  */
 function IconSelector( {
 	handleIconSelectButtonClick,
+	collection,
 	icon,
 	iconColor,
 	padding,
@@ -29,7 +30,7 @@ function IconSelector( {
 	return (
 		<Button
 			className="block-editor-block-types-list__item"
-			onClick={ () => handleIconSelectButtonClick( icon ) }
+			onClick={ () => handleIconSelectButtonClick( collection, icon ) }
 		>
 			<span className="block-editor-block-types-list__item-icon">
 				<span className="block-editor-block-icon has-colors">
