@@ -84,7 +84,7 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const { borderRadius, content, iconColor, icon, label, size, url } =
+	const { borderRadius, iconColor, icon, label, size, url } =
 		attributes;
 
 	const blockRef = useRef( null );
@@ -199,12 +199,12 @@ export default function Edit( {
 
 	// Open icon modal when block is selected and no icon is set (e.g. after insert via native appender).
 	useEffect( () => {
-		const hasNoIcon = ! icon || ! content;
+		const hasNoIcon = ! icon;
 
 		if ( isSelected && hasNoIcon && collections ) {
 			setIsModalVisible( true );
 		}
-	}, [ isSelected, icon, content, collections ] );
+	}, [ isSelected, icon, collections ] );
 
 	return (
 		<div { ...useBlockProps( { ref: blockRef } ) }>
