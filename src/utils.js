@@ -90,7 +90,7 @@ export async function getCollections( args = {} ) {
 	}
 
 	const promise = apiFetch( {
-		path: addQueryArgs( 'icons/v1/collections', args ),
+		path: addQueryArgs( '/icons/v1/collections', args ),
 	} )
 		.then( ( data ) => {
 			if ( cache ) {
@@ -133,29 +133,9 @@ export async function getIcons( collection, args = {} ) {
 		return inFlight[ key ];
 	}
 
-	const pathBase = `icons/v1/${ collection }`;
-	const wpApiSettings = window.wpApiSettings || {};
-	const restUrl = wpApiSettings.root || '/wp-json/';
-	const restNonce = wpApiSettings.nonce || '';
-
-	const isRestRouteFormat = restUrl.includes( 'rest_route' );
-	const path = isRestRouteFormat ? pathBase : addQueryArgs( pathBase, args );
-	const queryString = isRestRouteFormat
-		? addQueryArgs( '', args ).replace( /^\?/, '' )
-		: '';
-	const url =
-		restUrl.replace( /\/$/, '' ) +
-		'/' +
-		path.replace( /^\//, '' ) +
-		( queryString ? '&' + queryString : '' );
-
-	const promise = fetch( url, {
-		method: 'GET',
-		headers: {
-			'X-WP-Nonce': restNonce,
-			'Content-Type': 'application/json',
-		},
-		credentials: 'include',
+	const promise = apiFetch( {
+		path: addQueryArgs( `/icons/v1/${ collection }`, args ),
+		parse: false,
 	} )
 		.then( ( response ) => {
 			if ( ! response.ok ) {

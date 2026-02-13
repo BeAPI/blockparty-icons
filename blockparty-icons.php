@@ -69,12 +69,11 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\rest' );
  * Preload collections and icons endpoint.
  *
  * @param array $paths
- * @param \WP_Block_Editor_Context $context
  *
  * @return array
  */
-function preload_rest_endpoints( $paths, $context ) {
-	$paths[] = '/icons/v1/collections?context=view&_locale=user';
+function preload_rest_endpoints( $paths ) {
+	$paths[] = '/icons/v1/collections?context=edit';
 	foreach ( get_icon_collections() as $collection ) {
 		$paths[] = sprintf( '/icons/v1/%s?context=edit', $collection->name() );
 	}
@@ -82,7 +81,7 @@ function preload_rest_endpoints( $paths, $context ) {
 	return $paths;
 }
 
-add_filter( 'block_editor_rest_api_preload_paths', __NAMESPACE__ . '\\preload_rest_endpoints', 10, 2 );
+add_filter( 'block_editor_rest_api_preload_paths', __NAMESPACE__ . '\\preload_rest_endpoints' );
 
 /**
  * Register new icon collection.

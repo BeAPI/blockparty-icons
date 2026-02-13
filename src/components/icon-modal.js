@@ -116,11 +116,15 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	 */
 	const loadIcons = useCallback(
 		async ( collectionName, page = 1, search = '' ) => {
-			const args = {
-				context: 'edit',
-				per_page: iconsPerPage,
-				page,
-			};
+			const args = { context: 'edit' };
+
+			if ( iconsPerPage !== DEFAULT_ICONS_PER_PAGE ) {
+				args.per_page = iconsPerPage;
+			}
+
+			if ( page > 1 ) {
+				args.page = page;
+			}
 
 			if ( search ) {
 				args.search = search;
