@@ -84,9 +84,15 @@
 			}
 		}
 
+		> div:not(.components-modal__header),
+		.blockparty-icons-modal__grid {
+			height: 100%;
+		}
+
 		.blockparty-icons-modal__grid {
 			display: grid;
 			grid-template-columns: minmax(0, 1fr) 280px;
+			grid-template-rows: 106px minmax(0, 1fr);
 			transition: grid-template-columns 0.25s ease-in-out;
 
 			&:has(.blockparty-icons-modal__sidebar-wrapper--closed) {
@@ -122,6 +128,16 @@
 		border-bottom: 1px solid #e0e0e0;
 	}
 
+	&__collections-list {
+		grid-column: 1;
+		grid-row: 2;
+
+		> div,
+		.components-tab-panel__tab-content {
+			height: 100%;
+		}
+	}
+
 	&__collection-name {
 		background-color: #fff;
 	}
@@ -131,6 +147,7 @@
 		width: 280px;
 		overflow: hidden;
 		transition: min-width 0.25s ease-in-out, width 0.25s ease-in-out;
+		grid-column: 2;
 
 		&--closed {
 			min-width: 0;
