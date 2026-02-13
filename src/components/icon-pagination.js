@@ -54,14 +54,15 @@ function getPaginationPages(
  * @param {string}   [props.ariaLabel]  Optional aria-label for the nav (default: "Icon pagination")
  */
 export default function IconPagination( props ) {
-	const { currentPage, totalPages, onPageChange, isLoading = false } = props;
-
-	const current = Math.max( 1, Math.min( currentPage, totalPages ) );
-	const total = Math.max( 1, totalPages );
-
-	if ( total <= 1 ) {
+	if ( Math.max( 1, props.totalPages ) <= 1 ) {
 		return null;
 	}
+
+	const total = Math.max( 1, props.totalPages );
+	const current = Math.max(
+		1,
+		Math.min( props.currentPage, props.totalPages )
+	);
 
 	return (
 		<nav
@@ -72,8 +73,8 @@ export default function IconPagination( props ) {
 		>
 			<Button
 				variant="compact"
-				onClick={ () => onPageChange( current - 1 ) }
-				disabled={ isLoading || current <= 1 }
+				onClick={ () => props.onPageChange( current - 1 ) }
+				disabled={ ( props.isLoading ?? false ) || current <= 1 }
 				label={ __( 'Previous page', 'blockparty-icons' ) }
 			>
 				{ __( 'Previous', 'blockparty-icons' ) }
@@ -96,8 +97,11 @@ export default function IconPagination( props ) {
 							<Button
 								key={ page }
 								variant="compact"
-								onClick={ () => onPageChange( page ) }
-								disabled={ isLoading || page === current }
+								onClick={ () => props.onPageChange( page ) }
+								disabled={
+									( props.isLoading ?? false ) ||
+									page === current
+								}
 								label={ sprintf(
 									/* translators: %d: page number */
 									__( 'Page %d', 'blockparty-icons' ),
@@ -111,8 +115,8 @@ export default function IconPagination( props ) {
 			</span>
 			<Button
 				variant="compact"
-				onClick={ () => onPageChange( current + 1 ) }
-				disabled={ isLoading || current >= total }
+				onClick={ () => props.onPageChange( current + 1 ) }
+				disabled={ ( props.isLoading ?? false ) || current >= total }
 				label={ __( 'Next page', 'blockparty-icons' ) }
 			>
 				{ __( 'Next', 'blockparty-icons' ) }

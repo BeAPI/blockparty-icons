@@ -41,7 +41,7 @@ import {
 	TextControl,
 	ToolbarButton,
 	ToolbarGroup,
-	__experimentalUnitControl as UnitControl,
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 
 /**
