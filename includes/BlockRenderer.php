@@ -15,10 +15,10 @@ class BlockRenderer {
 	 *
 	 * @return string
 	 */
-	public static function render( $attributes, $content, $block ) {
+	public static function render( $attributes ) {
 		// Block attributes
 		$icon_data  = $attributes['icon'] ?? [];
-		$radius     = (int) ( $attributes['borderRadius'] ?? 0 );
+		$radius     = (string) ( $attributes['borderRadius'] ?? '0px' );
 		$link_url   = (string) ( $attributes['url'] ?? '' );
 		$link_label = (string) ( $attributes['label'] ?? '' );
 
@@ -47,7 +47,7 @@ class BlockRenderer {
 		// Start block wrapper
 		$html .= sprintf(
 			'<div %s>',
-			get_block_wrapper_attributes( [ 'style' => sprintf( 'border-radius: %spx;', $radius ) ] )
+			get_block_wrapper_attributes( [ 'style' => sprintf( 'border-radius: %s;', $radius ) ] )
 		);
 
 		// Start block link

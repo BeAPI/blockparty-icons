@@ -41,6 +41,7 @@ import {
 	TextControl,
 	ToolbarButton,
 	ToolbarGroup,
+	__experimentalUnitControl as UnitControl,
 } from '@wordpress/components';
 
 /**
@@ -58,9 +59,6 @@ import { link, linkOff, replace, trash } from '@wordpress/icons';
 import IconModal from '../components/icon-modal';
 import LinkURLPopover from '../components/link-url-popover';
 
-const DEFAULT_BORDER_RADIUS = 0;
-const MIN_BORDER_RADIUS = 0;
-const MAX_BORDER_RADIUS = 50;
 const DEFAULT_SIZE = 48;
 const MAX_SIZE = 256;
 const MIN_SIZE = 8;
@@ -306,25 +304,17 @@ export default function Edit( {
 					</InspectorControls>
 					<InspectorControls group="border">
 						<div className="full-width-control-wrapper">
-							<RangeControl
+							<UnitControl
 								label={ __(
 									'Icon radius',
 									'blockparty-icons'
 								) }
-								value={ borderRadius }
 								onChange={ ( newBorderRadius ) => {
 									setAttributes( {
 										borderRadius: newBorderRadius,
 									} );
 								} }
-								initialPosition={ DEFAULT_BORDER_RADIUS }
-								min={ MIN_BORDER_RADIUS }
-								max={ MAX_BORDER_RADIUS }
-								allowReset={ true }
-								withInputField={ true }
-								renderTooltipContent={ ( value ) =>
-									`${ value }%`
-								}
+								value={ borderRadius }
 							/>
 						</div>
 					</InspectorControls>
@@ -332,6 +322,7 @@ export default function Edit( {
 						<div className="full-width-control-wrapper">
 							<RangeControl
 								label={ __( 'Icon size', 'blockparty-icons' ) }
+								help={ __( 'Adjust the size of the icon (value in pixels)', 'blockparty-icons' ) }
 								value={ size }
 								onChange={ ( newSize ) => {
 									setAttributes( { size: newSize } );
@@ -339,11 +330,11 @@ export default function Edit( {
 								initialPosition={ DEFAULT_SIZE }
 								min={ MIN_SIZE }
 								max={ MAX_SIZE }
-								allowReset={ true }
 								withInputField={ true }
 								renderTooltipContent={ ( value ) =>
 									`${ value }px`
 								}
+								__next40pxDefaultSize
 							/>
 						</div>
 					</InspectorControls>
