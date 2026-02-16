@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: Blockparty Icons 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/blockparty-"
 "icons\n"
-"POT-Creation-Date: 2026-02-16T20:25:44+00:00\n"
-"PO-Revision-Date: 2026-02-16 21:26+0100\n"
+"POT-Creation-Date: 2026-02-16T22:43:56+00:00\n"
+"PO-Revision-Date: 2026-02-16 23:44+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -162,6 +162,10 @@ msgstr "Aucune icône trouvée dans cette collection."
 #: build/index.js:2
 msgid "Icon color"
 msgstr "Couleur de l’icône"
+
+#: build/index.js:2
+msgid "Add an icon"
+msgstr "Ajouter une icône"
 
 #: build/index.js:2
 msgid "Remove link"
