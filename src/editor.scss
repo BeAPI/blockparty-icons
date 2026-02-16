@@ -16,13 +16,10 @@
 	}
 
 	.components-button {
-		width: 100%;
-		height: auto;
-		padding: 0;
-
-		&:hover,
-		&[aria-expanded="true"] {
-			color: var(--wp--preset--color--dark, #000);
+		&:not(.is-compact) {
+			height: auto;
+			width: 100%;
+			padding: 0;
 		}
 
 		> svg {

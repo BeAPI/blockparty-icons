@@ -35,6 +35,7 @@ import './editor.scss';
  * WordPress dependencies
  */
 import {
+	Button,
 	Disabled,
 	PanelBody,
 	RangeControl,
@@ -55,7 +56,14 @@ import {
 	getCollections,
 	setStoredIcons,
 } from './utils';
-import { link, linkOff, replace, trash } from '@wordpress/icons';
+import {
+	Icon,
+	link,
+	linkOff,
+	plusCircle,
+	replace,
+	trash,
+} from '@wordpress/icons';
 import IconModal from './components/icon-modal';
 import LinkURLPopover from './components/link-url-popover';
 
@@ -214,6 +222,14 @@ export default function Edit( {
 					handleIconSelectButtonClick={ handleIconSelectFromModal }
 				/>
 			) }
+			{ ! icon && ! isModalVisible && (
+				<Button
+					onClick={ openIconModal }
+					icon={ <Icon icon={ plusCircle } /> }
+					label={ __( 'Add an icon', 'blockparty-icons' ) }
+					size="compact"
+				/>
+			) }
 			{ icon && (
 				<>
 					<BlockControls group="other">
@@ -350,15 +366,14 @@ export default function Edit( {
 							/>
 						</div>
 					</InspectorControls>
+					<Disabled>
+						<ServerSideRender
+							block="blockparty/icon"
+							attributes={ attributes }
+						/>
+					</Disabled>
 				</>
 			) }
-
-			<Disabled>
-				<ServerSideRender
-					block="blockparty/icon"
-					attributes={ attributes }
-				/>
-			</Disabled>
 		</div>
 	);
 }
