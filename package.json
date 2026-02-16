@@ -20,8 +20,8 @@
 	},
 	"devDependencies": {
 		"@wordpress/env": "^10.39.0",
-		"@wordpress/icons": "^10.24.0",
-		"@wordpress/scripts": "^30.17.0 "
+		"@wordpress/icons": "^11.6.0",
+		"@wordpress/scripts": "^30.17.0"
 	},
 	"dependencies": {
 		"@beapi/icons": "^1.2.5",
