@@ -89,6 +89,15 @@
 			height: 100%;
 		}
 
+		&.has-scrolled-content,
+		&.is-scrollable {
+			> div:not(.components-modal__header),
+			.blockparty-icons-modal__grid {
+				min-height: 100%;
+				height: auto;
+			}
+		}
+
 		.blockparty-icons-modal__grid {
 			display: grid;
 			grid-template-columns: minmax(0, 1fr) 280px;
@@ -102,7 +111,7 @@
 
 		.blockparty-icons-modal__sidebar-wrapper {
 			grid-row: span 2;
-			border-top: 1px solid #e0e0e0;
+			border-top: 2px solid #e0e0e0;
 			border-left: 1px solid #e0e0e0;
 		}
 
@@ -147,7 +156,6 @@
 	&__sidebar-wrapper {
 		min-width: 0;
 		width: 280px;
-		overflow: hidden;
 		transition: min-width 0.25s ease-in-out, width 0.25s ease-in-out;
 		grid-column: 2;
 
@@ -159,12 +167,20 @@
 
 	&__sidebar {
 		min-width: 280px;
+		border-left: 1px solid #e0e0e0;
 
 		&,
 		.components-panel {
 			height: 100%;
 			border: none;
 		}
+	}
+
+	&__sidebar-wrapper-inner {
+		height: auto;
+		position: sticky;
+		top: 0;
+		z-index: 1;
 	}
 
 	&__spinner {

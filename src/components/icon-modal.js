@@ -333,125 +333,129 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 										: ''
 								}` }
 							>
-								<Animate
-									type="slide-in"
-									options={ { origin: 'left' } }
-								>
-									{ ( { className } ) => (
-										<div
-											className={ `${ className } blockparty-icons-modal__sidebar` }
-											aria-hidden={ ! isSidebarOpen }
-										>
-											<Panel
-												header={ __(
-													'Modal settings',
-													'blockparty-icons'
-												) }
+								<div className="blockparty-icons-modal__sidebar-wrapper-inner">
+									<Animate
+										type="slide-in"
+										options={ { origin: 'left' } }
+									>
+										{ ( { className } ) => (
+											<div
+												className={ `${ className } blockparty-icons-modal__sidebar` }
+												aria-hidden={ ! isSidebarOpen }
 											>
-												<PanelBody
-													title={ __(
-														'Display',
+												<Panel
+													header={ __(
+														'Modal settings',
 														'blockparty-icons'
 													) }
 												>
-													<RangeControl
-														label={ __(
-															'Icon preview size',
+													<PanelBody
+														title={ __(
+															'Display',
 															'blockparty-icons'
 														) }
-														help={ __(
-															'Adjust preview size of the icons.',
-															'blockparty-icons'
-														) }
-														value={ displaySize }
-														min={ 8 }
-														initialPosition={
-															displaySize
-														}
-														max={ 256 }
-														onChange={ (
-															newSize
-														) => {
-															setLocalPreviewSize(
+													>
+														<RangeControl
+															label={ __(
+																'Icon preview size',
+																'blockparty-icons'
+															) }
+															help={ __(
+																'Adjust preview size of the icons.',
+																'blockparty-icons'
+															) }
+															value={
+																displaySize
+															}
+															min={ 8 }
+															initialPosition={
+																displaySize
+															}
+															max={ 256 }
+															onChange={ (
 																newSize
-															);
-															if (
-																persistSizeTimeoutRef.current
-															) {
-																clearTimeout(
+															) => {
+																setLocalPreviewSize(
+																	newSize
+																);
+																if (
 																	persistSizeTimeoutRef.current
-																);
+																) {
+																	clearTimeout(
+																		persistSizeTimeoutRef.current
+																	);
+																}
+																persistSizeTimeoutRef.current =
+																	setTimeout(
+																		() => {
+																			setPreference(
+																				PREFERENCES_NAME,
+																				'iconPreviewSize',
+																				newSize
+																			);
+																			persistSizeTimeoutRef.current =
+																				null;
+																		},
+																		300
+																	);
+															} }
+														/>
+													</PanelBody>
+													<PanelBody
+														title={ __(
+															'Pager',
+															'blockparty-icons'
+														) }
+													>
+														<RangeControl
+															label={ __(
+																'Icons per page',
+																'blockparty-icons'
+															) }
+															help={ __(
+																'Number of icons displayed per page.',
+																'blockparty-icons'
+															) }
+															value={
+																displayIconsPerPage
 															}
-															persistSizeTimeoutRef.current =
-																setTimeout(
-																	() => {
-																		setPreference(
-																			PREFERENCES_NAME,
-																			'iconPreviewSize',
-																			newSize
-																		);
-																		persistSizeTimeoutRef.current =
-																			null;
-																	},
-																	300
-																);
-														} }
-													/>
-												</PanelBody>
-												<PanelBody
-													title={ __(
-														'Pager',
-														'blockparty-icons'
-													) }
-												>
-													<RangeControl
-														label={ __(
-															'Icons per page',
-															'blockparty-icons'
-														) }
-														help={ __(
-															'Number of icons displayed per page.',
-															'blockparty-icons'
-														) }
-														value={
-															displayIconsPerPage
-														}
-														min={ 12 }
-														max={ 100 }
-														step={ 2 }
-														onChange={ (
-															value
-														) => {
-															setLocalIconsPerPage(
+															min={ 12 }
+															max={ 100 }
+															step={ 2 }
+															onChange={ (
 																value
-															);
-															if (
-																iconsPerPageDebounceRef.current
-															) {
-																clearTimeout(
+															) => {
+																setLocalIconsPerPage(
+																	value
+																);
+																if (
 																	iconsPerPageDebounceRef.current
-																);
-															}
-															iconsPerPageDebounceRef.current =
-																setTimeout(
-																	() => {
-																		setPreference(
-																			PREFERENCES_NAME,
-																			'iconsPerPage',
-																			value
-																		);
-																		iconsPerPageDebounceRef.current =
-																			null;
-																	},
-																	ICONS_PER_PAGE_DEBOUNCE_MS
-																);
-														} }
-													/>
-												</PanelBody>
-											</Panel>
-										</div>
-									) }
-								</Animate>
+																) {
+																	clearTimeout(
+																		iconsPerPageDebounceRef.current
+																	);
+																}
+																iconsPerPageDebounceRef.current =
+																	setTimeout(
+																		() => {
+																			setPreference(
+																				PREFERENCES_NAME,
+																				'iconsPerPage',
+																				value
+																			);
+																			iconsPerPageDebounceRef.current =
+																				null;
+																		},
+																		ICONS_PER_PAGE_DEBOUNCE_MS
+																	);
+															} }
+														/>
+													</PanelBody>
+												</Panel>
+											</div>
+										) }
+									</Animate>
+								</div>
 							</div>
 							<div
 								className="blockparty-icons-modal__collections-list"
