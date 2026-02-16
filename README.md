@@ -77,3 +77,23 @@ To generate the JSON files for Gutenberg from the po files
 ```bash
 npm run make:json
 ```
+
+## Test this block with other blocks from the blockparty
+
+### Add Accordion block
+
+```bash
+npm run wp:cli -- wp plugin install --activate https://composer.beapi.fr/dist/beapi/blockparty-accordion/beapi-blockparty-accordion-58095cbfdc9da8fba7f1d5876f4bd95e0d5d9418-zip-0d2657.zip
+```
+
+### Add Tabs block
+
+```bash
+npm run wp:cli -- wp plugin install --activate https://composer.beapi.fr/dist/beapi/blockparty-tabs/beapi-blockparty-tabs-81dec452a55861bea22292966298949dfd5099c0-zip-53dbc9.zip
+```
+
+### Add Megamenu block
+
+```bash
+npm run wp:cli -- wp plugin install --activate https://composer.beapi.fr/dist/beapi/mega-menu-block/beapi-mega-menu-block-0ab20ffbe5bb4515c05e2fb6f90d09b24cb9e753-zip-0c0eb3.zip
+```
