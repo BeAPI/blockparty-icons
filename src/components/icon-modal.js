@@ -43,7 +43,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ debouncedSearchInput, setDebouncedSearchInput ] = useState( '' );
 	const [ loading, setLoading ] = useState( false );
 
-	// Get icon preview size from preferences store (persisted)
+	// Get Preview of icon sizes from preferences store (persisted)
 	const iconPreviewSize = useSelect(
 		( select ) =>
 			select( preferencesStore ).get(
@@ -357,7 +357,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 													>
 														<RangeControl
 															label={ __(
-																'Icon preview size',
+																'Preview of icon sizes',
 																'blockparty-icons'
 															) }
 															help={ __(

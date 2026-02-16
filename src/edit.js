@@ -220,7 +220,11 @@ export default function Edit( {
 						<ToolbarButton
 							icon={ url ? linkOff : link }
 							onClick={ url ? removeLink : openLinkPopover }
-							label={ __( 'Link', 'blockparty-icons' ) }
+							label={
+								url
+									? __( 'Remove link', 'blockparty-icons' )
+									: __( 'Add a link', 'blockparty-icons' )
+							}
 						/>
 					</BlockControls>
 					<BlockControls>
@@ -258,14 +262,18 @@ export default function Edit( {
 							<PanelBody
 								title={ sprintf(
 									/* translators: %s: name of the icon name. */
-									__( '%s label' ),
+									__( 'Label of %s', 'blockparty-icons' ),
 									capitalize( icon?.label || icon?.name )
 								) }
 							>
 								<TextControl
-									label={ __( 'Link label' ) }
+									label={ __(
+										'Link label',
+										'blockparty-icons'
+									) }
 									help={ __(
-										'Briefly describe the link to help screen reader users.'
+										'Briefly describe the link to help screen reader users.',
+										'blockparty-icons'
 									) }
 									value={ label || '' }
 									onChange={ ( value ) =>
