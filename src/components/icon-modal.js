@@ -34,6 +34,7 @@ import IconSelector from './icon-selector';
 const PREFERENCES_NAME = 'blockparty-icons';
 const DEFAULT_ICON_PREVIEW_SIZE = 24;
 const DEFAULT_ICONS_PER_PAGE = 50;
+const ICONS_PER_PAGE_DEBOUNCE_MS = 400;
 
 function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ isOpen, setOpen ] = useState( true );
@@ -74,20 +75,29 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ localPreviewSize, setLocalPreviewSize ] = useState( null );
 	const persistSizeTimeoutRef = useRef( null );
 
+	// Local state for "icons per page" with debounced persist (avoids refetch on every slider tick)
+	const [ localIconsPerPage, setLocalIconsPerPage ] = useState( null );
+	const iconsPerPageDebounceRef = useRef( null );
+
 	const displaySize = localPreviewSize ?? iconPreviewSize;
+	const displayIconsPerPage = localIconsPerPage ?? iconsPerPage;
 
 	// Sync local from store when modal opens
 	useEffect( () => {
 		if ( isOpen ) {
 			setLocalPreviewSize( iconPreviewSize );
+			setLocalIconsPerPage( iconsPerPage );
 		}
-	}, [ isOpen, iconPreviewSize ] );
+	}, [ isOpen, iconPreviewSize, iconsPerPage ] );
 
-	// Clear debounce on unmount
+	// Clear debounce timeouts on unmount
 	useEffect(
 		() => () => {
 			if ( persistSizeTimeoutRef.current ) {
 				clearTimeout( persistSizeTimeoutRef.current );
+			}
+			if ( iconsPerPageDebounceRef.current ) {
+				clearTimeout( iconsPerPageDebounceRef.current );
 			}
 		},
 		[]
@@ -403,18 +413,38 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 															'Number of icons displayed per page.',
 															'blockparty-icons'
 														) }
-														value={ iconsPerPage }
+														value={
+															displayIconsPerPage
+														}
 														min={ 12 }
 														max={ 100 }
 														step={ 2 }
 														onChange={ (
 															value
 														) => {
-															setPreference(
-																PREFERENCES_NAME,
-																'iconsPerPage',
+															setLocalIconsPerPage(
 																value
 															);
+															if (
+																iconsPerPageDebounceRef.current
+															) {
+																clearTimeout(
+																	iconsPerPageDebounceRef.current
+																);
+															}
+															iconsPerPageDebounceRef.current =
+																setTimeout(
+																	() => {
+																		setPreference(
+																			PREFERENCES_NAME,
+																			'iconsPerPage',
+																			value
+																		);
+																		iconsPerPageDebounceRef.current =
+																			null;
+																	},
+																	ICONS_PER_PAGE_DEBOUNCE_MS
+																);
 														} }
 													/>
 												</PanelBody>
