@@ -79,12 +79,13 @@ function cacheKey( prefix, ...parts ) {
  */
 export async function getCollections( args = {} ) {
 	const cache = getCache();
-	const inFlight = getInFlight();
 	const key = cacheKey( 'collections', args );
 
 	if ( cache && key in cache ) {
 		return cache[ key ];
 	}
+
+	const inFlight = getInFlight();
 	if ( inFlight && key in inFlight ) {
 		return inFlight[ key ];
 	}
@@ -123,12 +124,13 @@ export async function getCollections( args = {} ) {
  */
 export async function getIcons( collection, args = {} ) {
 	const cache = getCache();
-	const inFlight = getInFlight();
 	const key = cacheKey( 'icons', collection, args );
 
 	if ( cache && key in cache ) {
 		return cache[ key ];
 	}
+
+	const inFlight = getInFlight();
 	if ( inFlight && key in inFlight ) {
 		return inFlight[ key ];
 	}
