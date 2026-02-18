@@ -9,6 +9,28 @@
 			"email": "technique@beapi.fr"
 		}
 	],
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://wpackagist.org",
+			"only": [
+				"wpackagist-plugin/*",
+				"wpackagist-theme/*"
+			],
+			"canonical": false
+		},
+		{
+			"type": "composer",
+			"url": "https://composer.beapi.fr"
+		}
+	],
+	"extra": {
+		"installer-paths": {
+			".wp-env/plugins/{$name}/": [
+				"type:wordpress-plugin"
+			]
+		}
+	},
 	"config": {
 		"optimize-autoloader": true,
 		"preferred-install": "dist",
@@ -28,6 +50,9 @@
 		"composer/installers": "^1.0 || ^2.0"
 	},
 	"require-dev": {
+		"beapi/blockparty-accordion": "1.1.0",
+		"beapi/blockparty-tabs": "1.1.0",
+		"beapi/mega-menu-block": "1.1.0",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
 		"humanmade/psalm-plugin-wordpress": "^3.0",
 		"overtrue/phplint": "^9.1",

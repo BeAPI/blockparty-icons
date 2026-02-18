@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e2f61b8a87446faccfa05b36e3f24c79",
+    "content-hash": "45a3287a5c944ea32a91f02011a65098",
     "packages": [
         {
             "name": "composer/installers",
@@ -308,6 +308,214 @@
                 }
             ],
             "time": "2024-04-13T18:00:56+00:00"
+        },
+        {
+            "name": "beapi/blockparty-accordion",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:BeAPI/blockparty-accordion.git",
+                "reference": "d17ccb2fdb803b1181a9fe52ee8623326d3e1ea8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://composer.beapi.fr/dist/beapi/blockparty-accordion/beapi-blockparty-accordion-d17ccb2fdb803b1181a9fe52ee8623326d3e1ea8-zip-69aa4a.zip",
+                "reference": "d17ccb2fdb803b1181a9fe52ee8623326d3e1ea8",
+                "shasum": "ea19b8badc3b1cb586967e81d40a13653f9b6c20"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0",
+                "ext-json": "*",
+                "php": "^8.1 | ^8.2"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "overtrue/phplint": "^9.1",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "php-stubs/wordpress-stubs": "^6.4",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpro/grumphp-shim": "^1.5",
+                "roave/security-advisories": "dev-latest",
+                "roots/wordpress-no-content": "^6.4",
+                "vimeo/psalm": "^5.20",
+                "wp-coding-standards/wpcs": "^3.0"
+            },
+            "type": "wordpress-plugin",
+            "scripts": {
+                "cs": [
+                    "./vendor/bin/phpcs"
+                ],
+                "cb": [
+                    "./vendor/bin/phpcbf"
+                ],
+                "psalm": [
+                    "./vendor/bin/psalm"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "BeAPI",
+                    "email": "technical@beapi.fr"
+                }
+            ],
+            "description": "Accessible Accordion block for WordPress editor.",
+            "keywords": [
+                "block",
+                "gutenberg",
+                "multisite",
+                "plugin",
+                "share",
+                "wordpress"
+            ],
+            "support": {
+                "source": "https://github.com/BeAPI/blockparty-accordion/tree/1.1.0",
+                "issues": "https://github.com/BeAPI/blockparty-accordion/issues"
+            },
+            "time": "2026-02-18T15:52:59+00:00"
+        },
+        {
+            "name": "beapi/blockparty-tabs",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:BeAPI/blockparty-tabs.git",
+                "reference": "107e46cba7409e7ec8cbfddf7ba6a333fdaf5d6e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://composer.beapi.fr/dist/beapi/blockparty-tabs/beapi-blockparty-tabs-107e46cba7409e7ec8cbfddf7ba6a333fdaf5d6e-zip-f72438.zip",
+                "reference": "107e46cba7409e7ec8cbfddf7ba6a333fdaf5d6e",
+                "shasum": "57a0bcfd657e65546495d03884a49594aef3f7e6"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "humanmade/psalm-plugin-wordpress": "^3.0",
+                "overtrue/phplint": "^9.1",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "phpro/grumphp-shim": "^1.5",
+                "roave/security-advisories": "dev-latest",
+                "vimeo/psalm": "^5.20",
+                "wp-coding-standards/wpcs": "^3.0"
+            },
+            "type": "wordpress-plugin",
+            "scripts": {
+                "cs": [
+                    "./vendor/bin/phpcs"
+                ],
+                "cb": [
+                    "./vendor/bin/phpcbf"
+                ],
+                "psalm": [
+                    "./vendor/bin/psalm"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "BeAPI",
+                    "email": "technique@beapi.fr"
+                }
+            ],
+            "description": "Accessible Tabs block for WordPress gutenberg.",
+            "keywords": [
+                "gutenberg",
+                "plugin",
+                "tabs",
+                "wordpress"
+            ],
+            "support": {
+                "source": "https://github.com/BeAPI/blockparty-tabs/tree/1.1.0",
+                "issues": "https://github.com/BeAPI/blockparty-tabs/issues"
+            },
+            "time": "2026-02-18T15:53:01+00:00"
+        },
+        {
+            "name": "beapi/mega-menu-block",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:BeAPI/beapi-mega-menu-block.git",
+                "reference": "8f061ea3a75b03843b563bc835dc6260c6873326"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://composer.beapi.fr/dist/beapi/mega-menu-block/beapi-mega-menu-block-8f061ea3a75b03843b563bc835dc6260c6873326-zip-35b205.zip",
+                "reference": "8f061ea3a75b03843b563bc835dc6260c6873326",
+                "shasum": "65dd60144d027e0e660998a8c8e4df358b555e00"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0",
+                "ext-json": "*",
+                "php": "^7.2 || ^8"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2",
+                "humanmade/psalm-plugin-wordpress": "^2.0",
+                "overtrue/phplint": "^3.2",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpcompatibility/php-compatibility": "^9.3",
+                "phpro/grumphp-shim": "^0.22",
+                "roave/security-advisories": "dev-latest",
+                "roots/wordpress-no-content": "^6.0",
+                "squizlabs/php_codesniffer": "^3.7",
+                "vimeo/psalm": "~4.23.0",
+                "wp-cli/wp-cli": "^2.6",
+                "wp-coding-standards/wpcs": "^2.3",
+                "wp-phpunit/wp-phpunit": "^6.0",
+                "yoast/phpunit-polyfills": "^1.0"
+            },
+            "type": "wordpress-plugin",
+            "autoload": {
+                "psr-4": {
+                    "BEAPI\\MegaMenuBlock\\": "classes/"
+                }
+            },
+            "scripts": {
+                "cs": [
+                    "./vendor/bin/phpcs"
+                ],
+                "cb": [
+                    "./vendor/bin/phpcbf"
+                ],
+                "psalm": [
+                    "./vendor/bin/psalm"
+                ],
+                "phpunit": [
+                    "phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "BeAPI",
+                    "email": "technical@beapi.fr"
+                }
+            ],
+            "description": "Build Mega Menu with blocks.",
+            "keywords": [
+                "block",
+                "gutenberg",
+                "mega menu",
+                "plugin",
+                "wordpress"
+            ],
+            "support": {
+                "source": "https://github.com/BeAPI/beapi-mega-menu-block/tree/1.1.0",
+                "issues": "https://github.com/BeAPI/beapi-mega-menu-block/issues"
+            },
+            "time": "2026-02-18T15:52:52+00:00"
         },
         {
             "name": "composer/pcre",
@@ -2205,12 +2413,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "0827484199a3d7d67a4f0f72637f235ca29b48d6"
+                "reference": "1476a499c47192447981cb2a9b63f87eca5abc83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/0827484199a3d7d67a4f0f72637f235ca29b48d6",
-                "reference": "0827484199a3d7d67a4f0f72637f235ca29b48d6",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/1476a499c47192447981cb2a9b63f87eca5abc83",
+                "reference": "1476a499c47192447981cb2a9b63f87eca5abc83",
                 "shasum": ""
             },
             "conflict": {
@@ -2318,6 +2526,7 @@
                 "causal/oidc": "<4",
                 "cecil/cecil": "<7.47.1",
                 "centreon/centreon": "<22.10.15",
+                "cesargb/laravel-magiclink": ">=2,<2.25.1",
                 "cesnet/simplesamlphp-module-proxystatistics": "<3.1",
                 "chriskacerguis/codeigniter-restserver": "<=2.7.1",
                 "chrome-php/chrome": "<1.14",
@@ -2377,6 +2586,7 @@
                 "devgroup/dotplant": "<2020.09.14-dev",
                 "digimix/wp-svg-upload": "<=1",
                 "directmailteam/direct-mail": "<6.0.3|>=7,<7.0.3|>=8,<9.5.2",
+                "directorytree/imapengine": "<1.22.3",
                 "dl/yag": "<3.0.1",
                 "dmk/webkitpdf": "<1.1.4",
                 "dnadesign/silverstripe-elemental": "<5.3.12",
@@ -2479,7 +2689,7 @@
                 "filegator/filegator": "<7.8",
                 "filp/whoops": "<2.1.13",
                 "fineuploader/php-traditional-server": "<=1.2.2",
-                "firebase/php-jwt": "<6",
+                "firebase/php-jwt": "<7",
                 "fisharebest/webtrees": "<=2.1.18",
                 "fixpunkt/fp-masterquiz": "<2.2.1|>=3,<3.5.2",
                 "fixpunkt/fp-newsletter": "<1.1.1|>=1.2,<2.1.2|>=2.2,<3.2.6",
@@ -2559,7 +2769,7 @@
                 "ibexa/solr": ">=4.5,<4.5.4",
                 "ibexa/user": ">=4,<4.4.3|>=5,<5.0.4",
                 "icecoder/icecoder": "<=8.1",
-                "idno/known": "<=1.3.1",
+                "idno/known": "<=1.6.2",
                 "ilicmiljan/secure-props": ">=1.2,<1.2.2",
                 "illuminate/auth": "<5.5.10",
                 "illuminate/cookie": ">=4,<=4.0.11|>=4.1,<6.18.31|>=7,<7.22.4",
@@ -2848,7 +3058,7 @@
                 "propel/propel": ">=2.0.0.0-alpha1,<=2.0.0.0-alpha7",
                 "propel/propel1": ">=1,<=1.7.1",
                 "psy/psysh": "<=0.11.22|>=0.12,<=0.12.18",
-                "pterodactyl/panel": "<1.12",
+                "pterodactyl/panel": "<1.12.1",
                 "ptheofan/yii2-statemachine": ">=2.0.0.0-RC1-dev,<=2",
                 "ptrofimov/beanstalk_console": "<1.7.14",
                 "pubnub/pubnub": "<6.1",
@@ -3220,7 +3430,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-11T19:25:13+00:00"
+            "time": "2026-02-18T01:37:03+00:00"
         },
         {
             "name": "roots/wordpress-no-content",
@@ -5282,5 +5492,5 @@
     "platform-overrides": {
         "php": "8.1"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
