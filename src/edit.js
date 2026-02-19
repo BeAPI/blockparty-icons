@@ -21,7 +21,9 @@ import {
 	__experimentalUseMultipleOriginColorsAndGradients as useMultipleOriginColorsAndGradients,
 } from '@wordpress/block-editor';
 
-import { ServerSideRender } from '@wordpress/server-side-render';
+// Support WordPress < 6.9 (default export) and >= 6.9 (named export).
+import * as ServerSideRenderModule from '@wordpress/server-side-render';
+const ServerSideRender = ServerSideRenderModule.ServerSideRender ?? ServerSideRenderModule.default;
 
 /**
  * Lets webpack process CSS, SASS or SCSS files referenced in JavaScript files.
