@@ -1,0 +1,41 @@
+name: Quality PHP
+
+on:
+  pull_request:
+    paths:
+      - '**.php'
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  # The concurrency group contains the workflow name and the branch name for pull requests
+  # or the commit hash for any other events.
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: PHP quality
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          extensions: mbstring, intl #optional, setup extensions
+
+      - name: Setup Composer
+        run: |
+          composer config --global http-basic.composer.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+          composer config --global http-basic.packages.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+
+      - name: Validate composer file
+        run: composer validate
+
+      - name: Install composer dependencies
+        run: composer install
+
+      - name: Run codesniffer
+        run: composer cs

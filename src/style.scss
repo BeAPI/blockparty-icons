@@ -1,0 +1,49 @@
+/**
+ * The following styles get applied both on the front of your site
+ * and in the editor.
+ *
+ * Replace them with your own styles or remove the file completely.
+ */
+
+.wp-block-blockparty-icon {
+	--wp-block-blockparty-icon-max-width: max-content;
+	--wp-block-blockparty-icon-flex-direction: column;
+	--wp-block-blockparty-icon-align-items: center;
+	--wp-block-blockparty-icon-justify-content: center;
+	--wp-block-blockparty-icon-gap: 8px;
+
+	background-color: transparent !important;
+	text-align: center;
+	max-width: var(--wp-block-blockparty-icon-max-width, max-content);
+
+	&:has(.wp-block-blockparty-icon__text):not(:has(.wp-block-blockparty-icon__link)),
+	.wp-block-blockparty-icon__link {
+		display: flex;
+		gap: var(--wp-block-blockparty-icon-gap, 0);
+		flex-direction: var(--wp-block-blockparty-icon-flex-direction, column);
+		align-items: var(--wp-block-blockparty-icon-align-items, center);
+		justify-content: var(--wp-block-blockparty-icon-justify-content, center);
+	}
+
+	.wp-block-blockparty-icon__icon-container,
+	.wp-block-blockparty-icon__icon-container svg {
+		display: block;
+	}
+
+	.wp-block-blockparty-icons__icon-component--raw svg {
+		fill: none;
+
+		*:not([fill]):not([stroke]),
+		[fill] {
+			fill: currentColor;
+		}
+
+		[fill="transparent"] {
+			fill: transparent;
+		}
+
+		[stroke] {
+			stroke: currentColor;
+		}
+	}
+}

@@ -1,0 +1,37 @@
+# Directories
+/.git
+/.github
+/.vscode
+/node_modules
+/src
+/tests
+
+# Configuration files
+.distignore
+.editorconfig
+.gitattributes
+.gitignore
+.plugin-data
+.wp-env.json
+grumphp.yml
+phpcs.xml.dist
+phpunit.xml.dist
+psalm.xml.dist
+
+# Dependency management
+composer.json
+composer.lock
+package.json
+package-lock.json
+
+# Documentation
+CHANGELOG.md
+CONTRIBUTING.md
+README.md
+
+# Development files
+webpack.config.js
+yarn.lock
+*.log
+*.map
+.DS_Store

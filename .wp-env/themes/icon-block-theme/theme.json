@@ -1,0 +1,94 @@
+{
+    "version": 3,
+    "$schema": "https://schemas.wp.org/trunk/theme.json",
+    "customTemplates": [],
+    "settings": {
+      "spacing": {
+        "margin": true,
+        "padding": true,
+        "defaultSpacingSizes": false,
+        "spacingSizes": [
+          {
+            "name": "2px (4-xs)",
+            "size": "2px",
+            "slug": "4-xs"
+          },
+          {
+            "name": "4px (3-xs)",
+            "size": "4px",
+            "slug": "3-xs"
+          },
+          {
+            "name": "8px (2-xs)",
+            "size": "8px",
+            "slug": "2-xs"
+          },
+          {
+            "name": "12px (xs)",
+            "size": "12px",
+            "slug": "xs"
+          },
+          {
+            "name": "16px (s)",
+            "size": "16px",
+            "slug": "s"
+          },
+          {
+            "name": "20px (md)",
+            "size": "20px",
+            "slug": "md"
+          },
+          {
+            "name": "24px (l)",
+            "size": "24px",
+            "slug": "l"
+          },
+          {
+            "name": "32px (xl)",
+            "size": "clamp(24px, 16px + 1.6vw, 32px)",
+            "slug": "xl"
+          },
+          {
+            "name": "40px (2-xl)",
+            "size": "40px",
+            "slug": "2-xl"
+          },
+          {
+            "name": "48px (3-xl)",
+            "size": "48px",
+            "slug": "3-xl"
+          },
+          {
+            "name": "64px (4-xl)",
+            "size": "64px",
+            "slug": "4-xl"
+          },
+          {
+            "name": "80px (5-xl)",
+            "size": "80px",
+            "slug": "5-xl"
+          },
+          {
+            "name": "96px (6-xl)",
+            "size": "clamp(40px, 20px + 6.4vw, 96px)",
+            "slug": "6-xl"
+          },
+          {
+            "name": "135px (7-xl)",
+            "size": "clamp(32px, 20px + 6.4vw, 135px)",
+            "slug": "7-xl"
+          }
+        ],
+        "units": [
+          "%",
+          "px",
+          "em",
+          "rem",
+          "vh",
+          "vw"
+        ],
+        "blockGap": true
+      },
+      "useRootPaddingAwareAlignments": true
+    }
+}

@@ -1,0 +1,11 @@
+{
+	"plugins": [
+		".",
+		".wp-env/plugins/blockparty-accordion",
+		".wp-env/plugins/blockparty-tabs",
+		".wp-env/plugins/mega-menu-block"
+	],
+	"themes": [
+		"./.wp-env/themes/"
+	]
+}
