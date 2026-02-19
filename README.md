@@ -15,9 +15,10 @@ function register_collection() {
     \Blockparty\Icons\register_icon_collection(
         'my_collection',
         [
-            'label'  => 'My custom icons collection',
-            'type'   => 'sprite',
-            'source' => get_stylesheet_directory() . '/dist/icons/sprite.svg',
+            'label'   => 'My custom icons collection',
+            'type'    => 'sprite',
+            'source'  => get_stylesheet_directory() . '/dist/icons/sprite.svg',
+            'version' => wp_get_theme()->get( 'Version' ), // Optional: cache busting for sprite URL
         ]
     );
 }
@@ -41,6 +42,7 @@ This is an example for adding a SVG sprite as a source. If you want to add icons
 | `label`   | Label of the collection.  |
 | `source`  | Path to the SVG sprite file or folder containing SVG files. |
 | `type`    | <ul><li>`sprite` for SVG sprite source.</li><li>`folder` for a folder containing SVG files.</li></ul> |
+| `version` | Optional. Version string used for cache busting (e.g. theme version). When set, the sprite URL is appended with a `?v=...` query parameter. |
 
 ## How to develop
 
