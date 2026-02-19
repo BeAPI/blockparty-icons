@@ -79,18 +79,19 @@ function cacheKey( prefix, ...parts ) {
  */
 export async function getCollections( args = {} ) {
 	const cache = getCache();
-	const inFlight = getInFlight();
 	const key = cacheKey( 'collections', args );
 
 	if ( cache && key in cache ) {
 		return cache[ key ];
 	}
+
+	const inFlight = getInFlight();
 	if ( inFlight && key in inFlight ) {
 		return inFlight[ key ];
 	}
 
 	const promise = apiFetch( {
-		path: addQueryArgs( 'icons/v1/collections', args ),
+		path: addQueryArgs( '/icons/v1/collections', args ),
 	} )
 		.then( ( data ) => {
 			if ( cache ) {
@@ -123,39 +124,20 @@ export async function getCollections( args = {} ) {
  */
 export async function getIcons( collection, args = {} ) {
 	const cache = getCache();
-	const inFlight = getInFlight();
 	const key = cacheKey( 'icons', collection, args );
 
 	if ( cache && key in cache ) {
 		return cache[ key ];
 	}
+
+	const inFlight = getInFlight();
 	if ( inFlight && key in inFlight ) {
 		return inFlight[ key ];
 	}
 
-	const pathBase = `icons/v1/${ collection }`;
-	const wpApiSettings = window.wpApiSettings || {};
-	const restUrl = wpApiSettings.root || '/wp-json/';
-	const restNonce = wpApiSettings.nonce || '';
-
-	const isRestRouteFormat = restUrl.includes( 'rest_route' );
-	const path = isRestRouteFormat ? pathBase : addQueryArgs( pathBase, args );
-	const queryString = isRestRouteFormat
-		? addQueryArgs( '', args ).replace( /^\?/, '' )
-		: '';
-	const url =
-		restUrl.replace( /\/$/, '' ) +
-		'/' +
-		path.replace( /^\//, '' ) +
-		( queryString ? '&' + queryString : '' );
-
-	const promise = fetch( url, {
-		method: 'GET',
-		headers: {
-			'X-WP-Nonce': restNonce,
-			'Content-Type': 'application/json',
-		},
-		credentials: 'include',
+	const promise = apiFetch( {
+		path: addQueryArgs( `/icons/v1/${ collection }`, args ),
+		parse: false,
 	} )
 		.then( ( response ) => {
 			if ( ! response.ok ) {

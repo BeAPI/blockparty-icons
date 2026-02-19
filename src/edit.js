@@ -35,12 +35,14 @@ import './editor.scss';
  * WordPress dependencies
  */
 import {
+	Button,
 	Disabled,
 	PanelBody,
 	RangeControl,
 	TextControl,
 	ToolbarButton,
 	ToolbarGroup,
+	__experimentalUnitControl as UnitControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 
 /**
@@ -53,14 +55,18 @@ import {
 	getAllIcons,
 	getCollections,
 	setStoredIcons,
-} from '../utils';
-import { link, linkOff, replace, trash } from '@wordpress/icons';
-import IconModal from '../components/icon-modal';
-import LinkURLPopover from '../components/link-url-popover';
+} from './utils';
+import {
+	Icon,
+	link,
+	linkOff,
+	plusCircle,
+	replace,
+	trash,
+} from '@wordpress/icons';
+import IconModal from './components/icon-modal';
+import LinkURLPopover from './components/link-url-popover';
 
-const DEFAULT_BORDER_RADIUS = 0;
-const MIN_BORDER_RADIUS = 0;
-const MAX_BORDER_RADIUS = 50;
 const DEFAULT_SIZE = 48;
 const MAX_SIZE = 256;
 const MIN_SIZE = 8;
@@ -84,8 +90,7 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const { borderRadius, content, iconColor, icon, label, size, url } =
-		attributes;
+	const { borderRadius, iconColor, icon, label, size, url } = attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
@@ -116,31 +121,39 @@ export default function Edit( {
 	/**
 	 * Update state icon and add it to localStorage
 	 *
+	 * @typedef {Object} CollectionObject
+	 * @property {string} name  Collection name
+	 * @property {string} label Collection label
+	 * @property {number} count Collection icons count
+	 */
+
+	/**
 	 * @typedef {Object} IconObject
-	 * @property {string}     content      Icon SVG content
-	 * @property {string}     label        Icon label
-	 * @property {string}     name         Icon name
-	 * @property {string}     type         Icon type
+	 * @property {string}           content      Icon SVG content
+	 * @property {string}           label        Icon label
+	 * @property {string}           name         Icon name
+	 * @property {string}           type         Icon type
+	 * @property {string}           version      Icon version
 	 *
-	 * @param    {IconObject} selectedIcon Icon object to select
+	 * @param    {CollectionObject} collection   Collection to select from
+	 * @param    {IconObject}       selectedIcon Icon object to select
 	 */
 	const selectIcon = useCallback(
-		( selectedIcon ) => {
+		( collection, selectedIcon ) => {
 			setStoredIcons( selectedIcon );
 
 			const {
-				content: iconContent,
 				label: iconLabel,
 				name: iconName,
 				type: iconType,
 			} = selectedIcon;
 
 			setAttributes( {
-				content: iconContent,
 				icon: {
 					label: iconLabel,
 					name: iconName,
 					type: iconType,
+					collection: collection.name,
 				},
 			} );
 		},
@@ -148,8 +161,8 @@ export default function Edit( {
 	);
 
 	const handleIconSelectFromModal = useCallback(
-		( selectedIcon ) => {
-			selectIcon( selectedIcon );
+		( collection, selectedIcon ) => {
+			selectIcon( collection, selectedIcon );
 			setIsModalVisible( false );
 		},
 		[ selectIcon ]
@@ -193,12 +206,12 @@ export default function Edit( {
 
 	// Open icon modal when block is selected and no icon is set (e.g. after insert via native appender).
 	useEffect( () => {
-		const hasNoIcon = ! icon || ! content;
+		const hasNoIcon = ! icon;
 
 		if ( isSelected && hasNoIcon && collections ) {
 			setIsModalVisible( true );
 		}
-	}, [ isSelected, icon, content, collections ] );
+	}, [ isSelected, icon, collections ] );
 
 	return (
 		<div { ...useBlockProps( { ref: blockRef } ) }>
@@ -209,13 +222,25 @@ export default function Edit( {
 					handleIconSelectButtonClick={ handleIconSelectFromModal }
 				/>
 			) }
+			{ ! icon && ! isModalVisible && (
+				<Button
+					onClick={ openIconModal }
+					icon={ <Icon icon={ plusCircle } /> }
+					label={ __( 'Add an icon', 'blockparty-icons' ) }
+					size="compact"
+				/>
+			) }
 			{ icon && (
 				<>
 					<BlockControls group="other">
 						<ToolbarButton
 							icon={ url ? linkOff : link }
 							onClick={ url ? removeLink : openLinkPopover }
-							label={ __( 'Link', 'blockparty-icons' ) }
+							label={
+								url
+									? __( 'Remove link', 'blockparty-icons' )
+									: __( 'Add a link', 'blockparty-icons' )
+							}
 						/>
 					</BlockControls>
 					<BlockControls>
@@ -253,14 +278,18 @@ export default function Edit( {
 							<PanelBody
 								title={ sprintf(
 									/* translators: %s: name of the icon name. */
-									__( '%s label' ),
+									__( 'Label of %s', 'blockparty-icons' ),
 									capitalize( icon?.label || icon?.name )
 								) }
 							>
 								<TextControl
-									label={ __( 'Link label' ) }
+									label={ __(
+										'Link label',
+										'blockparty-icons'
+									) }
 									help={ __(
-										'Briefly describe the link to help screen reader users.'
+										'Briefly describe the link to help screen reader users.',
+										'blockparty-icons'
 									) }
 									value={ label || '' }
 									onChange={ ( value ) =>
@@ -300,25 +329,17 @@ export default function Edit( {
 					</InspectorControls>
 					<InspectorControls group="border">
 						<div className="full-width-control-wrapper">
-							<RangeControl
+							<UnitControl
 								label={ __(
 									'Icon radius',
 									'blockparty-icons'
 								) }
-								value={ borderRadius }
 								onChange={ ( newBorderRadius ) => {
 									setAttributes( {
 										borderRadius: newBorderRadius,
 									} );
 								} }
-								initialPosition={ DEFAULT_BORDER_RADIUS }
-								min={ MIN_BORDER_RADIUS }
-								max={ MAX_BORDER_RADIUS }
-								allowReset={ true }
-								withInputField={ true }
-								renderTooltipContent={ ( value ) =>
-									`${ value }%`
-								}
+								value={ borderRadius }
 							/>
 						</div>
 					</InspectorControls>
@@ -326,6 +347,10 @@ export default function Edit( {
 						<div className="full-width-control-wrapper">
 							<RangeControl
 								label={ __( 'Icon size', 'blockparty-icons' ) }
+								help={ __(
+									'Adjust the size of the icon (value in pixels)',
+									'blockparty-icons'
+								) }
 								value={ size }
 								onChange={ ( newSize ) => {
 									setAttributes( { size: newSize } );
@@ -333,23 +358,22 @@ export default function Edit( {
 								initialPosition={ DEFAULT_SIZE }
 								min={ MIN_SIZE }
 								max={ MAX_SIZE }
-								allowReset={ true }
 								withInputField={ true }
 								renderTooltipContent={ ( value ) =>
 									`${ value }px`
 								}
+								__next40pxDefaultSize
 							/>
 						</div>
 					</InspectorControls>
+					<Disabled>
+						<ServerSideRender
+							block="blockparty/icon"
+							attributes={ attributes }
+						/>
+					</Disabled>
 				</>
 			) }
-
-			<Disabled>
-				<ServerSideRender
-					block="blockparty/icon"
-					attributes={ attributes }
-				/>
-			</Disabled>
 		</div>
 	);
 }

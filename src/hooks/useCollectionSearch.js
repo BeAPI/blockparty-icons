@@ -7,13 +7,13 @@ import { useEffect } from '@wordpress/element';
  * Hook to sync collections list with search: either restore initial data when
  * search is empty, or run API search when debounced search term changes.
  *
- * @param {Object} options
- * @param {Object} options.collections              Collections metadata (from API)
- * @param {string} options.debouncedSearchInput     Debounced search query
- * @param {Array}  options.initialCollectionsArr   Snapshot to restore when search is cleared
- * @param {Function} options.loadIcons              ( collectionName, page, search ) => Promise<{ icons, hasMore }>
- * @param {Function} options.setCollectionsArr      State setter for collections list
- * @param {Function} options.setLoading             State setter for loading flag
+ * @param {Object}   options
+ * @param {Object}   options.collections           Collections metadata (from API)
+ * @param {string}   options.debouncedSearchInput  Debounced search query
+ * @param {Array}    options.initialCollectionsArr Snapshot to restore when search is cleared
+ * @param {Function} options.loadIcons             ( collectionName, page, search ) => Promise<{ icons, hasMore }>
+ * @param {Function} options.setCollectionsArr     State setter for collections list
+ * @param {Function} options.setLoading            State setter for loading flag
  */
 export function useCollectionSearch( {
 	collections,

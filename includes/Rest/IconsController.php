@@ -68,7 +68,7 @@ class IconsController extends \WP_REST_Controller {
 	 */
 	public function get_items( $request ) {
 		$paged    = $request->get_param( 'page' ) ?? 1;
-		$per_page = $request->get_param( 'per_page' ) ?? 10;
+		$per_page = $request->get_param( 'per_page' ) ?? 50;
 		$search   = $request->get_param( 'search' ) ?? '';
 		$paged    = absint( $paged );
 		$per_page = absint( $per_page );
@@ -149,6 +149,10 @@ class IconsController extends \WP_REST_Controller {
 			$data['content'] = $item->content();
 		}
 
+		if ( in_array( 'version', $fields, true ) ) {
+			$data['version'] = $item->version();
+		}
+
 		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
 		$data    = $this->add_additional_fields_to_object( $data, $request );
 		$data    = $this->filter_response_by_context( $data, $context );
@@ -158,6 +162,7 @@ class IconsController extends \WP_REST_Controller {
 
 	public function get_collection_params() {
 		$params                        = parent::get_collection_params();
+		$params['per_page']['default'] = 50;
 		$params['per_page']['maximum'] = 500;
 
 		return $params;
@@ -199,6 +204,12 @@ class IconsController extends \WP_REST_Controller {
 				],
 				'content' => [
 					'description' => __( 'Content of the icon', 'blockparty-icons' ),
+					'type'        => 'string',
+					'context'     => [ 'view', 'edit' ],
+					'readonly'    => true,
+				],
+				'version' => [
+					'description' => __( 'Version of the icon', 'blockparty-icons' ),
 					'type'        => 'string',
 					'context'     => [ 'view', 'edit' ],
 					'readonly'    => true,

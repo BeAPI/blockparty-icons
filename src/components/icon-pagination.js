@@ -11,7 +11,7 @@ const PAGINATION_OFFSET = 2;
  *
  * @param {number} currentPage Current page (1-indexed)
  * @param {number} totalPages  Total number of pages
- * @param {number} offset     Number of pages before/after current
+ * @param {number} offset      Number of pages before/after current
  * @return {(number|'ellipsis')[]} Items to render (number = page, 'ellipsis' = …)
  */
 function getPaginationPages(
@@ -51,35 +51,30 @@ function getPaginationPages(
  * @param {number}   props.totalPages   Total number of pages
  * @param {Function} props.onPageChange Called with (page: number) when user selects a page
  * @param {boolean}  [props.isLoading]  Disable buttons while loading
- * @param {string}   [props.ariaLabel] Optional aria-label for the nav (default: "Icon pagination")
+ * @param {string}   [props.ariaLabel]  Optional aria-label for the nav (default: "Icon pagination")
  */
-export default function IconPagination( {
-	currentPage,
-	totalPages,
-	onPageChange,
-	isLoading = false,
-	ariaLabel,
-} ) {
-	const current = Math.max( 1, Math.min( currentPage, totalPages ) );
-	const total = Math.max( 1, totalPages );
-
-	if ( total <= 1 ) {
+export default function IconPagination( props ) {
+	if ( Math.max( 1, props.totalPages ) <= 1 ) {
 		return null;
 	}
 
-	const pages = getPaginationPages( current, total, PAGINATION_OFFSET );
+	const total = Math.max( 1, props.totalPages );
+	const current = Math.max(
+		1,
+		Math.min( props.currentPage, props.totalPages )
+	);
 
 	return (
 		<nav
-			className="blockparty-icons-pagination"
+			className="blockparty-icons__pagination"
 			aria-label={
-				ariaLabel ?? __( 'Icon pagination', 'blockparty-icons' )
+				props.ariaLabel ?? __( 'Icon pagination', 'blockparty-icons' )
 			}
 		>
 			<Button
 				variant="compact"
-				onClick={ () => onPageChange( current - 1 ) }
-				disabled={ isLoading || current <= 1 }
+				onClick={ () => props.onPageChange( current - 1 ) }
+				disabled={ ( props.isLoading ?? false ) || current <= 1 }
 				label={ __( 'Previous page', 'blockparty-icons' ) }
 			>
 				{ __( 'Previous', 'blockparty-icons' ) }
@@ -88,36 +83,40 @@ export default function IconPagination( {
 				className="blockparty-icons-pagination__pages"
 				aria-live="polite"
 			>
-				{ pages.map( ( page, idx ) =>
-					page === 'ellipsis' ? (
-						<span
-							key={ `ellipsis-${ idx }` }
-							className="blockparty-icons-pagination__ellipsis"
-							aria-hidden="true"
-						>
-							…
-						</span>
-					) : (
-						<Button
-							key={ page }
-							variant="compact"
-							onClick={ () => onPageChange( page ) }
-							disabled={ isLoading || page === current }
-							label={ sprintf(
-								/* translators: %d: page number */
-								__( 'Page %d', 'blockparty-icons' ),
-								page
-							) }
-						>
-							{ page }
-						</Button>
-					)
+				{ getPaginationPages( current, total, PAGINATION_OFFSET ).map(
+					( page, idx ) =>
+						page === 'ellipsis' ? (
+							<span
+								key={ `ellipsis-${ idx }` }
+								className="blockparty-icons-pagination__ellipsis"
+								aria-hidden="true"
+							>
+								…
+							</span>
+						) : (
+							<Button
+								key={ page }
+								variant="compact"
+								onClick={ () => props.onPageChange( page ) }
+								disabled={
+									( props.isLoading ?? false ) ||
+									page === current
+								}
+								label={ sprintf(
+									/* translators: %d: page number */
+									__( 'Page %d', 'blockparty-icons' ),
+									page
+								) }
+							>
+								{ page }
+							</Button>
+						)
 				) }
 			</span>
 			<Button
 				variant="compact"
-				onClick={ () => onPageChange( current + 1 ) }
-				disabled={ isLoading || current >= total }
+				onClick={ () => props.onPageChange( current + 1 ) }
+				disabled={ ( props.isLoading ?? false ) || current >= total }
 				label={ __( 'Next page', 'blockparty-icons' ) }
 			>
 				{ __( 'Next', 'blockparty-icons' ) }

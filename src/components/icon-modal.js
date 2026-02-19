@@ -34,6 +34,7 @@ import IconSelector from './icon-selector';
 const PREFERENCES_NAME = 'blockparty-icons';
 const DEFAULT_ICON_PREVIEW_SIZE = 24;
 const DEFAULT_ICONS_PER_PAGE = 50;
+const ICONS_PER_PAGE_DEBOUNCE_MS = 400;
 
 function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ isOpen, setOpen ] = useState( true );
@@ -42,7 +43,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ debouncedSearchInput, setDebouncedSearchInput ] = useState( '' );
 	const [ loading, setLoading ] = useState( false );
 
-	// Get icon preview size from preferences store (persisted)
+	// Get Preview of icon sizes from preferences store (persisted)
 	const iconPreviewSize = useSelect(
 		( select ) =>
 			select( preferencesStore ).get(
@@ -74,20 +75,29 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ localPreviewSize, setLocalPreviewSize ] = useState( null );
 	const persistSizeTimeoutRef = useRef( null );
 
+	// Local state for "icons per page" with debounced persist (avoids refetch on every slider tick)
+	const [ localIconsPerPage, setLocalIconsPerPage ] = useState( null );
+	const iconsPerPageDebounceRef = useRef( null );
+
 	const displaySize = localPreviewSize ?? iconPreviewSize;
+	const displayIconsPerPage = localIconsPerPage ?? iconsPerPage;
 
 	// Sync local from store when modal opens
 	useEffect( () => {
 		if ( isOpen ) {
 			setLocalPreviewSize( iconPreviewSize );
+			setLocalIconsPerPage( iconsPerPage );
 		}
-	}, [ isOpen, iconPreviewSize ] );
+	}, [ isOpen, iconPreviewSize, iconsPerPage ] );
 
-	// Clear debounce on unmount
+	// Clear debounce timeouts on unmount
 	useEffect(
 		() => () => {
 			if ( persistSizeTimeoutRef.current ) {
 				clearTimeout( persistSizeTimeoutRef.current );
+			}
+			if ( iconsPerPageDebounceRef.current ) {
+				clearTimeout( iconsPerPageDebounceRef.current );
 			}
 		},
 		[]
@@ -98,8 +108,8 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 
 	// Stable callback so IconSelector (memo) doesn't re-render when only size changes
 	const handleSelectIcon = useCallback(
-		( icon ) => {
-			handleIconSelectButtonClick( icon );
+		( collection, icon ) => {
+			handleIconSelectButtonClick( collection, icon );
 			setOpen( false );
 			onClose();
 		},
@@ -116,11 +126,15 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	 */
 	const loadIcons = useCallback(
 		async ( collectionName, page = 1, search = '' ) => {
-			const args = {
-				context: 'edit',
-				per_page: iconsPerPage,
-				page,
-			};
+			const args = { context: 'edit' };
+
+			if ( iconsPerPage !== DEFAULT_ICONS_PER_PAGE ) {
+				args.per_page = iconsPerPage;
+			}
+
+			if ( page > 1 ) {
+				args.page = page;
+			}
 
 			if ( search ) {
 				args.search = search;
@@ -259,249 +273,67 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 		<>
 			{ isOpen && (
 				<Modal
-					title={ __( 'Select an icon', 'blockparty-icons' ) }
+					title={ __(
+						'Select an icon from your collections',
+						'blockparty-icons'
+					) }
 					onRequestClose={ () => {
 						setOpen( false );
 						onClose();
 					} }
 					className="blockparty-icons-modal"
+					isFullScreen={ true }
 				>
 					{ ! collectionsArr.length && <Spinner /> }
 					{ !! collectionsArr.length && (
-						<div className="blockparty-icons-modal__content">
-							<Flex align="stretch" gap="0">
-								<FlexBlock>
-									<div className="blockparty-icons-modal__toolbar">
-										<Flex
-											align="center"
-											justify="space-between"
+						<div className="blockparty-icons-modal__grid">
+							<div className="blockparty-icons-modal__toolbar">
+								<Flex align="center" justify="space-between">
+									<FlexBlock>
+										<SearchControl
+											label={ __(
+												'Search an icon',
+												'blockparty-icons'
+											) }
+											value={ searchInput }
+											onChange={ setSearchInput }
+											placeholder={ __(
+												'wordpress, heart, star…',
+												'blockparty-icons'
+											) }
+											__nextHasNoMarginBottom
+										/>
+									</FlexBlock>
+									<FlexItem>
+										<Button
+											label={ __(
+												'Settings',
+												'blockparty-icons'
+											) }
+											className="has-icon"
+											size="compact"
+											isPressed={ isSidebarOpen }
+											onClick={ () =>
+												setPreference(
+													PREFERENCES_NAME,
+													'sidebarOpen',
+													! isSidebarOpen
+												)
+											}
 										>
-											<FlexBlock>
-												<SearchControl
-													label={ __(
-														'Search an icon',
-														'blockparty-icons'
-													) }
-													value={ searchInput }
-													onChange={ setSearchInput }
-													placeholder={ __(
-														'wordpress, heart, star...',
-														'blockparty-icons'
-													) }
-													__nextHasNoMarginBottom
-												/>
-											</FlexBlock>
-											<FlexItem>
-												<Button
-													label={ __(
-														'Settings',
-														'blockparty-icons'
-													) }
-													className="has-icon"
-													size="compact"
-													isPressed={ isSidebarOpen }
-													onClick={ () =>
-														setPreference(
-															PREFERENCES_NAME,
-															'sidebarOpen',
-															! isSidebarOpen
-														)
-													}
-												>
-													<Icon icon={ settings } />
-												</Button>
-											</FlexItem>
-										</Flex>
-									</div>
-									<div
-										className="blockparty-icons-modal__collections-list"
-										style={ {
-											'--blockparty-icon-preview-size': `${ displaySize }px`,
-										} }
-									>
-										{ loading && <Spinner /> }
-										{ ! loading &&
-											( () => {
-												const filteredCollections =
-													collectionsArr.filter(
-														( c ) => {
-															// During search, show all collections (even if empty)
-															// Otherwise, only show collections with icons or loading
-															if (
-																debouncedSearchInput.trim()
-															) {
-																return true;
-															}
-															return (
-																c.icons
-																	?.length >
-																	0 ||
-																c.loading
-															);
-														}
-													);
-
-												// Check if any collection has icons
-												const hasAnyIcons =
-													filteredCollections.some(
-														( c ) =>
-															c.icons?.length > 0
-													);
-
-												// Show global "no results" message if searching and no icons found
-												if (
-													debouncedSearchInput.trim() &&
-													! hasAnyIcons
-												) {
-													return (
-														<div className="blockparty-icons-modal__no-results">
-															<p>
-																{ __(
-																	'No icons found matching your search.',
-																	'blockparty-icons'
-																) }
-															</p>
-														</div>
-													);
-												}
-
-												return (
-													<TabPanel
-														tabs={ filteredCollections.map(
-															( c ) => ( {
-																name: c.name,
-																title: capitalize(
-																	c.name
-																),
-															} )
-														) }
-													>
-														{ ( tab ) =>
-															filteredCollections.map(
-																( c ) =>
-																	tab.name ===
-																		c.name && (
-																		<Fragment
-																			key={
-																				c.name
-																			}
-																		>
-																			{ !! c
-																				.icons
-																				?.length && (
-																				<Flex
-																					direction="column"
-																					gap="0"
-																				>
-																					<FlexBlock>
-																						{ c.loading && (
-																							<div className="blockparty-icons-modal__spinner">
-																								<Spinner />
-																							</div>
-																						) }
-																						{ !! c
-																							.icons
-																							?.length &&
-																							! c.loading && (
-																								<div className="blockparty-icons-modal__body">
-																									<ul className="blockparty-icons-modal__list-icon">
-																										{ c.icons.map(
-																											(
-																												i
-																											) => (
-																												<li
-																													key={
-																														i.name
-																													}
-																												>
-																													<IconSelector
-																														icon={
-																															i
-																														}
-																														handleIconSelectButtonClick={
-																															handleSelectIcon
-																														}
-																													>
-																														<TextHighlight
-																															text={ capitalize(
-																																i.label ||
-																																	i.name
-																															) }
-																															highlight={
-																																debouncedSearchInput
-																															}
-																														/>
-																													</IconSelector>
-																												</li>
-																											)
-																										) }
-																									</ul>
-																								</div>
-																							) }
-																					</FlexBlock>
-																					{ ( c.totalPages ??
-																						1 ) >
-																						1 && (
-																						<FlexItem>
-																							<IconPagination
-																								currentPage={
-																									c.currentPage ??
-																									1
-																								}
-																								totalPages={
-																									c.totalPages ??
-																									1
-																								}
-																								onPageChange={ (
-																									page
-																								) =>
-																									goToPage(
-																										c.name,
-																										page
-																									)
-																								}
-																								isLoading={
-																									c.loading
-																								}
-																							/>
-																						</FlexItem>
-																					) }
-																				</Flex>
-																			) }
-																			{ ! c.loading &&
-																				! c
-																					.icons
-																					?.length && (
-																					<div className="blockparty-icons-modal__no-results">
-																						<Notice
-																							status="info"
-																							isDismissible={
-																								false
-																							}
-																						>
-																							{ __(
-																								'No Icon found in this collection.',
-																								'blockparty-icons'
-																							) }
-																						</Notice>
-																					</div>
-																				) }
-																		</Fragment>
-																	)
-															)
-														}
-													</TabPanel>
-												);
-											} )() }
-									</div>
-								</FlexBlock>
-								<FlexItem
-									className={ `blockparty-icons-modal__sidebar-wrapper${
-										! isSidebarOpen
-											? ' blockparty-icons-modal__sidebar-wrapper--closed'
-											: ''
-									}` }
-								>
+											<Icon icon={ settings } />
+										</Button>
+									</FlexItem>
+								</Flex>
+							</div>
+							<div
+								className={ `blockparty-icons-modal__sidebar-wrapper${
+									! isSidebarOpen
+										? ' blockparty-icons-modal__sidebar-wrapper--closed'
+										: ''
+								}` }
+							>
+								<div className="blockparty-icons-modal__sidebar-wrapper-inner">
 									<Animate
 										type="slide-in"
 										options={ { origin: 'left' } }
@@ -519,17 +351,17 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 												>
 													<PanelBody
 														title={ __(
-															'Icon preview size',
+															'Display',
 															'blockparty-icons'
 														) }
 													>
 														<RangeControl
 															label={ __(
-																'Icon preview size',
+																'Preview of icon sizes',
 																'blockparty-icons'
 															) }
 															help={ __(
-																'Adjust preview size of the icons',
+																'Adjust preview size of the icons.',
 																'blockparty-icons'
 															) }
 															value={
@@ -581,11 +413,11 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																'blockparty-icons'
 															) }
 															help={ __(
-																'Number of icons displayed per page',
+																'Number of icons displayed per page.',
 																'blockparty-icons'
 															) }
 															value={
-																iconsPerPage
+																displayIconsPerPage
 															}
 															min={ 12 }
 															max={ 100 }
@@ -593,11 +425,29 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 															onChange={ (
 																value
 															) => {
-																setPreference(
-																	PREFERENCES_NAME,
-																	'iconsPerPage',
+																setLocalIconsPerPage(
 																	value
 																);
+																if (
+																	iconsPerPageDebounceRef.current
+																) {
+																	clearTimeout(
+																		iconsPerPageDebounceRef.current
+																	);
+																}
+																iconsPerPageDebounceRef.current =
+																	setTimeout(
+																		() => {
+																			setPreference(
+																				PREFERENCES_NAME,
+																				'iconsPerPage',
+																				value
+																			);
+																			iconsPerPageDebounceRef.current =
+																				null;
+																		},
+																		ICONS_PER_PAGE_DEBOUNCE_MS
+																	);
 															} }
 														/>
 													</PanelBody>
@@ -605,8 +455,186 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 											</div>
 										) }
 									</Animate>
-								</FlexItem>
-							</Flex>
+								</div>
+							</div>
+							<div
+								className="blockparty-icons-modal__collections-list"
+								style={ {
+									'--blockparty-icon-preview-size': `${ displaySize }px`,
+								} }
+							>
+								{ loading && <Spinner /> }
+								{ ! loading &&
+									( () => {
+										const filteredCollections =
+											collectionsArr.filter( ( c ) => {
+												// During search, show all collections (even if empty)
+												// Otherwise, only show collections with icons or loading
+												if (
+													debouncedSearchInput.trim()
+												) {
+													return true;
+												}
+												return (
+													c.icons?.length > 0 ||
+													c.loading
+												);
+											} );
+
+										// Check if any collection has icons
+										const hasAnyIcons =
+											filteredCollections.some(
+												( c ) => c.icons?.length > 0
+											);
+
+										// Show global "no results" message if searching and no icons found
+										if (
+											debouncedSearchInput.trim() &&
+											! hasAnyIcons
+										) {
+											return (
+												<div className="blockparty-icons-modal__no-results">
+													<p>
+														{ __(
+															'No icons found matching your search.',
+															'blockparty-icons'
+														) }
+													</p>
+												</div>
+											);
+										}
+
+										return (
+											<TabPanel
+												tabs={ filteredCollections.map(
+													( c ) => ( {
+														name: c.name,
+														title: capitalize(
+															c.name
+														),
+													} )
+												) }
+											>
+												{ ( tab ) =>
+													filteredCollections.map(
+														( c ) =>
+															tab.name ===
+																c.name && (
+																<Fragment
+																	key={
+																		c.name
+																	}
+																>
+																	{ !! c.icons
+																		?.length && (
+																		<Flex
+																			direction="column"
+																			gap="0"
+																		>
+																			<FlexBlock>
+																				{ c.loading && (
+																					<div className="blockparty-icons-modal__spinner">
+																						<Spinner />
+																					</div>
+																				) }
+																				{ !! c
+																					.icons
+																					?.length &&
+																					! c.loading && (
+																						<div className="blockparty-icons-modal__body">
+																							<ul className="blockparty-icons-modal__list-icon">
+																								{ c.icons.map(
+																									(
+																										i
+																									) => (
+																										<li
+																											key={
+																												i.name
+																											}
+																										>
+																											<IconSelector
+																												icon={
+																													i
+																												}
+																												collection={
+																													c
+																												}
+																												handleIconSelectButtonClick={
+																													handleSelectIcon
+																												}
+																											>
+																												<TextHighlight
+																													text={ capitalize(
+																														i.label ||
+																															i.name
+																													) }
+																													highlight={
+																														debouncedSearchInput
+																													}
+																												/>
+																											</IconSelector>
+																										</li>
+																									)
+																								) }
+																							</ul>
+																						</div>
+																					) }
+																			</FlexBlock>
+																			{ ( c.totalPages ??
+																				1 ) >
+																				1 && (
+																				<FlexItem className="blockparty-icons__pagination-wrapper">
+																					<IconPagination
+																						currentPage={
+																							c.currentPage ??
+																							1
+																						}
+																						totalPages={
+																							c.totalPages ??
+																							1
+																						}
+																						onPageChange={ (
+																							page
+																						) =>
+																							goToPage(
+																								c.name,
+																								page
+																							)
+																						}
+																						isLoading={
+																							c.loading
+																						}
+																					/>
+																				</FlexItem>
+																			) }
+																		</Flex>
+																	) }
+																	{ ! c.loading &&
+																		! c
+																			.icons
+																			?.length && (
+																			<div className="blockparty-icons-modal__no-results">
+																				<Notice
+																					status="info"
+																					isDismissible={
+																						false
+																					}
+																				>
+																					{ __(
+																						'No Icon found in this collection.',
+																						'blockparty-icons'
+																					) }
+																				</Notice>
+																			</div>
+																		) }
+																</Fragment>
+															)
+													)
+												}
+											</TabPanel>
+										);
+									} )() }
+							</div>
 						</div>
 					) }
 				</Modal>

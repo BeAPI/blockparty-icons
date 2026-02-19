@@ -17,6 +17,7 @@ node_modules/
 !src/icon/
 vendor/
 build/
+.wp-env/plugins/
 
 # Optional npm cache directory
 .npm

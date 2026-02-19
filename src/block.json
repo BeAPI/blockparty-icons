@@ -43,8 +43,8 @@
 			"default": 24
 		},
 		"borderRadius": {
-			"type": "integer",
-			"default": 0
+			"type": "string",
+			"default": "0px"
 		},
 		"url": {
 			"type": "string"
