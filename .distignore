@@ -5,6 +5,7 @@
 /node_modules
 /src
 /tests
+/.wp-env
 
 # Configuration files
 .distignore
