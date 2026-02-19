@@ -21,7 +21,7 @@ import {
 	TabPanel,
 	TextHighlight,
 } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, settings } from '@wordpress/icons';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
@@ -468,13 +468,7 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 									( () => {
 										const filteredCollections =
 											collectionsArr.filter( ( c ) => {
-												// During search, show all collections (even if empty)
-												// Otherwise, only show collections with icons or loading
-												if (
-													debouncedSearchInput.trim()
-												) {
-													return true;
-												}
+												// Only show collections that have results or are still loading
 												return (
 													c.icons?.length > 0 ||
 													c.loading
@@ -504,14 +498,42 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 											);
 										}
 
+										const isSearching =
+											!! debouncedSearchInput.trim();
+										const firstCollectionWithResults =
+											filteredCollections.find(
+												( c ) => c.icons?.length > 0
+											);
+										const initialTabName =
+											firstCollectionWithResults?.name ??
+											filteredCollections[ 0 ]?.name;
+
 										return (
 											<TabPanel
+												key={ `icons-tabpanel-${ debouncedSearchInput }` }
+												initialTabName={
+													initialTabName
+												}
 												tabs={ filteredCollections.map(
 													( c ) => ( {
 														name: c.name,
-														title: capitalize(
-															c.name
-														),
+														title: isSearching
+															? sprintf(
+																	/* translators: 1: collection name, 2: number of results */
+																	__(
+																		'%1$s (%2$d)',
+																		'blockparty-icons'
+																	),
+																	capitalize(
+																		c.name
+																	),
+																	c.icons
+																		?.length ??
+																		0
+															  )
+															: capitalize(
+																	c.name
+															  ),
 													} )
 												) }
 											>
