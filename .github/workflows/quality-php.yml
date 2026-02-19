@@ -26,6 +26,11 @@ jobs:
           php-version: 8.1
           extensions: mbstring, intl #optional, setup extensions
 
+      - name: Setup Composer
+        run: |
+          composer config --global composer.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+          composer config --global packages.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+
       - name: Validate composer file
         run: composer validate
 
