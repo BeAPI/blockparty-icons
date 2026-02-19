@@ -17,3 +17,9 @@ grumphp:
         phpcs:
             standard: ['phpcs.xml.dist']
             triggered_by: [php]
+        npm_script:
+            script: lint:js
+            triggered_by: ['js']
+            working_directory: "./src/"
+            is_run_task: true
+            silent: false
