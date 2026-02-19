@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.1 - 2026-02-19
+
+- Exclude .wp-env directory from export.
+
 ### 1.0.0 - 2026-02-02
 
 - Initial release.
