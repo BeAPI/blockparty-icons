@@ -1,38 +1,37 @@
-# Logs
-logs
+# Directories
+/.git
+/.github
+/.vscode
+/node_modules
+/src
+/tests
+
+# Configuration files
+.distignore
+.editorconfig
+.gitattributes
+.gitignore
+.plugin-data
+.wp-env.json
+grumphp.yml
+phpcs.xml.dist
+phpunit.xml.dist
+psalm.xml.dist
+
+# Dependency management
+composer.json
+composer.lock
+package.json
+package-lock.json
+
+# Documentation
+CHANGELOG.md
+CONTRIBUTING.md
+README.md
+
+# Development files
+webpack.config.js
+yarn.lock
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Coverage directory used by tools like istanbul
-coverage
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
-node_modules/
-!includes/Icon/
-!src/icon/
-vendor/
-build/
-.wp-env/plugins/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Output of 'npm pack'
-*.tgz
-
-# dotenv environment variables file
-.env
-
-# Editors and OS
-.idea
+*.map
 .DS_Store
-.nvmrc
-phpcs.xml
