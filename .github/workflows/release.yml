@@ -40,10 +40,9 @@ jobs:
 
       - id: build-node
         name: "Build project CSS and JS"
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 16
-          cache: 'npm'
+          node-version: 'package.json'
       - run: npm install
       - run: npm run build
 
