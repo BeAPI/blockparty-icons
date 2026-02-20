@@ -306,10 +306,17 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 									</FlexBlock>
 									<FlexItem>
 										<Button
-											label={ __(
-												'Settings',
-												'blockparty-icons'
-											) }
+											label={
+												isSidebarOpen
+													? __(
+															'Hide settings',
+															'blockparty-icons'
+													  )
+													: __(
+															'Open settings',
+															'blockparty-icons'
+													  )
+											}
 											className="has-icon"
 											size="compact"
 											isPressed={ isSidebarOpen }
@@ -488,12 +495,15 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 										) {
 											return (
 												<div className="blockparty-icons-modal__no-results">
-													<p>
+													<Notice
+														status="info"
+														isDismissible={ false }
+													>
 														{ __(
 															'No icons found matching your search.',
 															'blockparty-icons'
 														) }
-													</p>
+													</Notice>
 												</div>
 											);
 										}
@@ -631,24 +641,6 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																			) }
 																		</Flex>
 																	) }
-																	{ ! c.loading &&
-																		! c
-																			.icons
-																			?.length && (
-																			<div className="blockparty-icons-modal__no-results">
-																				<Notice
-																					status="info"
-																					isDismissible={
-																						false
-																					}
-																				>
-																					{ __(
-																						'No Icon found in this collection.',
-																						'blockparty-icons'
-																					) }
-																				</Notice>
-																			</div>
-																		) }
 																</Fragment>
 															)
 													)
