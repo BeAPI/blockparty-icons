@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: Blockparty Icons 1.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/blockparty-"
 "icons\n"
-"POT-Creation-Date: 2026-02-16T22:43:56+00:00\n"
-"PO-Revision-Date: 2026-02-16 23:44+0100\n"
+"POT-Creation-Date: 2026-02-20T08:30:46+00:00\n"
+"PO-Revision-Date: 2026-02-20 09:31+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -120,8 +120,12 @@ msgid "wordpress, heart, star…"
 msgstr "wordpress, coeur, etoile…"
 
 #: build/index.js:2
-msgid "Settings"
-msgstr "Réglages"
+msgid "Hide settings"
+msgstr "Masquer les réglages"
+
+#: build/index.js:2
+msgid "Open settings"
+msgstr "Afficher les réglages"
 
 #: build/index.js:2
 msgid "Modal settings"
@@ -155,57 +159,58 @@ msgstr "Nombre d’icônes à afficher par page."
 msgid "No icons found matching your search."
 msgstr "Aucune icône trouvée selon vos critères de recherche."
 
-#: build/index.js:2
-msgid "No Icon found in this collection."
-msgstr "Aucune icône trouvée dans cette collection."
+#. translators: 1: collection name, 2: number of results
+#: build/index.js:3
+msgid "%1$s (%2$d)"
+msgstr "%1$s (%2$d)"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Icon color"
 msgstr "Couleur de l’icône"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Add an icon"
 msgstr "Ajouter une icône"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Remove link"
 msgstr "Retirer le lien"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Add a link"
 msgstr "Ajouter un lien"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Replace icon"
 msgstr "Remplacer l’icône"
 
-#: build/index.js:2
+#: build/index.js:3
 msgid "Remove icon"
 msgstr "Retirer l’icône"
 
 #. translators: %s: name of the icon name.
-#: build/index.js:3
+#: build/index.js:4
 msgid "Label of %s"
 msgstr "Libellé de %s"
 
-#: build/index.js:3
+#: build/index.js:4
 msgid "Link label"
 msgstr "Libellé du lien"
 
-#: build/index.js:3
+#: build/index.js:4
 msgid "Briefly describe the link to help screen reader users."
 msgstr ""
 "Décrivez brièvement le lien destiné aux utilisateurs de lecteurs d'écran."
 
-#: build/index.js:3
+#: build/index.js:4
 msgid "Icon radius"
 msgstr "Arrondis de l’icône"
 
-#: build/index.js:3
+#: build/index.js:4
 msgid "Icon size"
 msgstr "Taille de l’icône"
 
-#: build/index.js:3
+#: build/index.js:4
 msgid "Adjust the size of the icon (value in pixels)"
 msgstr "Ajustez la taille de l’icône (valeur en pixels)"
 
@@ -219,6 +224,12 @@ msgctxt "block description"
 msgid "Easily add custom vector icon to your content."
 msgstr ""
 "Ajoutez facilement des icônes vectorielles personnalisées à votre contenu."
+
+#~ msgid "Settings"
+#~ msgstr "Réglages"
+
+#~ msgid "No Icon found in this collection."
+#~ msgstr "Aucune icône trouvée dans cette collection."
 
 #~ msgid "Link"
 #~ msgstr "Lien"
