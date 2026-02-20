@@ -6,6 +6,11 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.4 - 2026-02-20
+
+- Improve search result display in icons selector modal.
+- Update translations
+
 ### 1.0.3 - 2026-02-19
 
 - Add support for WordPress <= 6.8 for ServerSideRender component
