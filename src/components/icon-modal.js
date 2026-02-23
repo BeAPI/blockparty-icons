@@ -535,14 +535,16 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																		'blockparty-icons'
 																	),
 																	capitalize(
-																		c.name
+																		c.label ||
+																			c.name
 																	),
 																	c.icons
 																		?.length ??
 																		0
 															  )
 															: capitalize(
-																	c.name
+																	c.label ||
+																		c.name
 															  ),
 													} )
 												) }
