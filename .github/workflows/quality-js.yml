@@ -4,11 +4,6 @@ on:
   pull_request:
       paths:
           - 'src/**'
-  push:
-      paths:
-          - 'src/**'
-      branches:
-      - main
 
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
