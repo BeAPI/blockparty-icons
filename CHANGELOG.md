@@ -6,6 +6,12 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.5 - 2026-02-23
+
+- Set label collection on tabs item in icons selector modal instead of collection slug
+- Add tooltip to icon selector buttons
+- Remove quality js workflow on merge
+
 ### 1.0.4 - 2026-02-20
 
 - Improve search result display in icons selector modal.
