@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.6 - 2026-05-18
+
+- Fix icon preview size styles
+
 ### 1.0.5 - 2026-02-23
 
 - Set label collection on tabs item in icons selector modal instead of collection slug
