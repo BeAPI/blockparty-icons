@@ -211,12 +211,8 @@
 		}
 
 		svg {
-			width: var(--blockparty-icon-preview-size, 24px);
 			height: var(--blockparty-icon-preview-size, 24px);
-			min-width: 8px;
-			min-height: 8px;
-			max-width: none;
-			max-height: none;
+			min-width: var(--blockparty-icon-preview-size, 24px);
 		}
 	}
 
