@@ -149,19 +149,59 @@ class BlockRenderer {
 		$css_style           = [];
 		$css_style['width']  = sprintf( '%spx', $size );
 		$css_style['height'] = sprintf( '%spx', $size );
-		if ( ! empty( $icon_color ) ) {
-			$css_style['fill'] = sanitize_hex_color( $icon_color );
+
+		$sanitized_icon_color = self::sanitize_icon_color( $icon_color );
+		if ( '' !== $sanitized_icon_color ) {
+			$css_style['fill']       = $sanitized_icon_color;
+			$html_attributes['fill'] = $sanitized_icon_color;
 		}
 
 		foreach ( $css_style as $property => $value ) {
 			$html_attributes['style'] .= sprintf( '%s: %s;', $property, $value );
 		}
 
-		// Custom attributes
-		if ( ! empty( $icon_color ) ) {
-			$html_attributes['fill'] = sanitize_hex_color( $icon_color );
+		return $html_attributes;
+	}
+
+	/**
+	 * Sanitize icon color value (hex, theme preset, or CSS custom property).
+	 *
+	 * @param string $color Raw color value from block attributes.
+	 *
+	 * @return string Sanitized color, or empty string when invalid.
+	 */
+	private static function sanitize_icon_color( string $color ): string {
+		$color = trim( $color );
+
+		if ( '' === $color ) {
+			return '';
 		}
 
-		return $html_attributes;
+		$hex_color = sanitize_hex_color( $color );
+		if ( $hex_color ) {
+			return $hex_color;
+		}
+
+		// Block editor theme preset format (e.g. var:preset|color|primary).
+		if ( preg_match( '/^var:preset\|color\|([a-z0-9_-]+)$/i', $color, $matches ) ) {
+			return sprintf(
+				'var(--wp--preset--color--%s)',
+				sanitize_key( $matches[1] )
+			);
+		}
+
+		// CSS custom property with optional hex fallback (e.g. var(--wp--preset--color--primary, #000)).
+		if ( preg_match( '/^var\(\s*(--[a-zA-Z0-9_-]+)\s*,\s*(#[0-9a-fA-F]{3,8})\s*\)$/', $color, $matches ) ) {
+			$fallback = sanitize_hex_color( $matches[2] );
+
+			return $fallback ? sprintf( 'var(%s, %s)', $matches[1], $fallback ) : '';
+		}
+
+		// CSS custom property (e.g. var(--wp--preset--color--primary)).
+		if ( preg_match( '/^var\(\s*--[a-zA-Z0-9_-]+\s*\)$/', $color ) ) {
+			return $color;
+		}
+
+		return '';
 	}
 }
