@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.7 - 2026-05-26
+
+- Fix icon color with CSS custom properties
+
 ### 1.0.6 - 2026-05-18
 
 - Fix icon preview size styles
