@@ -17,6 +17,9 @@ import { capitalize } from '../utils';
  * @param {string}   props.iconColor                   Icon color
  * @param {number}   props.padding                     Padding value
  * @param {number}   props.size                        Icon size
+ * @param {boolean}  props.allowStyling                Keep the SVG's own style/id/<style> (media library)
+ * @param {boolean}  props.allowClassName              Keep the SVG's own class attributes
+ * @param {boolean}  props.preview                     Mark the preview <svg> so recolor styles skip it
  * @param {*}        props.children                    Child content
  */
 function IconSelector( {
@@ -26,6 +29,9 @@ function IconSelector( {
 	iconColor,
 	padding,
 	size,
+	allowStyling,
+	allowClassName,
+	preview,
 	children,
 } ) {
 	return (
@@ -47,6 +53,9 @@ function IconSelector( {
 								size,
 							} }
 							type={ icon.type }
+							allowStyling={ allowStyling }
+							allowClassName={ allowClassName }
+							preview={ preview }
 						/>
 					</span>
 				</span>

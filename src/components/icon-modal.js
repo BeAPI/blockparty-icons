@@ -35,6 +35,9 @@ const PREFERENCES_NAME = 'blockparty-icons';
 const DEFAULT_ICON_PREVIEW_SIZE = 24;
 const DEFAULT_ICONS_PER_PAGE = 50;
 const ICONS_PER_PAGE_DEBOUNCE_MS = 400;
+// Media library SVGs ship their own styling (internal <style>, class, inline style),
+// so previews for this collection must keep that styling and skip the recolor styles.
+const MEDIA_LIBRARY_COLLECTION = 'mediatheque';
 
 function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 	const [ isOpen, setOpen ] = useState( true );
@@ -592,6 +595,18 @@ function IconModal( { collections, onClose, handleIconSelectButtonClick } ) {
 																												}
 																												collection={
 																													c
+																												}
+																												allowStyling={
+																													c.name ===
+																													MEDIA_LIBRARY_COLLECTION
+																												}
+																												allowClassName={
+																													c.name ===
+																													MEDIA_LIBRARY_COLLECTION
+																												}
+																												preview={
+																													c.name ===
+																													MEDIA_LIBRARY_COLLECTION
 																												}
 																												handleIconSelectButtonClick={
 																													handleSelectIcon
