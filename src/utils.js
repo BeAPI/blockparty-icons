@@ -385,7 +385,7 @@ export function getSpriteUrlWithHash( spriteUrl ) {
  * @return {string} Value with unit when needed.
  */
 export function addDefaultUnit( value, unit = 'px' ) {
-	if ( ! value ) {
+	if ( value === undefined || value === null || value === '' ) {
 		return '';
 	}
 
