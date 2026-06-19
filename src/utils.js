@@ -1,16 +1,4 @@
-import {
-	Circle,
-	G,
-	Line,
-	Path,
-	Polygon,
-	Rect,
-	Defs,
-	RadialGradient,
-	LinearGradient,
-	Stop,
-	SVG,
-} from '@wordpress/primitives';
+import { createElement } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 import { __ } from '@wordpress/i18n';
@@ -204,95 +192,184 @@ export async function getAllIcons( args = {} ) {
 	return icons.flat();
 }
 
-export const SvgComponent = ( { svgText, size, style } ) => {
-	const parseSvg = ( svgTextContent ) => {
-		const regex = /<([a-z]+)([^>]*)\/?>/g;
-		const matches = svgTextContent.matchAll( regex );
-		let svgAttributes = {};
-		const svgElements = Array.from( matches, ( match, index ) => {
-			const [ , tagName, attributes ] = match;
-			const parsedAttributes = (
-				attributes.match( /([a-zA-Z][a-zA-Z-]*)="([^"]*)"/g ) || []
-			)
-				.filter(
-					( attr ) =>
-						! attr.includes( 'style' ) && ! attr.includes( 'class' )
-				)
-				.map( ( attr ) => {
-					const [ name, value ] = attr.split( '=' );
+/**
+ * Marker attribute that can be set on the root <svg> to opt into keeping its
+ * own styling without passing a prop. Accepted tokens (space/comma separated):
+ * `style`, `class`, `all`. Example: <svg data-blockparty-preserve="style class">.
+ * The attribute is kept on the rendered <svg> output.
+ */
+export const PRESERVE_ATTRIBUTE = 'data-blockparty-preserve';
 
-					return {
-						name:
-							name.includes( '-' ) && ! name.includes( 'aria' )
-								? name.replace( /-([a-z])/g, ( _, letter ) =>
-										letter.toUpperCase()
-								  )
-								: name,
-						value: value.slice( 1, -1 ),
-					};
-				} )
-				.reduce(
-					( acc, { name, value } ) => ( { ...acc, [ name ]: value } ),
-					{}
-				);
+/**
+ * Convert an SVG string into a DOM element.
+ *
+ * Parsing through the HTML parser keeps the foreign-content adjustments for
+ * SVG, so attribute casing (viewBox, gradientUnits, ...) and tag casing
+ * (linearGradient, radialGradient, ...) are preserved.
+ *
+ * Uses querySelector('svg') rather than firstChild/firstElementChild so markup
+ * that does not start with the <svg> element (e.g. a leading HTML comment or
+ * XML/doctype prologue) still resolves to the actual root SVG node.
+ *
+ * @param {string} svgText Raw SVG markup.
+ * @return {Element|null} The root SVG element, or null when the markup is empty/invalid.
+ */
+export function svgTextToElement( svgText ) {
+	if ( typeof document === 'undefined' || typeof svgText !== 'string' ) {
+		return null;
+	}
 
-			if ( tagName.toLowerCase() === 'svg' ) {
-				// Si la balise est <svg>, conserve ses attributs pour l'utiliser comme attributs de la balise <svg> parente
-				svgAttributes = parsedAttributes;
-				return null; // Ignore la balise <svg> en tant que composant React
+	const div = document.createElement( 'div' );
+	div.innerHTML = svgText.trim();
+
+	return div.querySelector( 'svg' );
+}
+
+/**
+ * Parse an inline `style` attribute string into a React style object.
+ *
+ * @param {string} styleString The raw value of a `style` attribute.
+ * @return {Object} A React-compatible style object.
+ */
+function parseStyleString( styleString ) {
+	const styleObject = {};
+
+	if ( typeof styleString !== 'string' ) {
+		return styleObject;
+	}
+
+	styleString.split( ';' ).forEach( ( declaration ) => {
+		const [ rawProperty, ...rawValue ] = declaration.split( ':' );
+		const property = rawProperty.trim();
+		const value = rawValue.join( ':' ).trim();
+
+		if ( ! property || ! value ) {
+			return;
+		}
+
+		// Keep CSS custom properties as-is, camelCase the rest for React.
+		const reactProperty = property.startsWith( '--' )
+			? property
+			: property.replace( /-([a-z])/g, ( _, letter ) =>
+					letter.toUpperCase()
+			  );
+
+		styleObject[ reactProperty ] = value;
+	} );
+
+	return styleObject;
+}
+
+/**
+ * Render an SVG string as React elements, preserving the original tag nesting.
+ *
+ * Per-SVG opt-in: the root <svg> may carry a marker attribute to enable the
+ * same behaviour without a prop, e.g. `data-blockparty-preserve="style class"`.
+ * Accepted tokens (space/comma separated): `style`, `class`, `all`.
+ *
+ * @param {Object}  props                Props object
+ * @param {string}  props.svgText        Raw SVG markup.
+ * @param {number}  props.size           Width/height applied to the root <svg> (ignored when null).
+ * @param {Object}  props.style          Inline style merged onto the root <svg> (e.g. from Gutenberg).
+ * @param {boolean} props.allowStyling   When true, keep inline `style`/`id` attributes and inline `<style>` tags (required for SVGs that carry their own styling, e.g. media library uploads).
+ * @param {boolean} props.allowClassName When true, keep `class` attributes (mapped to `className`).
+ */
+export const SvgComponent = ( {
+	svgText,
+	size,
+	style,
+	allowStyling = false,
+	allowClassName = false,
+} ) => {
+	const svgElement = svgTextToElement( svgText );
+
+	if ( ! svgElement ) {
+		return null;
+	}
+
+	// Per-SVG opt-in via a marker attribute on the root <svg>.
+	const preserveTokens = (
+		svgElement.getAttribute( PRESERVE_ATTRIBUTE ) || ''
+	)
+		.toLowerCase()
+		.split( /[\s,]+/ )
+		.filter( Boolean );
+	const preserveAll = preserveTokens.includes( 'all' );
+	const effectiveAllowStyling =
+		allowStyling || preserveAll || preserveTokens.includes( 'style' );
+	const effectiveAllowClassName =
+		allowClassName || preserveAll || preserveTokens.includes( 'class' );
+
+	const disallowedAttributes = [ 'class', 'id', 'style' ].filter(
+		( attribute ) => {
+			if ( attribute === 'class' ) {
+				return ! effectiveAllowClassName;
 			}
+			// `style` and `id` are gated by allowStyling (ids are required for
+			// gradient/filter references defined via internal styling).
+			return ! effectiveAllowStyling;
+		}
+	);
+	const disallowedTags = effectiveAllowStyling
+		? [ 'script' ]
+		: [ 'style', 'script' ];
+	const mapAttributes = { class: 'className' };
 
-			// Convertissons les balises en composants React
-			const DynamicComponent = ( {
-				tagName: componentTagName,
-				...props
-			} ) => {
-				switch ( componentTagName ) {
-					case 'circle':
-						return <Circle { ...props } />;
-					case 'g':
-						return <G { ...props } />;
-					case 'line':
-						return <Line { ...props } />;
-					case 'path':
-						return <Path { ...props } />;
-					case 'polygon':
-						return <Polygon { ...props } />;
-					case 'rect':
-						return <Rect { ...props } />;
-					case 'defs':
-						return <Defs { ...props } />;
-					case 'radialGradient':
-						return <RadialGradient { ...props } />;
-					case 'linearGradient':
-						return <LinearGradient { ...props } />;
-					case 'stop':
-						return <Stop { ...props } />;
-				}
+	// Recursively walk the DOM tree so the original nesting of the SVG tags
+	// (defs > linearGradient > stop, g > path, ...) is preserved.
+	const traverse = ( element, id = 0 ) => {
+		const tagName = element.tagName;
+
+		if ( disallowedTags.includes( tagName ) ) {
+			return null;
+		}
+
+		const attributes = { key: `icon-${ id }` };
+		for ( const attribute of element.attributes ) {
+			if ( disallowedAttributes.includes( attribute.name ) ) {
+				continue;
+			}
+			if ( attribute.name === 'style' ) {
+				attributes.style = parseStyleString( attribute.value );
+				continue;
+			}
+			attributes[ mapAttributes[ attribute.name ] || attribute.name ] =
+				attribute.value;
+		}
+
+		// <style> tags carry their CSS as text content, which is required for
+		// SVGs that rely on internal CSS classes (kept only when allowStyling).
+		if ( tagName === 'style' ) {
+			attributes.dangerouslySetInnerHTML = {
+				__html: element.textContent,
 			};
+			return createElement( tagName, attributes );
+		}
 
-			return (
-				<DynamicComponent
-					key={ index }
-					tagName={ tagName }
-					{ ...parsedAttributes }
-				/>
-			);
-		} );
+		let children = [];
+		if ( element.children.length > 0 ) {
+			children = Array.from( element.children )
+				.map( ( child, index ) =>
+					traverse( child, `${ id }-${ index }` )
+				)
+				.filter( Boolean );
+		}
 
-		return { svgAttributes, svgElements };
+		// On the root <svg>, apply the dimensions and inline style coming from Gutenberg.
+		if ( tagName === 'svg' ) {
+			if ( size !== null ) {
+				attributes.width = size;
+				attributes.height = size;
+			}
+			attributes.viewBox =
+				element.getAttribute( 'viewBox' ) || '0 0 24 24';
+			attributes.style = { ...attributes.style, ...style };
+		}
+
+		return createElement( tagName, attributes, children );
 	};
 
-	const { svgAttributes, svgElements } = parseSvg( svgText );
-
-	svgAttributes.style = { ...svgAttributes.style, ...style };
-	if ( size !== null ) {
-		svgAttributes.width = size;
-		svgAttributes.height = size;
-	}
-	svgAttributes.viewBox = svgAttributes.viewBox || '0 0 24 24';
-
-	return <SVG { ...svgAttributes }>{ svgElements }</SVG>;
+	return traverse( svgElement );
 };
 
 /**
