@@ -376,3 +376,39 @@ export function getSpriteUrlWithHash( spriteUrl ) {
 		return spriteUrl;
 	}
 }
+
+/**
+ * Add default unit to a value if it's not a number
+ *
+ * @param {number | string} value Value to normalize.
+ * @param {string}          unit  CSS unit suffix.
+ * @return {string} Value with unit when needed.
+ */
+export function addDefaultUnit( value, unit = 'px' ) {
+	if ( ! value ) {
+		return '';
+	}
+
+	if ( isNumber( value ) ) {
+		return `${ value }${ unit }`;
+	}
+
+	// get the last char and check if it's a number
+	const lastChar = value.charAt( value.length - 1 );
+
+	if ( isNumber( lastChar ) ) {
+		return `${ value }${ unit }`;
+	}
+
+	return value;
+}
+
+/**
+ * Check if a value is a number
+ *
+ * @param {*} value Value to test.
+ * @return {boolean} Whether the value is numeric.
+ */
+export function isNumber( value ) {
+	return ! isNaN( parseFloat( value ) ) && isFinite( value );
+}
