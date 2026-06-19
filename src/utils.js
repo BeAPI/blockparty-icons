@@ -271,7 +271,7 @@ function parseStyleString( styleString ) {
  * @param {string}  props.svgText        Raw SVG markup.
  * @param {number}  props.size           Width/height applied to the root <svg> (ignored when null).
  * @param {Object}  props.style          Inline style merged onto the root <svg> (e.g. from Gutenberg).
- * @param {boolean} props.allowStyling   When true, keep inline `style`/`id` attributes and inline `<style>` tags (required for SVGs that carry their own styling, e.g. media library uploads).
+ * @param {boolean} props.allowStyling   When true, keep inline `style` attributes and inline `<style>` tags (required for SVGs that carry their own styling, e.g. media library uploads). `id` attributes are always kept so internal `url(#…)` references resolve.
  * @param {boolean} props.allowClassName When true, keep `class` attributes (mapped to `className`).
  */
 export const SvgComponent = ( {
@@ -300,16 +300,15 @@ export const SvgComponent = ( {
 	const effectiveAllowClassName =
 		allowClassName || preserveAll || preserveTokens.includes( 'class' );
 
-	const disallowedAttributes = [ 'class', 'id', 'style' ].filter(
-		( attribute ) => {
-			if ( attribute === 'class' ) {
-				return ! effectiveAllowClassName;
-			}
-			// `style` and `id` are gated by allowStyling (ids are required for
-			// gradient/filter references defined via internal styling).
-			return ! effectiveAllowStyling;
+	const disallowedAttributes = [ 'class', 'style' ].filter( ( attribute ) => {
+		if ( attribute === 'class' ) {
+			return ! effectiveAllowClassName;
 		}
-	);
+		// Only `style` is gated by allowStyling. `id` is always kept because
+		// internal `url(#…)` references (gradients, clip paths, filters) rely
+		// on it to resolve, matching the behaviour of the previous parser.
+		return ! effectiveAllowStyling;
+	} );
 	const disallowedTags = effectiveAllowStyling
 		? [ 'script' ]
 		: [ 'style', 'script' ];
