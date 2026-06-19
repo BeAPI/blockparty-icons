@@ -261,6 +261,32 @@ function parseStyleString( styleString ) {
 }
 
 /**
+ * Convert a DOM attribute name to its React-compatible counterpart.
+ *
+ * React expects presentation attributes in camelCase (`fill-rule` -> `fillRule`,
+ * `clip-path` -> `clipPath`) and namespaced ones too (`xlink:href` ->
+ * `xlinkHref`). `data-*` and `aria-*` attributes must keep their hyphenated
+ * form, and `class` maps to `className`.
+ *
+ * @param {string} name Raw DOM attribute name.
+ * @return {string} The React-compatible attribute name.
+ */
+function reactAttributeName( name ) {
+	if ( name === 'class' ) {
+		return 'className';
+	}
+
+	// React keeps data-* and aria-* attributes in their hyphenated form.
+	if ( name.startsWith( 'data-' ) || name.startsWith( 'aria-' ) ) {
+		return name;
+	}
+
+	return name.replace( /[-:]([a-z])/g, ( _, letter ) =>
+		letter.toUpperCase()
+	);
+}
+
+/**
  * Render an SVG string as React elements, preserving the original tag nesting.
  *
  * Per-SVG opt-in: the root <svg> may carry a marker attribute to enable the
@@ -312,7 +338,6 @@ export const SvgComponent = ( {
 	const disallowedTags = effectiveAllowStyling
 		? [ 'script' ]
 		: [ 'style', 'script' ];
-	const mapAttributes = { class: 'className' };
 
 	// Recursively walk the DOM tree so the original nesting of the SVG tags
 	// (defs > linearGradient > stop, g > path, ...) is preserved.
@@ -332,7 +357,7 @@ export const SvgComponent = ( {
 				attributes.style = parseStyleString( attribute.value );
 				continue;
 			}
-			attributes[ mapAttributes[ attribute.name ] || attribute.name ] =
+			attributes[ reactAttributeName( attribute.name ) ] =
 				attribute.value;
 		}
 
