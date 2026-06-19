@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { SVG } from '@wordpress/primitives';
-import { getSpriteUrlWithHash, SvgComponent } from '../utils';
+import { getSpriteUrlWithHash, SvgComponent, addDefaultUnit } from '../utils';
 
 export default function IconContent( {
 	iconData: { content, icon, iconColor, padding, size },
@@ -13,7 +13,11 @@ export default function IconContent( {
 	};
 
 	if ( padding ) {
-		style.padding = `${ padding.top } ${ padding.right } ${ padding.bottom } ${ padding.left }`;
+		style.padding = `${ addDefaultUnit( padding.top ) } ${ addDefaultUnit(
+			padding.right
+		) } ${ addDefaultUnit( padding.bottom ) } ${ addDefaultUnit(
+			padding.left
+		) }`;
 	}
 
 	if ( type === 'raw' ) {
