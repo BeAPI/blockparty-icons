@@ -30,7 +30,8 @@
 		display: block;
 	}
 
-	.wp-block-blockparty-icons__icon-component--raw svg {
+	.wp-block-blockparty-icons__icon-component--raw
+		svg:not([data-blockparty-preserve*="preview"]) {
 		fill: none;
 
 		*:not([fill]):not([stroke]),
