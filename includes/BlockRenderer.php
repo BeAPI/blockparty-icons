@@ -152,12 +152,13 @@ class BlockRenderer {
 
 		$sanitized_icon_color = self::sanitize_icon_color( $icon_color );
 		if ( '' !== $sanitized_icon_color ) {
+			$css_style['color']      = $sanitized_icon_color;
 			$css_style['fill']       = $sanitized_icon_color;
 			$html_attributes['fill'] = $sanitized_icon_color;
 		}
 
 		foreach ( $css_style as $property => $value ) {
-			$html_attributes['style'] .= sprintf( '%s: %s;', $property, $value );
+			$html_attributes['style'] .= sprintf( '%s:%s;', $property, $value );
 		}
 
 		return $html_attributes;

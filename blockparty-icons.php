@@ -5,7 +5,7 @@
  * Requires at least: 6.2
  * Requires PHP:      8.1
  * Version:           1.0.7
- * Author:            Blockparty
+ * Author:            Be API Technical Team
  * Author URI:        https://beapi.fr
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
