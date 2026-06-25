@@ -299,6 +299,7 @@ function reactAttributeName( name ) {
  * @param {Object}  props.style          Inline style merged onto the root <svg> (e.g. from Gutenberg).
  * @param {boolean} props.allowStyling   When true, keep inline `style` attributes and inline `<style>` tags (required for SVGs that carry their own styling, e.g. media library uploads). `id` attributes are always kept so internal `url(#…)` references resolve.
  * @param {boolean} props.allowClassName When true, keep `class` attributes (mapped to `className`).
+ * @param {boolean} props.preview        When true, mark the rendered root <svg> with `data-blockparty-preserve="preview"` so preview styles do not recolor it (e.g. media library previews).
  */
 export const SvgComponent = ( {
 	svgText,
@@ -306,6 +307,7 @@ export const SvgComponent = ( {
 	style,
 	allowStyling = false,
 	allowClassName = false,
+	preview = false,
 } ) => {
 	const svgElement = svgTextToElement( svgText );
 
@@ -388,6 +390,14 @@ export const SvgComponent = ( {
 			attributes.viewBox =
 				element.getAttribute( 'viewBox' ) || '0 0 24 24';
 			attributes.style = { ...attributes.style, ...style };
+
+			// Mark previews so the recolor styles skip them (the SVG keeps its own colors).
+			if ( preview ) {
+				const existingPreserve = attributes[ PRESERVE_ATTRIBUTE ];
+				attributes[ PRESERVE_ATTRIBUTE ] = existingPreserve
+					? `${ existingPreserve } preview`
+					: 'preview';
+			}
 		}
 
 		return createElement( tagName, attributes, children );

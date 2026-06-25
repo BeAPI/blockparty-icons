@@ -7,6 +7,9 @@ import { getSpriteUrlWithHash, SvgComponent, addDefaultUnit } from '../utils';
 export default function IconContent( {
 	iconData: { content, icon, iconColor, padding, size },
 	type,
+	allowStyling = false,
+	allowClassName = false,
+	preview = false,
 } ) {
 	const style = {
 		color: iconColor,
@@ -27,6 +30,9 @@ export default function IconContent( {
 					svgText={ content }
 					size={ size }
 					style={ style }
+					allowStyling={ allowStyling }
+					allowClassName={ allowClassName }
+					preview={ preview }
 				/>
 			</span>
 		);
