@@ -6,6 +6,16 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.8 - 2026-06-26
+
+- Fix icon padding values missing CSS units in the editor
+- Fix `addDefaultUnit` utility handling of undefined, null, and empty values
+- Fix icon color not applying to SVG icons using `fill="currentColor"` on the front end
+- Fix SVG previews being incorrectly recolored in the icon selector and modal
+- Fix inline `style` and `id` attribute handling when parsing SVG markup
+- Replace regex-based SVG parser with recursive DOM traversal for more reliable SVG rendering
+- Update translations
+
 ### 1.0.7 - 2026-05-26
 
 - Fix icon color with CSS custom properties
