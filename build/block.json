@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "blockparty/icon",
+  "version": "1.0.8",
+  "title": "Icon",
+  "category": "widgets",
+  "description": "Easily add custom vector icon to your content.",
+  "supports": {
+    "reusable": false,
+    "html": false,
+    "color": {
+      "text": false,
+      "background": true
+    },
+    "dimensions": {
+      "width": true,
+      "height": true
+    },
+    "spacing": {
+      "padding": true
+    }
+  },
+  "attributes": {
+    "className": {
+      "type": "string",
+      "source": "attribute",
+      "selector": ".wp-block-blockparty-icon > span",
+      "attribute": "class"
+    },
+    "content": {
+      "type": "string",
+      "default": ""
+    },
+    "icon": {
+      "type": "object"
+    },
+    "iconColor": {
+      "type": "string"
+    },
+    "size": {
+      "type": "integer",
+      "default": 24
+    },
+    "borderRadius": {
+      "type": "string",
+      "default": "0px"
+    },
+    "url": {
+      "type": "string"
+    },
+    "label": {
+      "type": "string"
+    }
+  },
+  "textdomain": "blockparty-icons",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "style": "file:./style-index.css"
+}
