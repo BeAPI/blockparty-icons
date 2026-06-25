@@ -1,6 +1,6 @@
 {
 	"name": "blockparty-icons",
-	"version": "1.0.7",
+	"version": "1.0.8",
 	"description": "Provides blocks in WordPress editor to add custom SVG icons from your theme.",
 	"author": "Be API Technical team",
 	"license": "GPL-2.0-or-later",
@@ -13,11 +13,11 @@
 		"packages-update": "wp-scripts packages-update",
 		"plugin-zip": "wp-scripts plugin-zip",
 		"start": "wp-scripts start",
-		"start:env": "wp-env start --config=./.wp-env.json",
-		"stop:env": "wp-env stop --config=./.wp-env.json",
 		"wp:cli": "wp-env run cli",
 		"make-pot": "wp i18n make-pot . languages/blockparty-icons.pot --exclude=\"src\" --domain=blockparty-icons",
-		"make-json": "wp i18n make-json languages/blockparty-icons-fr_FR.po languages/ --no-purge"
+		"make-json": "wp i18n make-json languages/blockparty-icons-fr_FR.po languages/ --no-purge",
+		"env:start": "wp-env start --config=./.wp-env.json",
+		"env:stop": "wp-env stop --config=./.wp-env.json"
 	},
 	"devDependencies": {
 		"@wordpress/env": "^10.39.0",
