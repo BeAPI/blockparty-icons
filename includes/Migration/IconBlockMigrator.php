@@ -153,9 +153,13 @@ class IconBlockMigrator {
 			)
 		);
 
-		// Case A: v3 children.
+		// Case A: v3 children. All-or-nothing: if one child fails, keep the
+		// parent and roll back counters from successful siblings in this batch.
 		if ( $items ) {
-			$converted = [];
+			$before_migrated = $this->migrated;
+			$before_missing  = $this->missing_icons;
+			$converted       = [];
+
 			foreach ( $items as $item ) {
 				$new = $this->build_blockparty_block(
 					is_array( $item['attrs'] ?? null ) ? $item['attrs'] : [],
@@ -163,8 +167,10 @@ class IconBlockMigrator {
 					(string) ( $item['innerHTML'] ?? '' )
 				);
 				if ( null === $new ) {
+					$this->migrated      = $before_migrated;
+					$this->missing_icons = $before_missing;
 					++$this->skipped;
-					return [ $block ]; // Keep original if one child fails.
+					return [ $block ];
 				}
 				$converted[] = $new;
 			}
