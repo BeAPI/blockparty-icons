@@ -191,7 +191,7 @@ class IconBlockMigrator {
 	 * @param array  $attrs  Source attrs (item or legacy parent).
 	 * @param array  $parent Parent attrs (for className / collection).
 	 * @param string $html   Saved HTML of the old block.
-	 * @return array|null Null only when an icon was expected but name is missing.
+	 * @return array|null Null when an icon was expected but name or collection is missing.
 	 * @author Jules Fell
 	 */
 	private function build_blockparty_block( array $attrs, array $parent, string $html ): ?array {
@@ -205,18 +205,15 @@ class IconBlockMigrator {
 
 		$expects_icon = ( '' !== $name || $old_icon || false !== strpos( $html, 'icon-container' ) );
 
-		// Collection from attrs only (no registry lookup). Default: icon-pack.
+		// Collection from attrs only (no registry lookup, no project-specific default).
 		$collection = (string) ( $old_icon['collection'] ?? '' );
 		if ( '' === $collection ) {
 			$raw        = $attrs['collection'] ?? $parent['collection'] ?? null;
 			$collection = is_array( $raw ) ? (string) ( $raw['name'] ?? '' ) : (string) $raw;
 		}
-		if ( '' === $collection && '' !== $name ) {
-			$collection = 'icon-pack';
-		}
 
-		// Only abort markup conversion when we expected an icon name and have none.
-		if ( $expects_icon && '' === $name ) {
+		// Abort when we expected an icon but name or collection is missing.
+		if ( $expects_icon && ( '' === $name || '' === $collection ) ) {
 			return null;
 		}
 

@@ -98,7 +98,7 @@ The command:
 4. Logs migrated / skipped counts
 5. Lists missing icon assets (`collection/name`) so you can add them manually to theme assets / collections
 
-When `collection` is missing on the icon object, the migrator defaults to `icon-pack` (or the parent `collection.name` when present). Missing files are reported, not skipped.
+When `collection` is missing on the icon object (and not on the parent attrs), the block is skipped — there is no default collection. Missing files among converted icons are reported, not skipped.
 
 ## Front-end checklist
 
