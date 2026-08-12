@@ -212,7 +212,9 @@ class IconBlockMigrator {
 		// Legacy HTML fallback: class="icon-xxx".
 		// Skip structural fragments from wrappers / block classes (icon-container,
 		// wp-block-beapi-icon-block, wp-block-beapi-icon-item).
-		if ( '' === $name && preg_match( '/\bicon-(?!container\b|block\b|item\b)([a-z0-9_-]+)\b/i', $html, $m ) ) {
+		// Use (?![a-z0-9_-]) instead of \b after container|block|item: in PCRE, \b
+		// matches before "-", so icon-item-check / icon-block-quote would be rejected.
+		if ( '' === $name && preg_match( '/\bicon-(?!container(?![a-z0-9_-])|block(?![a-z0-9_-])|item(?![a-z0-9_-]))([a-z0-9_-]+)\b/i', $html, $m ) ) {
 			$name = $m[1];
 		}
 
