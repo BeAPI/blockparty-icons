@@ -199,11 +199,15 @@ class IconBlockMigrator {
 		$name     = (string) ( $old_icon['name'] ?? '' );
 
 		// Legacy HTML fallback: class="icon-xxx".
-		if ( '' === $name && preg_match( '/\bicon-([a-z0-9_-]+)\b/i', $html, $m ) ) {
+		// Skip structural fragments from wrappers / block classes (icon-container,
+		// wp-block-beapi-icon-block, wp-block-beapi-icon-item).
+		if ( '' === $name && preg_match( '/\bicon-(?!container\b|block\b|item\b)([a-z0-9_-]+)\b/i', $html, $m ) ) {
 			$name = $m[1];
 		}
 
-		$expects_icon = ( '' !== $name || $old_icon || false !== strpos( $html, 'icon-container' ) );
+		// Do not treat the legacy icon-container wrapper alone as an expected icon:
+		// empty shells must become empty blockparty/icon blocks.
+		$expects_icon = ( '' !== $name || $old_icon );
 
 		// Collection from attrs only (no registry lookup, no project-specific default).
 		$collection = (string) ( $old_icon['collection'] ?? '' );
