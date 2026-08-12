@@ -75,8 +75,13 @@ class IconBlockMigrator {
 
 			// Rare: icon-item alone.
 			if ( 'beapi/icon-item' === $name ) {
-				$new   = $this->build_blockparty_block( $block['attrs'] ?? [], [], (string) ( $block['innerHTML'] ?? '' ) );
-				$out[] = $new ?? $block;
+				$new = $this->build_blockparty_block( $block['attrs'] ?? [], [], (string) ( $block['innerHTML'] ?? '' ) );
+				if ( null === $new ) {
+					++$this->skipped;
+					$out[] = $block;
+					continue;
+				}
+				$out[] = $new;
 				continue;
 			}
 
