@@ -100,6 +100,24 @@ The command:
 
 When `collection` is missing on the icon object (and not on the parent attrs), the block is skipped — there is no default collection. Missing files among converted icons are reported, not skipped.
 
+### Revisions
+
+Only the scanned post types are migrated (public REST post types + `wp_block` by default). **Revisions are not included**, so parent posts are updated while historical revisions can still contain the old `beapi/icon-block` / `beapi/icon-item` markup. That is expected. To migrate revisions as well, pass them explicitly, for example:
+
+```bash
+wp blockparty-icons migrate-from-icon-block --post-type=revision
+```
+
+### Duplicate Post (Yoast)
+
+If [Yoast Duplicate Post](https://wordpress.org/plugins/duplicate-post/) is active, updating a Rewrite & Republish **copy** via `wp_update_post()` (especially without `--user=`) can call `wp_die( 'You are not allowed to republish this post.' )` and abort the whole WP-CLI run.
+
+Preferred workaround: skip that plugin for the migration only (global WP-CLI flag):
+
+```bash
+wp --skip-plugins=duplicate-post blockparty-icons migrate-from-icon-block --url=https://example.com/
+```
+
 ## Front-end checklist
 
 - Re-register custom block styles (e.g. `is-style-inline`) on `blockparty/icon`
