@@ -119,7 +119,7 @@ class IconBlockMigrator {
 			}
 
 			// null placeholder → migrate that child (may become 1..n blocks).
-			$child        = $block['innerBlocks'][ $inner_index ] ?? null;
+			$child = $block['innerBlocks'][ $inner_index ] ?? null;
 			++$inner_index;
 			$replacements = null === $child ? [] : $this->migrate_blocks( [ $child ] );
 
@@ -150,8 +150,8 @@ class IconBlockMigrator {
 	 * @author Jules Fell
 	 */
 	private function convert_old_block( array $block ): array {
-		$parent = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : [];
-		$items  = array_values(
+		$parent_attrs = is_array( $block['attrs'] ?? null ) ? $block['attrs'] : [];
+		$items        = array_values(
 			array_filter(
 				$block['innerBlocks'] ?? [],
 				static fn( $inner ) => ( $inner['blockName'] ?? '' ) === 'beapi/icon-item'
@@ -168,7 +168,7 @@ class IconBlockMigrator {
 			foreach ( $items as $item ) {
 				$new = $this->build_blockparty_block(
 					is_array( $item['attrs'] ?? null ) ? $item['attrs'] : [],
-					$parent,
+					$parent_attrs,
 					(string) ( $item['innerHTML'] ?? '' )
 				);
 				if ( null === $new ) {
@@ -184,7 +184,7 @@ class IconBlockMigrator {
 		}
 
 		// Case B: legacy single icon or empty shell.
-		$new = $this->build_blockparty_block( $parent, [], (string) ( $block['innerHTML'] ?? '' ) );
+		$new = $this->build_blockparty_block( $parent_attrs, [], (string) ( $block['innerHTML'] ?? '' ) );
 		if ( null === $new ) {
 			++$this->skipped;
 			return [ $block ];
@@ -199,13 +199,13 @@ class IconBlockMigrator {
 	 * Markup only: always writes blockparty/icon when a name can be inferred.
 	 * Missing assets are recorded, not used to abort the conversion.
 	 *
-	 * @param array  $attrs  Source attrs (item or legacy parent).
-	 * @param array  $parent Parent attrs (for className / collection).
-	 * @param string $html   Saved HTML of the old block.
+	 * @param array  $attrs        Source attrs (item or legacy parent).
+	 * @param array  $parent_attrs Parent attrs (for className / collection).
+	 * @param string $html         Saved HTML of the old block.
 	 * @return array|null Null when an icon was expected but name or collection is missing.
 	 * @author Jules Fell
 	 */
-	private function build_blockparty_block( array $attrs, array $parent, string $html ): ?array {
+	private function build_blockparty_block( array $attrs, array $parent_attrs, string $html ): ?array {
 		$old_icon = is_array( $attrs['icon'] ?? null ) ? $attrs['icon'] : [];
 		$name     = (string) ( $old_icon['name'] ?? '' );
 
@@ -225,7 +225,7 @@ class IconBlockMigrator {
 		// Collection from attrs only (no registry lookup, no project-specific default).
 		$collection = (string) ( $old_icon['collection'] ?? '' );
 		if ( '' === $collection ) {
-			$raw        = $attrs['collection'] ?? $parent['collection'] ?? null;
+			$raw        = $attrs['collection'] ?? $parent_attrs['collection'] ?? null;
 			$collection = is_array( $raw ) ? (string) ( $raw['name'] ?? '' ) : (string) $raw;
 		}
 
@@ -250,7 +250,7 @@ class IconBlockMigrator {
 		}
 
 		// Color: map attrs only (keep inherit/currentColor as stored; renderer may sanitize).
-		$color = $attrs['iconColorValue'] ?? $attrs['iconColor'] ?? $parent['iconColor'] ?? null;
+		$color = $attrs['iconColorValue'] ?? $attrs['iconColor'] ?? $parent_attrs['iconColor'] ?? null;
 		if ( is_array( $color ) ) {
 			$color = $color['color'] ?? null;
 		}
@@ -281,13 +281,13 @@ class IconBlockMigrator {
 			$new['label'] = $attrs['label'];
 		}
 
-		$class = $attrs['className'] ?? $parent['className'] ?? '';
+		$class = $attrs['className'] ?? $parent_attrs['className'] ?? '';
 		if ( is_string( $class ) && '' !== $class ) {
 			$new['className'] = $class;
 		}
 
 		// Keep extra attrs (ex: sharedBlockId), drop old icon-only keys.
-		foreach ( array_merge( $parent, $attrs ) as $key => $value ) {
+		foreach ( array_merge( $parent_attrs, $attrs ) as $key => $value ) {
 			if ( ! isset( $new[ $key ] ) && ! in_array(
 				$key,
 				[
@@ -348,7 +348,7 @@ class IconBlockMigrator {
 			return;
 		}
 
-		$key = $collection . '/' . $name;
+		$key                         = $collection . '/' . $name;
 		$this->missing_icons[ $key ] = ( $this->missing_icons[ $key ] ?? 0 ) + 1;
 	}
 }
