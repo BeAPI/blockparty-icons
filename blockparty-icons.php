@@ -4,7 +4,7 @@
  * Description:       Provides blocks in WordPress editor to add custom SVG icons.
  * Requires at least: 6.2
  * Requires PHP:      8.1
- * Version:           1.0.8
+ * Version:           1.0.9
  * Author:            Be API Technical Team
  * Author URI:        https://beapi.fr
  * License:           GPL-2.0-or-later
@@ -30,7 +30,7 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	include_once __DIR__ . '/vendor/autoload.php';
 }
 
-define( 'BLOCKPARTY_ICONS_VERSION', '1.0.8' );
+define( 'BLOCKPARTY_ICONS_VERSION', '1.0.9' );
 define( 'BLOCKPARTY_ICONS_URL', plugin_dir_url( __FILE__ ) );
 define( 'BLOCKPARTY_ICONS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKPARTY_ICONS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

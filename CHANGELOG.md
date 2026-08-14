@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.0.9 - 2026-08-14
+
+- Add WP-CLI command to convert `beapi/icon-block` / `beapi/icon-item` old contents to `blockparty/icon`
+
 ### 1.0.8 - 2026-06-26
 
 - Fix icon padding values missing CSS units in the editor
