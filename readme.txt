@@ -4,7 +4,7 @@ Tags:              block, icons, svg, gutenberg, editor
 Requires at least: 6.2
 Tested up to:      6.8
 Requires PHP:      8.1
-Stable tag:        1.0.9
+Stable tag:        1.1.0
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ Yes. Register a collection with `type` set to `folder` and `source` pointing to 
 
 == Changelog ==
 
-= 1.0.9 =
+= 1.1.0 =
 * Add WP-CLI command to convert `beapi/icon-block` / `beapi/icon-item` old content to `blockparty/icon`.
 
 = 1.0.8 =
