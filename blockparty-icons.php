@@ -15,6 +15,7 @@
 
 namespace Blockparty\Icons;
 
+use Blockparty\Icons\Cli\MigrateFromIconBlockCommand;
 use Blockparty\Icons\Icon\Collection;
 use Blockparty\Icons\Icon\CollectionCreationException;
 use Blockparty\Icons\Icon\CollectionItemsFactory;
@@ -333,3 +334,7 @@ function allow_css_attributes( $attr ) {
 }
 
 add_filter( 'safe_style_css', __NAMESPACE__ . '\\allow_css_attributes' );
+
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	\WP_CLI::add_command( 'blockparty-icons migrate-from-icon-block', MigrateFromIconBlockCommand::class );
+}
