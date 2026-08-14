@@ -108,8 +108,8 @@ class MigrateFromIconBlockCommand extends WP_CLI_Command {
 				$before_skipped  = $migrator->skipped;
 				$new_content     = $migrator->migrate_content( $post->post_content );
 
-				$delta_migrated = $migrator->migrated - $before_migrated;
-				$delta_skipped  = $migrator->skipped - $before_skipped;
+				$delta_migrated  = $migrator->migrated - $before_migrated;
+				$delta_skipped   = $migrator->skipped - $before_skipped;
 				$total_migrated += $delta_migrated;
 				$total_skipped  += $delta_skipped;
 
