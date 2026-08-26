@@ -6,6 +6,11 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.1.1 - 2026-08-26
+
+- Fix deprecated warning for nullable string parameters in `CollectionItem`
+- Align GitHub workflows with other blockparty repos and add release version consistency checks
+
 ### 1.1.0 - 2026-08-14
 
 - Add WP-CLI command to convert `beapi/icon-block` / `beapi/icon-item` old contents to `blockparty/icon`
