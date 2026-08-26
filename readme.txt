@@ -4,7 +4,7 @@ Tags:              block, icons, svg, gutenberg, editor
 Requires at least: 6.2
 Tested up to:      6.8
 Requires PHP:      8.1
-Stable tag:        1.1.0
+Stable tag:        1.1.1
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,10 @@ Icon collections are cached in the browser session storage for performance. Afte
 Yes. Register a collection with `type` set to `folder` and `source` pointing to the folder that contains your SVG files.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix deprecated warning for nullable string parameters in `CollectionItem`.
+* Align GitHub workflows with other blockparty repos and add release version consistency checks.
 
 = 1.1.0 =
 * Add WP-CLI command to convert `beapi/icon-block` / `beapi/icon-item` old content to `blockparty/icon`.
