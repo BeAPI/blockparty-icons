@@ -1,4 +1,4 @@
-name: "Check plugin version and tags"
+name: "Check plugin version and release files"
 on:
   pull_request:
     branches:
@@ -6,33 +6,19 @@ on:
 
 jobs:
   version-check:
-    name: "Check version doesn't not already exists."
+    name: "Version bump, tag, and file checks"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - id: set-vars
-        name: "Set variables from .plugin-data file"
-        run: |
-          # Get all data from .plugin-data file
-          content=`cat ./.plugin-data`
-          # the following lines are only required for multi line json
-          content="${content//'%'/'%25'}"
-          content="${content//$'\n'/'%0A'}"
-          content="${content//$'\r'/'%0D'}"
-          # end of optional handling for multi line json
-          echo "::set-output name=pluginData::$content"
+      - name: Fetch tags
+        run: git fetch --tags --prune origin
 
-      - id: version-check
-        name: "Check version in .plugin-data is not existing"
-        run: |
-          # Check version from .plugin-data
-          VERSION=${{fromJson(steps.set-vars.outputs.pluginData).version}}
-
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            echo "Tag aleady exists please update the .plugin-data file to good version";
-            exit 1;
-          fi
+      - name: Verify version bump and release files
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: tests/bin/check-release-version.sh
