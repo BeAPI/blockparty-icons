@@ -2,8 +2,15 @@ name: Javascript Quality Checks
 
 on:
   pull_request:
-    paths:
-      - 'src/**'
+      paths:
+          - 'src/**'
+          - 'package.json'
+  push:
+      paths:
+          - 'src/**'
+          - 'package.json'
+      branches:
+      - main
 
 # Cancels all previous workflow runs for pull requests that have not completed.
 concurrency:
