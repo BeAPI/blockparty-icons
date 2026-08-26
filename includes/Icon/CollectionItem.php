@@ -4,13 +4,13 @@ namespace Blockparty\Icons\Icon;
 
 class CollectionItem {
 
-	private $name;
-	private $label;
-	private $type;
-	private $version;
-	private $content;
+	private string $name;
+	private ?string $label;
+	private string $type;
+	private ?string $version;
+	private string $content;
 
-	public function __construct( string $name, string $type, string $content, string $label = null, string $version = null ) {
+	public function __construct( string $name, string $type, string $content, ?string $label = null, ?string $version = null ) {
 		$this->name    = $name;
 		$this->type    = $type;
 		$this->content = $content;
