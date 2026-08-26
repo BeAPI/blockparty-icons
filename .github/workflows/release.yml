@@ -38,20 +38,27 @@ jobs:
             exit 1;
           fi
 
-      - id: build-node
-        name: "Build project CSS and JS"
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: 'package.json'
-      - run: npm install
-      - run: npm run build
-
       - id: build-php
         name: "Build project PHP"
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.1
       - run: composer install --prefer-dist --no-dev -o --ignore-platform-reqs
+
+      - id: setup-node
+        name: "Setup Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: 'package.json'
+          cache: 'npm'
+
+      - id: build-js
+        name: "Build JavaScript assets"
+        run: |
+          echo "Install npm dependencies"
+          npm ci
+          echo "Build assets"
+          npm run build
 
       - id: commit-and-push
         name: "Commit and push new TAG"
