@@ -128,47 +128,4 @@ class CollectionItem {
 	public function version(): ?string {
 		return $this->version;
 	}
-
-	/**
-	 * Control what an item writes to the cache: never its payload.
-	 *
-	 * content() memoizes, so an item that has been rendered holds its full SVG —
-	 * up to a couple of megabytes. Serializing that back into a collection index
-	 * would rebuild the very problem lazy loading removes.
-	 *
-	 * The factories happen to cache their index before anything resolves, so this
-	 * changes nothing today. It is here to make the rule structural rather than a
-	 * property of call order: an item that knows where to re-read its bytes never
-	 * carries them, whenever and wherever it gets serialized.
-	 *
-	 * @return array
-	 */
-	public function __serialize(): array {
-		return [
-			'name'    => $this->name,
-			'label'   => $this->label,
-			'type'    => $this->type,
-			'version' => $this->version,
-			'source'  => $this->source,
-			// Items with a source can always reload; only literal content is stored.
-			'content' => null === $this->source ? $this->content : null,
-		];
-	}
-
-	/**
-	 * @param array $data
-	 */
-	public function __unserialize( array $data ): void {
-		$this->name    = (string) ( $data['name'] ?? '' );
-		$this->label   = isset( $data['label'] ) ? (string) $data['label'] : $this->name;
-		$this->type    = (string) ( $data['type'] ?? 'raw' );
-		$this->version = $data['version'] ?? null;
-		$this->source  = $data['source'] ?? null;
-		$this->content = $data['content'] ?? null;
-
-		// An item with neither content nor a source would otherwise re-resolve forever.
-		if ( null === $this->content && null === $this->source ) {
-			$this->content = '';
-		}
-	}
 }

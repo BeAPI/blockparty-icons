@@ -17,7 +17,7 @@ class CollectionItemsFactory {
 	 * unserializes the stored value *before* it compares salts. Only a different
 	 * key keeps the two formats apart.
 	 */
-	private const CACHE_FORMAT = 'v2';
+	private const CACHE_FORMAT = 'v3';
 
 	/**
 	 * Build a format-scoped cache key.
