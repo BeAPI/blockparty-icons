@@ -36,6 +36,10 @@ fi
 
 CLI="${CONTAINER%-tests-wordpress-1}-tests-cli-1"
 
-exec docker exec -u 33 \
+# wp-env builds its containers around the *host* user so that files created inside
+# them stay writable outside, and it points Apache at that UID. Run as the same
+# user rather than a hard-coded one: www-data (33) happens to work on a Mac but
+# cannot write to wp-content on a CI runner, where the host UID is different.
+exec docker exec -u "$( id -u )" \
 	-w /var/www/html/wp-content/plugins/blockparty-icons \
 	"$CLI" vendor/bin/phpunit "$@"
