@@ -205,10 +205,17 @@ Charging 2 ms per media-library file open, which is what a VIP Files fetch costs
 
 | scenario | before | after |
 |---|---|---|
-| front-empty-warm | 618 ms | 25 ms (−96%) |
-| front-empty-cold | **4806 ms** | 422 ms (−91%) |
-| front-single-warm | 547 ms | 30 ms (−94%) |
-| editor-new-page | 1057 ms | 556 ms (−47%) |
+| front-empty-warm | 402 ms | 25 ms (−94%) |
+| front-empty-cold | **4546 ms** | 435 ms (−90%) |
+| front-single-warm | 414 ms | 41 ms (−90%) |
+| front-single-cold | 4739 ms | 493 ms (−90%) |
+| editor-new-page | 834 ms | 364 ms (−56%) |
+
+Both sides of this table were measured in the same session, on the same machine,
+against the same 500 icons — the "before" column by checking the original classes
+back out into the working tree, not by reusing an older run. Wall time moves by a
+few tens of percent between sessions depending on what else the machine is doing;
+the operation counts above do not move at all.
 
 ### What is not addressed
 
