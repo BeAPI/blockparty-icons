@@ -41,3 +41,7 @@ phpcs.xml
 /wp-tests-config.php
 /phpunit.xml
 /.phpunit.result.cache
+
+# Perf protocol: generated fixtures (~100 MB) and captured results
+tests/perf/fixtures/
+tests/perf/results/
