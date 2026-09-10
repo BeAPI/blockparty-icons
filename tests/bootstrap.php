@@ -111,6 +111,22 @@ if ( ! defined( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 	}
 }
 
+/*
+ * The plugin registers its block from build/block.json. Without it the block type
+ * never registers, render_block() returns an empty string, and a couple of dozen
+ * tests fail for a reason that has nothing to do with what they are testing.
+ * build/ is git-ignored, so a fresh clone lands exactly there.
+ */
+if ( ! file_exists( $_bpi_root . '/build/block.json' ) ) {
+	fwrite(
+		STDERR,
+		"build/block.json is missing, so the block cannot register and rendering\n" .
+		"tests would fail for the wrong reason.\n\n" .
+		"Compile the assets first:\n  npm ci && npm run build\n"
+	);
+	exit( 1 );
+}
+
 require_once $_bpi_tests_dir . '/includes/functions.php';
 
 /**

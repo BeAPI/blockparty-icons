@@ -7,6 +7,17 @@ mocks rather than the plugin.
 
 ## Running
 
+The block assets must be compiled first, whichever way you run the suite: the
+plugin registers its block from `build/block.json`, and without it nothing renders.
+`build/` is git-ignored, so a fresh clone needs:
+
+```bash
+npm ci && npm run build
+```
+
+The bootstrap checks for it and says so rather than letting two dozen rendering
+tests fail for the wrong reason.
+
 Through wp-env, which supplies WordPress, the test library and a database:
 
 ```bash

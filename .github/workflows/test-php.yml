@@ -13,15 +13,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The plugin calls register_block_type() on its build/ directory, so the block is
+  # not registered — and nothing renders — until the assets are compiled. build/ is
+  # git-ignored, so CI has to produce it. Built once and shared, rather than in each
+  # matrix job, to keep npm out of the critical path four times over.
+  build:
+    name: Build block assets
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: block-build
+          path: build/
+          retention-days: 1
+          if-no-files-found: error
+
   phpunit:
     name: PHPUnit (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    needs: build
 
     strategy:
       fail-fast: false
       matrix:
-        # The full range the plugin declares support for. Verified locally on 8.3
-        # (through wp-env) and 8.4 (against the Composer copy of WordPress).
+        # The full range the plugin declares support for.
         php: [ '8.1', '8.2', '8.3', '8.4' ]
 
     services:
@@ -41,6 +73,12 @@ jobs:
     steps:
       - name: Checkout project
         uses: actions/checkout@v4
+
+      - name: Download block assets
+        uses: actions/download-artifact@v4
+        with:
+          name: block-build
+          path: build/
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -68,6 +106,11 @@ jobs:
             -e "s#dirname( __DIR__ )#'${{ github.workspace }}'#" \
             tests/wp-tests-config-sample.php > wp-tests-config.php
           php -l wp-tests-config.php
+
+      # Guards against the failure this workflow was fixed for: without build/,
+      # the block never registers and 23 tests fail with an empty render.
+      - name: Verify the block manifest is present
+        run: test -f build/block.json
 
       - name: Run PHPUnit
         run: composer test
