@@ -1,0 +1,73 @@
+name: PHP Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The full range the plugin declares support for. Verified locally on 8.3
+        # (through wp-env) and 8.4 (against the Composer copy of WordPress).
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
+
+    services:
+      mysql:
+        image: mariadb:11.4
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: wordpress_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, intl, mysqli
+          coverage: none
+          tools: composer
+
+      - name: Setup Composer
+        run: |
+          composer config --global http-basic.composer.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+          composer config --global http-basic.packages.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+
+      # Brings in WordPress core (roots/wordpress-no-content) and the WordPress
+      # PHPUnit library (wp-phpunit), so the suite needs only a database.
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Write the test configuration
+        run: |
+          sed \
+            -e "s/define( 'DB_PASSWORD', '' );/define( 'DB_PASSWORD', 'root' );/" \
+            -e "s/define( 'DB_HOST', '127.0.0.1' );/define( 'DB_HOST', '127.0.0.1:3306' );/" \
+            -e "s#dirname( __DIR__ )#'${{ github.workspace }}'#" \
+            tests/wp-tests-config-sample.php > wp-tests-config.php
+          php -l wp-tests-config.php
+
+      - name: Run PHPUnit
+        run: composer test

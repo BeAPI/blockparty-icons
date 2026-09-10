@@ -6,6 +6,11 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### Unreleased
+
+- Add a PHPUnit integration test suite covering every SVG source (folder, sprite, single file), the collection container, the registration API, front-end block rendering, both REST controllers, the object-cache wrapper and the KSES allowances — 176 tests. See `tests/README.md`
+- Run the suite in CI on PHP 8.1 through 8.4
+
 ### 1.1.1 - 2026-08-26
 
 - Fix deprecated warning for nullable string parameters in `CollectionItem`
