@@ -15,8 +15,11 @@
 		.distignore. It has to break WordPress conventions to do its job: the object
 		cache drop-in must assign $GLOBALS['wp_object_cache'] and declare both a class
 		and the wp_cache_* functions in one file.
+
+		Scoped to tests/perf on purpose — the PHPUnit suite under tests/phpunit is
+		held to the standard like the rest of the code.
 	-->
-	<exclude-pattern>./tests/</exclude-pattern>
+	<exclude-pattern>./tests/perf/</exclude-pattern>
 	<exclude-pattern>./node_modules/</exclude-pattern>
 	<exclude-pattern>./src/</exclude-pattern>
 	<exclude-pattern>./tools/</exclude-pattern>
