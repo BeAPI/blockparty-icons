@@ -10,6 +10,13 @@
 	<file>./includes/</file>
 
 	<exclude-pattern>./build/</exclude-pattern>
+	<!--
+		The performance harness is not plugin code and is excluded from releases by
+		.distignore. It has to break WordPress conventions to do its job: the object
+		cache drop-in must assign $GLOBALS['wp_object_cache'] and declare both a class
+		and the wp_cache_* functions in one file.
+	-->
+	<exclude-pattern>./tests/</exclude-pattern>
 	<exclude-pattern>./node_modules/</exclude-pattern>
 	<exclude-pattern>./src/</exclude-pattern>
 	<exclude-pattern>./tools/</exclude-pattern>
