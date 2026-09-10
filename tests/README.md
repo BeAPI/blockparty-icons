@@ -25,8 +25,11 @@ WP_ENV_PORT=8890 WP_ENV_TESTS_PORT=8891 npx wp-env start
 npm run test:php
 ```
 
-Anywhere else — CI, or a local run against the Composer copy of WordPress — you
-supply the database:
+This is also what CI runs, so a green run locally means the same thing as a green
+run on the pull request.
+
+Without Docker, you can run against the Composer copy of WordPress instead, and
+supply the database yourself:
 
 ```bash
 cp tests/wp-tests-config-sample.php wp-tests-config.php
@@ -39,6 +42,14 @@ Arguments pass straight through:
 ```bash
 npm run test:php -- --filter BlockRendererTest
 composer test -- --filter test_search
+```
+
+To exercise a specific PHP version, set `WP_ENV_PHP_VERSION` — this is how the CI
+matrix covers 8.1 through 8.4:
+
+```bash
+WP_ENV_PHP_VERSION=8.1 npx wp-env start --update
+npm run test:php
 ```
 
 > The suite **drops and recreates** the tables in the configured database. Never

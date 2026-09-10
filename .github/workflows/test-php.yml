@@ -13,13 +13,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # The plugin calls register_block_type() on its build/ directory, so the block is
-  # not registered — and nothing renders — until the assets are compiled. build/ is
-  # git-ignored, so CI has to produce it. Built once and shared, rather than in each
-  # matrix job, to keep npm out of the critical path four times over.
-  build:
-    name: Build block assets
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The full range the plugin declares support for. wp-env selects the PHP
+        # version through WP_ENV_PHP_VERSION, which picks the matching upstream
+        # `wordpress:php8.x` image.
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
+
+    env:
+      # Keep off 8888/8889 for no reason other than matching the documented local setup.
+      WP_ENV_PORT: 8890
+      WP_ENV_TESTS_PORT: 8891
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
 
     steps:
       - name: Checkout project
@@ -34,83 +44,32 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Build
+      # The plugin calls register_block_type() on its build/ directory. build/ is
+      # git-ignored, so without this the block never registers and every rendering
+      # test receives an empty string.
+      - name: Build block assets
         run: npm run build
-
-      - name: Upload build
-        uses: actions/upload-artifact@v4
-        with:
-          name: block-build
-          path: build/
-          retention-days: 1
-          if-no-files-found: error
-
-  phpunit:
-    name: PHPUnit (PHP ${{ matrix.php }})
-    runs-on: ubuntu-latest
-    needs: build
-
-    strategy:
-      fail-fast: false
-      matrix:
-        # The full range the plugin declares support for.
-        php: [ '8.1', '8.2', '8.3', '8.4' ]
-
-    services:
-      mysql:
-        image: mariadb:11.4
-        env:
-          MARIADB_ROOT_PASSWORD: root
-          MARIADB_DATABASE: wordpress_test
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
-    steps:
-      - name: Checkout project
-        uses: actions/checkout@v4
-
-      - name: Download block assets
-        uses: actions/download-artifact@v4
-        with:
-          name: block-build
-          path: build/
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mbstring, intl, mysqli
-          coverage: none
-          tools: composer
 
       - name: Setup Composer
         run: |
           composer config --global http-basic.composer.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
           composer config --global http-basic.packages.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
 
-      # Brings in WordPress core (roots/wordpress-no-content) and the WordPress
-      # PHPUnit library (wp-phpunit), so the suite needs only a database.
+      # Installed on the host: the plugin directory is mounted into the wp-env
+      # containers, so vendor/ is visible from inside them. The platform pin in
+      # composer.json keeps resolution identical across the matrix.
       - name: Install composer dependencies
         run: composer install --no-interaction --no-progress
 
-      - name: Write the test configuration
-        run: |
-          sed \
-            -e "s/define( 'DB_PASSWORD', '' );/define( 'DB_PASSWORD', 'root' );/" \
-            -e "s/define( 'DB_HOST', '127.0.0.1' );/define( 'DB_HOST', '127.0.0.1:3306' );/" \
-            -e "s#dirname( __DIR__ )#'${{ github.workspace }}'#" \
-            tests/wp-tests-config-sample.php > wp-tests-config.php
-          php -l wp-tests-config.php
-
-      # Guards against the failure this workflow was fixed for: without build/,
-      # the block never registers and 23 tests fail with an empty render.
-      - name: Verify the block manifest is present
-        run: test -f build/block.json
+      # Supplies WordPress, the WordPress PHPUnit library and a database, so there
+      # is no wp-tests-config.php to hand-roll and the suite runs exactly the way
+      # it does locally.
+      - name: Start wp-env
+        run: npx wp-env start
 
       - name: Run PHPUnit
-        run: composer test
+        run: npm run test:php
+
+      - name: Show wp-env logs on failure
+        if: failure()
+        run: npx wp-env logs tests --no-watch
