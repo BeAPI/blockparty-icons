@@ -39,6 +39,13 @@ require_once $_bpi_root . '/vendor/autoload.php';
  *                                   wp-env, which brings its own configuration).
  */
 function bpi_locate_wp_tests_dir(): array {
+	/*
+	 * wp-env sets WP_TESTS_DIR=/wordpress-phpunit on its containers, so this is
+	 * populated whenever the suite runs inside one — including through
+	 * `docker exec`, which inherits the container's environment. Finding it here is
+	 * what keeps wp-env's WordPress, test library and database in play instead of
+	 * the Composer fallback below.
+	 */
 	$from_env = getenv( 'WP_TESTS_DIR' );
 	if ( ! empty( $from_env ) ) {
 		$explicit = rtrim( $from_env, '/\\' );

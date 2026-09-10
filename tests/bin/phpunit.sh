@@ -10,6 +10,14 @@
 # wp-env's own `run` subcommand cannot be pointed at a specific environment, so we
 # resolve the container from the port it publishes and talk to it with docker exec.
 #
+# Nothing below exports WP_TESTS_DIR, and it does not need to: wp-env sets it to
+# /wordpress-phpunit on the service itself, and `docker exec` inherits the
+# container's environment. That variable is what makes tests/bootstrap.php take its
+# "managed environment" branch and use wp-env's WordPress, test library and
+# database — rather than falling back to the Composer copy and a wp-tests-config.php
+# in the project root. If you ever see the suite reaching for a root config while
+# running through this script, that variable is what went missing.
+#
 set -euo pipefail
 
 ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )/../.." && pwd )"
