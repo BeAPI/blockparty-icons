@@ -130,11 +130,16 @@ class CollectionItem {
 	}
 
 	/**
-	 * Keep resolved payloads out of the cached collection index.
+	 * Control what an item writes to the cache: never its payload.
 	 *
-	 * Without this, caching a collection after rendering a page would grow the
-	 * index by however many icons happened to be used, and eventually push it past
-	 * the object cache's per-item limit.
+	 * content() memoizes, so an item that has been rendered holds its full SVG —
+	 * up to a couple of megabytes. Serializing that back into a collection index
+	 * would rebuild the very problem lazy loading removes.
+	 *
+	 * The factories happen to cache their index before anything resolves, so this
+	 * changes nothing today. It is here to make the rule structural rather than a
+	 * property of call order: an item that knows where to re-read its bytes never
+	 * carries them, whenever and wherever it gets serialized.
 	 *
 	 * @return array
 	 */
