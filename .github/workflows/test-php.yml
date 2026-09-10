@@ -1,0 +1,75 @@
+name: PHP Tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+# Cancels all previous workflow runs for pull requests that have not completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  phpunit:
+    name: PHPUnit (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # The full range the plugin declares support for. wp-env selects the PHP
+        # version through WP_ENV_PHP_VERSION, which picks the matching upstream
+        # `wordpress:php8.x` image.
+        php: [ '8.1', '8.2', '8.3', '8.4' ]
+
+    env:
+      # Keep off 8888/8889 for no reason other than matching the documented local setup.
+      WP_ENV_PORT: 8890
+      WP_ENV_TESTS_PORT: 8891
+      WP_ENV_PHP_VERSION: ${{ matrix.php }}
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      # The plugin calls register_block_type() on its build/ directory. build/ is
+      # git-ignored, so without this the block never registers and every rendering
+      # test receives an empty string.
+      - name: Build block assets
+        run: npm run build
+
+      - name: Setup Composer
+        run: |
+          composer config --global http-basic.composer.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+          composer config --global http-basic.packages.beapi.fr ${{ secrets.COMPOSER_USER }} ${{ secrets.COMPOSER_PASS }}
+
+      # Installed on the host: the plugin directory is mounted into the wp-env
+      # containers, so vendor/ is visible from inside them. The platform pin in
+      # composer.json keeps resolution identical across the matrix.
+      - name: Install composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      # Supplies WordPress, the WordPress PHPUnit library and a database, so there
+      # is no wp-tests-config.php to hand-roll and the suite runs exactly the way
+      # it does locally.
+      - name: Start wp-env
+        run: npx wp-env start
+
+      - name: Run PHPUnit
+        run: npm run test:php
+
+      - name: Show wp-env logs on failure
+        if: failure()
+        run: npx wp-env logs tests --no-watch
