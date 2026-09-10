@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.1.2 - 2026-09-10
+
+- Fix `beapi/icon-block` migration skipping icons that have a name but no collection (registry lookup then generic fallback)
+
 ### 1.1.1 - 2026-08-26
 
 - Fix deprecated warning for nullable string parameters in `CollectionItem`

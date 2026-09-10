@@ -56,7 +56,7 @@ You can also pass a `Collection` instance built with `Collection::from_sprite()`
 
 | Old (`icon-item` / legacy parent) | New (`blockparty/icon`) |
 |---|---|
-| `icon` (`name`, `type`, `label`, optional `collection`) | `icon` (requires `collection` + `name`) |
+| `icon` (`name`, `type`, `label`, optional `collection`) | `icon` (`collection` + `name`; collection is looked up / fallen back when missing) |
 | Parent `collection.name` (legacy object) | `icon.collection` |
 | `iconColorValue` / legacy `iconColor.color` | `iconColor` (value kept as-is, including `inherit`) |
 | `size` (int) | `size` (int) |
@@ -98,7 +98,7 @@ The command:
 4. Logs migrated / skipped counts
 5. Lists missing icon assets (`collection/name`) so you can add them manually to theme assets / collections
 
-When `collection` is missing on the icon object (and not on the parent attrs), the block is skipped — there is no default collection. Missing files among converted icons are reported, not skipped.
+When `collection` is missing on the icon object (and not on the parent attrs) but `name` is present, the migrator looks up that name in registered collections (preferred order: `icon-pack`, `theme`, `mediatheque`, then the rest). If still unresolved, it falls back to `mediatheque` for `raw` icons and `icon-pack` otherwise (`sprite` is inferred from `<use>` in the saved HTML when `type` is absent). The block is skipped only when `name` (or collection after these steps) is still missing. Missing files among converted icons are reported as CLI warnings, not skipped.
 
 ### Revisions
 
