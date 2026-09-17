@@ -6,8 +6,9 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
-### Unreleased
+### 1.1.2 - 2026-09-17
 
+- Fix `beapi/icon-block` migration skipping icons that have a name but no collection (registry lookup then generic fallback)
 - Load an icon's SVG only when it is used. Registering a collection now builds a lightweight index, so a front-end page no longer holds every icon of every collection in memory
 - Cache icon payloads individually, and skip the object cache for payloads over 900 KB. Memcached refuses items above 1 MB and reports it only through an unchecked return value, which made oversized collections rebuild on every request forever. Adjust with the `blockparty_icons_cache_max_item_bytes` filter
 - Add an `attachments` collection type for SVGs contributed through the media library: one query and one cached index, instead of a query plus a cache round trip per icon on every request
