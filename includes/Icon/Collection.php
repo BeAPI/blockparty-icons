@@ -65,6 +65,23 @@ class Collection implements \Iterator {
 		return $collection;
 	}
 
+	/**
+	 * Create a new collection from the SVG attachments in the media library.
+	 *
+	 * @param string $name collection's name.
+	 * @param array $args collection's args. See CollectionItemsFactory::from_attachments().
+	 *
+	 * @return static
+	 */
+	public static function from_attachments( string $name, array $args = [] ): self {
+		$collection = new self( $name, $args['label'] ?? null );
+
+		$items = CollectionItemsFactory::from_attachments( $args );
+		array_map( [ $collection, 'add' ], $items );
+
+		return $collection;
+	}
+
 	public function __construct( string $name, $label = null ) {
 		$this->name  = $name;
 		$this->label = $label ?? $name;

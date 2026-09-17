@@ -4,7 +4,7 @@
  * Description:       Provides blocks in WordPress editor to add custom SVG icons.
  * Requires at least: 6.2
  * Requires PHP:      8.1
- * Version:           1.1.1
+ * Version:           1.1.2
  * Author:            Be API Technical Team
  * Author URI:        https://beapi.fr
  * License:           GPL-2.0-or-later
@@ -30,7 +30,7 @@ if ( is_readable( __DIR__ . '/vendor/autoload.php' ) ) {
 	include_once __DIR__ . '/vendor/autoload.php';
 }
 
-define( 'BLOCKPARTY_ICONS_VERSION', '1.1.1' );
+define( 'BLOCKPARTY_ICONS_VERSION', '1.1.2' );
 define( 'BLOCKPARTY_ICONS_URL', plugin_dir_url( __FILE__ ) );
 define( 'BLOCKPARTY_ICONS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BLOCKPARTY_ICONS_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -92,9 +92,10 @@ add_filter( 'block_editor_rest_api_preload_paths', __NAMESPACE__ . '\\preload_re
  *   Optional. An array of additional arguments. Default empty array.
  *
  *   @type string      $label    Optional. A human friendly name for the collection.
- *   @type string      $type     Optional. The type of icons. Supported values are 'folder', 'sprite' or 'raw'.
- *   @type string      $source   Optional. The path to load the collection's icons. Depending on the 'type' can be a path to a folder or a SVG file.
+ *   @type string      $type     Optional. The type of icons. Supported values are 'folder', 'sprite', 'attachments' or 'raw'.
+ *   @type string      $source   Optional. The path to load the collection's icons. Depending on the 'type' can be a path to a folder or a SVG file. Unused for 'attachments'.
  *   @type array       $icon_map Optional. Use an array to override default labels for the icons.
+ *   @type array       $query    Optional. For 'attachments', extra WP_Query arguments.
  *   @type string|null $version  Optional. The collection version, use for cache busting in the sprite URL.
  * }
  *
@@ -125,6 +126,7 @@ function register_icon_collection( $name, array $args = [] ) {
 			'type'     => '',
 			'source'   => '',
 			'icon_map' => [],
+			'query'    => [],
 			'version'  => null,
 		]
 	);
@@ -143,6 +145,9 @@ function register_icon_collection( $name, array $args = [] ) {
 			} catch ( CollectionCreationException $e ) {
 				$collection = false;
 			}
+			break;
+		case 'attachments':
+			$collection = Collection::from_attachments( $name, $args );
 			break;
 		/*case 'file':
 			try {
@@ -165,7 +170,7 @@ function register_icon_collection( $name, array $args = [] ) {
  * Add icons to an existing collection.
  *
  * @param string $collection_name The collection to add the icons to.
- * @param string $type            The type of icons. Supported values are 'folder', 'sprite' or 'raw'.
+ * @param string $type            The type of icons. Supported values are 'folder', 'sprite', 'file' or 'attachments'.
  * @param string $source          The path to load the collection's icons. Depending on the 'type' can be a path to a folder or a SVG file.
  * @param array  $args {
  *   Optional. An array of additional arguments. Default empty array.
@@ -187,6 +192,7 @@ function add_icons( string $collection_name, string $type, string $source, array
 		[
 			'label'    => '',
 			'icon_map' => [],
+			'query'    => [],
 			'version'  => null,
 		]
 	);
@@ -213,6 +219,9 @@ function add_icons( string $collection_name, string $type, string $source, array
 			} catch ( CollectionCreationException $e ) {
 				return false;
 			}
+			break;
+		case 'attachments':
+			$items = CollectionItemsFactory::from_attachments( $args );
 			break;
 		default:
 			return false;
