@@ -4,7 +4,7 @@ Tags:              block, icons, svg, gutenberg, editor
 Requires at least: 6.2
 Tested up to:      6.8
 Requires PHP:      8.1
-Stable tag:        1.1.1
+Stable tag:        1.1.2
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,16 @@ Icon collections are cached in the browser session storage for performance. Afte
 Yes. Register a collection with `type` set to `folder` and `source` pointing to the folder that contains your SVG files.
 
 == Changelog ==
+
+= 1.1.2 =
+* Fix `beapi/icon-block` migration skipping icons that have a name but no collection (registry lookup then generic fallback).
+* Load an icon's SVG only when it is used. Registering a collection now builds a lightweight index, so a front-end page no longer holds every icon of every collection in memory.
+* Cache icon payloads individually, and skip the object cache for payloads over 900 KB. Adjust with the `blockparty_icons_cache_max_item_bytes` filter.
+* Add an `attachments` collection type for SVGs contributed through the media library.
+* Version cached index keys, so entries written by an earlier release are never read back after an update.
+* Add a reproducible performance protocol under `tests/perf`.
+* Add a PHPUnit integration test suite. See `tests/README.md`.
+* Run the suite in CI on PHP 8.1 through 8.4.
 
 = 1.1.1 =
 * Fix deprecated warning for nullable string parameters in `CollectionItem`.
