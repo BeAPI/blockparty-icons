@@ -9,6 +9,37 @@ class CollectionItemsFactory {
 	private const CACHE_GROUP = 'blockparty-icons';
 
 	/**
+	 * Format revision of the cached index.
+	 *
+	 * Cached indexes hold serialized CollectionItem objects. Bump this whenever
+	 * their shape changes so that entries written by an earlier release are never
+	 * read back — the salt cannot do this job, because `wp_cache_get_salted()`
+	 * unserializes the stored value *before* it compares salts. Only a different
+	 * key keeps the two formats apart.
+	 */
+	private const CACHE_FORMAT = 'v3';
+
+	/**
+	 * Build a format-scoped cache key.
+	 *
+	 * @param string $key
+	 *
+	 * @return string
+	 */
+	private static function cache_key( string $key ): string {
+		return self::CACHE_FORMAT . ':' . $key;
+	}
+
+	/**
+	 * Salt component that invalidates cached indexes when the plugin is updated.
+	 *
+	 * @return string
+	 */
+	private static function cache_version(): string {
+		return defined( 'BLOCKPARTY_ICONS_VERSION' ) ? BLOCKPARTY_ICONS_VERSION : '0';
+	}
+
+	/**
 	 * Instantiate array of CollectionItem from a folder.
 	 *
 	 * @param string $folder
@@ -18,8 +49,8 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_folder( string $folder, array $icon_map = [] ): array {
-		$cache_key = 'from_folder:' . $folder;
-		$salt      = md5( wp_json_encode( $icon_map ) );
+		$cache_key = self::cache_key( 'from_folder:' . $folder );
+		$salt      = [ md5( wp_json_encode( $icon_map ) ), self::cache_version() ];
 
 		$items = Cache::get_cache( $cache_key, self::CACHE_GROUP, $salt );
 		if ( is_array( $items ) ) {
@@ -34,14 +65,23 @@ class CollectionItemsFactory {
 		$items  = [];
 		$folder = trailingslashit( $folder );
 		foreach ( glob( $folder . '*.svg' ) as $svg ) {
-			$item_content = file_get_contents( $svg ); //phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- read local file
-			if ( ! $item_content ) {
+			// Skip empty files as before, but without reading their contents:
+			// the payload is loaded only if the icon is actually used.
+			if ( ! filesize( $svg ) ) {
 				continue;
 			}
 
 			$name    = pathinfo( $svg, PATHINFO_FILENAME );
 			$label   = $icon_map[ $name ] ?? $name;
-			$items[] = new CollectionItem( $name, 'raw', $item_content, $label );
+			$items[] = CollectionItem::from_source(
+				$name,
+				'raw',
+				[
+					'type' => 'file',
+					'path' => $svg,
+				],
+				$label
+			);
 		}
 
 		Cache::set_cache( $cache_key, $items, self::CACHE_GROUP, $salt, DAY_IN_SECONDS );
@@ -60,8 +100,8 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_sprite( string $path, array $icon_map = [], ?string $version = null ): array {
-		$cache_key = 'from_sprite:' . $path;
-		$salts     = [ md5( wp_json_encode( $icon_map ) ) ];
+		$cache_key = self::cache_key( 'from_sprite:' . $path );
+		$salts     = [ md5( wp_json_encode( $icon_map ) ), self::cache_version() ];
 		if ( $version ) {
 			$salts[] = $version;
 		}
@@ -113,8 +153,8 @@ class CollectionItemsFactory {
 	 * @throws CollectionCreationException
 	 */
 	public static function from_file( string $path, array $args = [] ): array {
-		$cache_key = 'from_file:' . $path;
-		$salt      = md5( wp_json_encode( $args ) );
+		$cache_key = self::cache_key( 'from_file:' . $path );
+		$salt      = [ md5( wp_json_encode( $args ) ), self::cache_version() ];
 
 		$items = Cache::get_cache( $cache_key, self::CACHE_GROUP, $salt );
 		if ( is_array( $items ) ) {
@@ -134,9 +174,8 @@ class CollectionItemsFactory {
 			]
 		);
 
-		$items        = [];
-		$item_content = file_get_contents( $path ); //phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- read local file
-		if ( ! $item_content ) {
+		$items = [];
+		if ( ! filesize( $path ) ) {
 			Cache::set_cache( $cache_key, $items, self::CACHE_GROUP, $salt, DAY_IN_SECONDS );
 
 			return $items;
@@ -144,9 +183,97 @@ class CollectionItemsFactory {
 
 		$name    = $args['name'] ?? pathinfo( $path, PATHINFO_FILENAME );
 		$label   = $args['label'] ?? $name;
-		$items[] = new CollectionItem( $name, 'raw', $item_content, $label );
+		$items[] = CollectionItem::from_source(
+			$name,
+			'raw',
+			[
+				'type' => 'file',
+				'path' => $path,
+			],
+			$label
+		);
 
 		Cache::set_cache( $cache_key, $items, self::CACHE_GROUP, $salt, DAY_IN_SECONDS );
+
+		return $items;
+	}
+
+	/**
+	 * Instantiate array of CollectionItem from SVG attachments in the media library.
+	 *
+	 * Registering media-library icons one file at a time — a WP_Query followed by a
+	 * `from_file()` call per attachment — costs a database query and one cache
+	 * round trip per icon on every request. This builds the whole collection from a
+	 * single query and stores it as one small index, keyed on the posts cache's
+	 * `last_changed` value so contributing a new SVG in the back office invalidates
+	 * it immediately.
+	 *
+	 * @param array $args {
+	 *   Optional. An array of additional arguments. Default empty array.
+	 *
+	 *   @type array $icon_map Optional. Override labels, keyed by attachment slug.
+	 *   @type array $query    Optional. Extra WP_Query arguments, merged over the defaults.
+	 * }
+	 *
+	 * @return CollectionItem[]
+	 */
+	public static function from_attachments( array $args = [] ): array {
+		$args = (array) wp_parse_args(
+			$args,
+			[
+				'icon_map' => [],
+				'query'    => [],
+			]
+		);
+
+		$query_args = (array) wp_parse_args(
+			(array) $args['query'],
+			[
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'image/svg+xml',
+				'posts_per_page' => 500, //phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				'orderby'        => 'title',
+				'order'          => 'ASC',
+				'no_found_rows'  => true,
+			]
+		);
+
+		$cache_key = self::cache_key( 'from_attachments:' . md5( wp_json_encode( $query_args ) ) );
+		$salts     = [
+			md5( wp_json_encode( $args['icon_map'] ) ),
+			self::cache_version(),
+			// Any change to a post or attachment bumps this, so the index cannot go stale.
+			(string) wp_cache_get_last_changed( 'posts' ),
+		];
+
+		$items = Cache::get_cache( $cache_key, self::CACHE_GROUP, $salts );
+		if ( is_array( $items ) ) {
+			return $items;
+		}
+
+		// Only the fields needed to build the index.
+		$query_args['fields'] = 'all';
+
+		$query = new \WP_Query( $query_args );
+
+		$items = [];
+		foreach ( $query->posts as $attachment ) {
+			$name  = $attachment->post_name;
+			$label = $args['icon_map'][ $name ] ?? get_the_title( $attachment );
+
+			$items[] = CollectionItem::from_source(
+				$name,
+				'raw',
+				[
+					'type' => 'attachment',
+					'id'   => (int) $attachment->ID,
+				],
+				$label
+			);
+		}
+
+		Cache::set_cache( $cache_key, $items, self::CACHE_GROUP, $salts, DAY_IN_SECONDS );
 
 		return $items;
 	}

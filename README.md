@@ -28,6 +28,57 @@ add_action( 'blockparty_icons_init', 'register_collection' );
 
 This is an example for adding a SVG sprite as a source. If you want to add icons from a folder, change the `type` value to `folder` and the path of your `source` to `get_stylesheet_directory() . '/dist/icons/'` for example.
 
+## Icons contributed in the back office
+
+To offer the SVG files uploaded to the media library as a collection, use the `attachments` type:
+
+```php
+\Blockparty\Icons\register_icon_collection(
+    'mediatheque',
+    [
+        'label' => 'Media library',
+        'type'  => 'attachments',
+    ]
+);
+```
+
+This runs a single query and caches one compact index, invalidated as soon as any
+attachment changes. Pass extra `WP_Query` arguments through `query` to narrow the
+selection:
+
+```php
+\Blockparty\Icons\register_icon_collection(
+    'mediatheque',
+    [
+        'label' => 'Media library',
+        'type'  => 'attachments',
+        'query' => [ 'posts_per_page' => 1000 ],
+    ]
+);
+```
+
+Do **not** build such a collection by looping over attachments and calling
+`CollectionItemsFactory::from_file()` for each one. That costs a database query and
+one object-cache round trip per icon on every request, front end included.
+
+## Performance notes
+
+An icon's SVG payload is read only when it is actually needed — one icon when a block
+renders, one page's worth when the editor lists a collection. Registering a collection
+builds a lightweight index and reads no SVG at all.
+
+Payloads are cached individually rather than inside the collection, and payloads larger
+than 900 KB are not sent to the object cache: memcached (WordPress VIP and most managed
+hosts) refuses items over 1 MB and signals it only through a return value that nothing
+checks, which would otherwise mean rebuilding the same entry on every request forever.
+Raise or disable that ceiling on Redis or APCu:
+
+```php
+add_filter( 'blockparty_icons_cache_max_item_bytes', fn() => 5 * MB_IN_BYTES );
+```
+
+A reproducible benchmark for all of this lives in [`tests/perf`](tests/perf/README.md).
+
 ## Params
 
 | param     | description               |
@@ -41,7 +92,8 @@ This is an example for adding a SVG sprite as a source. If you want to add icons
 |-----------|---------------------------|
 | `label`   | Label of the collection.  |
 | `source`  | Path to the SVG sprite file or folder containing SVG files. |
-| `type`    | <ul><li>`sprite` for SVG sprite source.</li><li>`folder` for a folder containing SVG files.</li></ul> |
+| `type`    | <ul><li>`sprite` for SVG sprite source.</li><li>`folder` for a folder containing SVG files.</li><li>`attachments` for the SVG files in the media library.</li></ul> |
+| `query`   | Optional. For `attachments`, extra `WP_Query` arguments. |
 | `version` | Optional. Version string used for cache busting (e.g. theme version). When set, the sprite URL is appended with a `?v=...` query parameter. |
 
 ## How to develop

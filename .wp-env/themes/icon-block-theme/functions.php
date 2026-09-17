@@ -1,8 +1,6 @@
 <?php
 
 use function Blockparty\Icons\register_icon_collection;
-use Blockparty\Icons\Icon\Collection;
-use Blockparty\Icons\Icon\CollectionItemsFactory;
 
 add_filter( 'upload_mimes', 'wpc_mime_types' );
 
@@ -39,38 +37,15 @@ add_action( 'blockparty_icons_init', function () {
 		]
 	);
 
-	// Register collections with icons from media library.
-	$query = new \WP_Query(
+	// Register collections with icons from the media library.
+	//
+	// `attachments` runs a single query and caches one small index; the SVG payload
+	// of an icon is read only when that icon is actually rendered or listed.
+	register_icon_collection(
+		'mediatheque',
 		[
-			'post_type'      => 'attachment',
-			'post_status'    => 'inherit',
-			'post_mime_type' => 'image/svg+xml',
-			'posts_per_page' => 500, //phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-			'no_found_rows'  => true,
+			'label' => __( 'Media library', 'beapi-frontend-framework' ),
+			'type'  => 'attachments',
 		]
 	);
-
-	if ( $query->have_posts() ) {
-		$media_collection = new Collection( 'mediatheque', __( 'Media library', 'beapi-frontend-framework' ) );
-		foreach ( $query->posts as $svg ) {
-			$path = get_attached_file( $svg->ID );
-
-			if ( empty( $path ) ) {
-				continue;
-			}
-
-			try {
-				$items = CollectionItemsFactory::from_file(
-					$path,
-					[
-						'name'  => $svg->post_name,
-						'label' => get_the_title( $svg ),
-					]
-				);
-				array_map( [ $media_collection, 'add' ], $items );
-			} catch ( \Exception $e ) { // phpcs:ignore
-			}
-		}
-		register_icon_collection( $media_collection );
-	}
 } );

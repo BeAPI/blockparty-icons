@@ -17,6 +17,7 @@
 grumphp.yml
 phpcs.xml.dist
 phpunit.xml.dist
+wp-tests-config.php
 psalm.xml.dist
 
 # Dependency management
