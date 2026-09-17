@@ -202,7 +202,7 @@ class IconBlockMigrator {
 	 * @param array  $attrs        Source attrs (item or legacy parent).
 	 * @param array  $parent_attrs Parent attrs (for className / collection).
 	 * @param string $html         Saved HTML of the old block.
-	 * @return array|null Null when an icon was expected but name or collection is missing.
+	 * @return array|null Null when an icon was expected but name or collection is still missing after lookup/fallback.
 	 * @author Jules Fell
 	 */
 	private function build_blockparty_block( array $attrs, array $parent_attrs, string $html ): ?array {
@@ -222,14 +222,26 @@ class IconBlockMigrator {
 		// empty shells must become empty blockparty/icon blocks.
 		$expects_icon = ( '' !== $name || $old_icon );
 
-		// Collection from attrs only (no registry lookup, no project-specific default).
+		$type = (string) ( $old_icon['type'] ?? ( false !== strpos( $html, '<use' ) ? 'sprite' : 'raw' ) );
+
+		// Collection from icon attrs, then parent/item attrs.
 		$collection = (string) ( $old_icon['collection'] ?? '' );
 		if ( '' === $collection ) {
 			$raw        = $attrs['collection'] ?? $parent_attrs['collection'] ?? null;
 			$collection = is_array( $raw ) ? (string) ( $raw['name'] ?? '' ) : (string) $raw;
 		}
 
-		// Abort when we expected an icon but name or collection is missing.
+		// Registry lookup when name is known but collection was never stored.
+		if ( '' === $collection && '' !== $name ) {
+			$collection = $this->resolve_collection_for_icon( $name );
+		}
+
+		// Last resort: frequent BeAPI collection names (not project-specific).
+		if ( '' === $collection && '' !== $name ) {
+			$collection = 'raw' === $type ? 'mediatheque' : 'icon-pack';
+		}
+
+		// Abort only when an icon was expected but name or collection is still missing.
 		if ( $expects_icon && ( '' === $name || '' === $collection ) ) {
 			return null;
 		}
@@ -237,8 +249,6 @@ class IconBlockMigrator {
 		$new = [];
 
 		if ( '' !== $name ) {
-			$type = (string) ( $old_icon['type'] ?? ( false !== strpos( $html, '<use' ) ? 'sprite' : 'raw' ) );
-
 			$new['icon'] = [
 				'collection' => $collection,
 				'name'       => $name,
@@ -324,6 +334,49 @@ class IconBlockMigrator {
 			'innerHTML'    => '',
 			'innerContent' => [],
 		];
+	}
+
+	/**
+	 * Find the first registered collection that contains the given icon name.
+	 *
+	 * Preferred order: icon-pack, theme, mediatheque, then remaining collections.
+	 *
+	 * @param string $name Icon name.
+	 * @return string Collection name, or empty string if none match.
+	 */
+	private function resolve_collection_for_icon( string $name ): string {
+		if ( ! function_exists( '\\Blockparty\\Icons\\get_icon_collections' ) ) {
+			return '';
+		}
+
+		$collections = \Blockparty\Icons\get_icon_collections();
+		if ( empty( $collections ) ) {
+			return '';
+		}
+
+		$preferred = [ 'icon-pack', 'theme', 'mediatheque' ];
+		$ordered   = [];
+
+		foreach ( $preferred as $preferred_name ) {
+			if ( isset( $collections[ $preferred_name ] ) ) {
+				$ordered[] = $collections[ $preferred_name ];
+			}
+		}
+
+		foreach ( $collections as $collection_name => $collection ) {
+			if ( in_array( $collection_name, $preferred, true ) ) {
+				continue;
+			}
+			$ordered[] = $collection;
+		}
+
+		foreach ( $ordered as $collection ) {
+			if ( $collection->get( $name ) ) {
+				return $collection->name();
+			}
+		}
+
+		return '';
 	}
 
 	/**
