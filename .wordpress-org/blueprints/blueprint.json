@@ -11,8 +11,8 @@
 			"pluginData": {
 				"resource": "git:directory",
 				"url": "https://github.com/BeAPI/blockparty-icons",
-				"ref": "1.1.2",
-				"refType": "tag"
+				"ref": "playground/blueprint-preview",
+				"refType": "branch"
 			},
 			"options": {
 				"activate": true,

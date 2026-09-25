@@ -1,6 +1,6 @@
 # Be API — Blockparty Icons
 
-[![Test with WordPress Playground](https://img.shields.io/badge/Test%20with-WordPress%20Playground-0073aa?style=for-the-badge&logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/BeAPI/blockparty-icons/refs/heads/develop/.wordpress-org/blueprints/blueprint.json)
+[![Test with WordPress Playground](https://img.shields.io/badge/Test%20with-WordPress%20Playground-0073aa?style=for-the-badge&logo=wordpress&logoColor=white)](https://playground.wordpress.net/?blueprint-url=https://raw.githubusercontent.com/BeAPI/blockparty-icons/refs/heads/playground/blueprint-preview/.wordpress-org/blueprints/blueprint.json)
 
 Blockparty Icons enhances the WordPress editor by adding an extra block. This block enables users to integrate custom SVG icons directly from their theme or a WordPress plugin. Users can choose these icons from an SVG sprite or a folder containing multiple SVG files. This feature offers enhanced flexibility for customizing content, thereby improving the design and aesthetics of WordPress pages and posts.
 

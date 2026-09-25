@@ -6,7 +6,8 @@
 /src
 /tests
 /.wp-env
-/.wordpress-org
+# Keep .wordpress-org/blueprints in release tags so Playground git:directory
+# installs (and WordPress.org Live Preview) can bootstrap the demo.
 
 # Configuration files
 .distignore
