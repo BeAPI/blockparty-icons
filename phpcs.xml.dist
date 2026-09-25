@@ -25,6 +25,7 @@
 	<exclude-pattern>./tools/</exclude-pattern>
 	<exclude-pattern>./vendor/</exclude-pattern>
 	<exclude-pattern>./.wp-env/</exclude-pattern>
+	<exclude-pattern>./.wordpress-org/</exclude-pattern>
 
     <rule ref="WordPress-Extra">
         <!-- Exclude as we use a custom autoloader. -->

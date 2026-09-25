@@ -78,6 +78,7 @@ for f in \
 	package.json \
 	blockparty-icons.php \
 	readme.txt \
+	.wordpress-org/blueprints/blueprint.json \
 	CHANGELOG.md
 do
 	if ! have_diff "$f"; then
@@ -110,6 +111,12 @@ while IFS= read -r -d '' f; do
 		fail=1
 	fi
 done < <(find . -name block.json -not -path '*/node_modules/*' -not -path '*/vendor/*' -print0 2>/dev/null)
+
+BP_REF=$(jq -r '.steps[] | select(.pluginData) | .pluginData.ref' .wordpress-org/blueprints/blueprint.json | head -1)
+if [ "$BP_REF" != "$NEW_VER" ]; then
+	echo "::error::.wordpress-org/blueprints/blueprint.json pluginData.ref must be '${NEW_VER}' (got '${BP_REF}')"
+	fail=1
+fi
 
 if ! grep -F "* Version:" blockparty-icons.php | head -1 | grep -qF "$NEW_VER"; then
 	echo "::error::blockparty-icons.php plugin header Version must be ${NEW_VER}"
