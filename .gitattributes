@@ -4,6 +4,7 @@
 /node_modules export-ignore
 /src export-ignore
 /.wp-env export-ignore
+/.wordpress-org export-ignore
 
 # Configuration files
 /.distignore export-ignore

@@ -6,6 +6,7 @@
 /src
 /tests
 /.wp-env
+/.wordpress-org
 
 # Configuration files
 .distignore
