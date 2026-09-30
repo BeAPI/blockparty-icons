@@ -17,10 +17,11 @@ class BlockRenderer {
 	 */
 	public static function render( $attributes ) {
 		// Block attributes
-		$icon_data  = $attributes['icon'] ?? [];
-		$radius     = (string) ( $attributes['borderRadius'] ?? '0px' );
-		$link_url   = (string) ( $attributes['url'] ?? '' );
-		$link_label = (string) ( $attributes['label'] ?? '' );
+		$icon_data    = $attributes['icon'] ?? [];
+		$radius       = (string) ( $attributes['borderRadius'] ?? '0px' );
+		$link_url     = (string) ( $attributes['url'] ?? '' );
+		$link_label   = (string) ( $attributes['label'] ?? '' );
+		$target_blank = ! empty( $attributes['targetBlank'] );
 
 		$collection_name = $icon_data['collection'] ?? null;
 		$icon_name       = $icon_data['name'] ?? null;
@@ -52,10 +53,17 @@ class BlockRenderer {
 
 		// Start block link
 		if ( ! empty( $link_url ) ) {
+			$link_attrs = '';
+			if ( ! empty( $link_label ) ) {
+				$link_attrs .= sprintf( ' aria-label="%s"', esc_attr( $link_label ) );
+			}
+			if ( $target_blank ) {
+				$link_attrs .= ' target="_blank" rel="noopener noreferrer"';
+			}
 			$html .= sprintf(
 				'<a class="wp-block-blockparty-icon__link" href="%s"%s>',
 				esc_url( $link_url ),
-				! empty( $link_label ) ? sprintf( ' aria-label="%s"', esc_attr( $link_label ) ) : ''
+				$link_attrs
 			);
 		}
 
