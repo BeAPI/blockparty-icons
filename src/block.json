@@ -51,6 +51,10 @@
 		},
 		"label": {
 			"type": "string"
+		},
+		"targetBlank": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "blockparty-icons",
