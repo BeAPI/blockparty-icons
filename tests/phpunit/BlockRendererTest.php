@@ -246,6 +246,56 @@ class BlockRendererTest extends TestCase {
 		$this->assertStringNotContainsString( 'aria-label', $html );
 	}
 
+	public function test_url_without_target_blank_has_no_target_or_rel(): void {
+		$html = $this->render(
+			[
+				'icon' => $this->icon(),
+				'url'  => 'https://example.org',
+			]
+		);
+
+		$this->assertStringNotContainsString( 'target=', $html );
+		$this->assertStringNotContainsString( 'rel=', $html );
+	}
+
+	public function test_target_blank_adds_target_and_rel(): void {
+		$html = $this->render(
+			[
+				'icon'        => $this->icon(),
+				'url'         => 'https://example.org',
+				'targetBlank' => true,
+			]
+		);
+
+		$this->assertStringContainsString( 'target="_blank"', $html );
+		$this->assertStringContainsString( 'rel="noopener noreferrer"', $html );
+	}
+
+	public function test_target_blank_false_leaves_link_unchanged(): void {
+		$html = $this->render(
+			[
+				'icon'        => $this->icon(),
+				'url'         => 'https://example.org',
+				'targetBlank' => false,
+			]
+		);
+
+		$this->assertStringContainsString( 'href="https://example.org"', $html );
+		$this->assertStringNotContainsString( 'target=', $html );
+		$this->assertStringNotContainsString( 'rel=', $html );
+	}
+
+	public function test_target_blank_without_url_produces_no_link(): void {
+		$html = $this->render(
+			[
+				'icon'        => $this->icon(),
+				'targetBlank' => true,
+			]
+		);
+
+		$this->assertStringNotContainsString( '<a ', $html );
+	}
+
 	/* --------------------------------------------------------------- color */
 
 	/**
