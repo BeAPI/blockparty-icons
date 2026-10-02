@@ -4,7 +4,7 @@ Tags:              block, icons, svg, gutenberg, editor
 Requires at least: 6.2
 Tested up to:      6.8
 Requires PHP:      8.1
-Stable tag:        1.1.2
+Stable tag:        1.1.3
 License:           GPL-2.0-or-later
 License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,6 +35,9 @@ Icon collections are cached in the browser session storage for performance. Afte
 Yes. Register a collection with `type` set to `folder` and `source` pointing to the folder that contains your SVG files.
 
 == Changelog ==
+
+= 1.1.3 =
+* Improved link editing with external link support and an edit button
 
 = 1.1.2 =
 * Fix `beapi/icon-block` migration skipping icons that have a name but no collection (registry lookup then generic fallback).
