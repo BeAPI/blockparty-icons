@@ -9,11 +9,12 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/components';
+import { Button, ToggleControl } from '@wordpress/components';
 import { keyboardReturn } from '@wordpress/icons';
 
 export default function SocialLinkURLPopover( {
 	url,
+	targetBlank,
 	setAttributes,
 	setPopover,
 	popoverAnchor,
@@ -25,42 +26,54 @@ export default function SocialLinkURLPopover( {
 			anchor={ popoverAnchor }
 			onClose={ () => setPopover( false ) }
 		>
-			<form
-				className="block-editor-url-popover__link-editor"
-				onSubmit={ ( event ) => {
-					event.preventDefault();
-					setPopover( false );
-				} }
-			>
-				<div className="block-editor-url-input">
-					<URLInput
-						__nextHasNoMarginBottom
-						value={ url }
-						onChange={ ( nextURL ) =>
-							setAttributes( { url: nextURL } )
-						}
-						placeholder={ __( 'Enter address' ) }
-						disableSuggestions={ true }
-						onKeyDown={ ( event ) => {
-							if (
-								!! url ||
-								event.defaultPrevented ||
-								! [ BACKSPACE, DELETE ].includes(
-									event.keyCode
-								)
-							) {
-								return;
+			<div className="blockparty-icons-link-url-popover">
+				<form
+					className="blockparty-icons-link-url-popover__form block-editor-url-popover__link-editor"
+					onSubmit={ ( event ) => {
+						event.preventDefault();
+						setPopover( false );
+					} }
+				>
+					<div className="block-editor-url-input">
+						<URLInput
+							__nextHasNoMarginBottom
+							value={ url }
+							onChange={ ( nextURL ) =>
+								setAttributes( { url: nextURL } )
 							}
-							removeBlock( clientId );
-						} }
+							placeholder={ __( 'Enter address' ) }
+							disableSuggestions={ true }
+							onKeyDown={ ( event ) => {
+								if (
+									!! url ||
+									event.defaultPrevented ||
+									! [ BACKSPACE, DELETE ].includes(
+										event.keyCode
+									)
+								) {
+									return;
+								}
+								removeBlock( clientId );
+							} }
+						/>
+					</div>
+					<Button
+						icon={ keyboardReturn }
+						label={ __( 'Apply' ) }
+						type="submit"
+					/>
+				</form>
+				<div className="blockparty-icons-link-url-popover__settings">
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Open in a new tab', 'blockparty-icons' ) }
+						checked={ !! targetBlank }
+						onChange={ ( value ) =>
+							setAttributes( { targetBlank: value } )
+						}
 					/>
 				</div>
-				<Button
-					icon={ keyboardReturn }
-					label={ __( 'Apply' ) }
-					type="submit"
-				/>
-			</form>
+			</div>
 		</URLPopover>
 	);
 }

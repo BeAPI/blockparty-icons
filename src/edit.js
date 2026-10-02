@@ -90,7 +90,8 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const { borderRadius, iconColor, icon, label, size, url } = attributes;
+	const { borderRadius, iconColor, icon, label, targetBlank, size, url } =
+		attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
@@ -107,7 +108,8 @@ export default function Edit( {
 	};
 
 	const removeLink = () => {
-		setAttributes( { url: '' } );
+		setPopover( false );
+		setAttributes( { url: '', targetBlank: false } );
 	};
 
 	const openIconModal = () => {
@@ -233,15 +235,32 @@ export default function Edit( {
 			{ icon && (
 				<>
 					<BlockControls group="other">
-						<ToolbarButton
-							icon={ url ? linkOff : link }
-							onClick={ url ? removeLink : openLinkPopover }
-							label={
-								url
-									? __( 'Remove link', 'blockparty-icons' )
-									: __( 'Add a link', 'blockparty-icons' )
-							}
-						/>
+						{ url ? (
+							<ToolbarGroup>
+								<ToolbarButton
+									icon={ link }
+									onClick={ openLinkPopover }
+									label={ __(
+										'Edit link',
+										'blockparty-icons'
+									) }
+								/>
+								<ToolbarButton
+									icon={ linkOff }
+									onClick={ removeLink }
+									label={ __(
+										'Remove link',
+										'blockparty-icons'
+									) }
+								/>
+							</ToolbarGroup>
+						) : (
+							<ToolbarButton
+								icon={ link }
+								onClick={ openLinkPopover }
+								label={ __( 'Add a link', 'blockparty-icons' ) }
+							/>
+						) }
 					</BlockControls>
 					<BlockControls>
 						<ToolbarGroup>
@@ -267,6 +286,7 @@ export default function Edit( {
 					{ showURLPopover && (
 						<LinkURLPopover
 							url={ url }
+							targetBlank={ targetBlank }
 							setAttributes={ setAttributes }
 							setPopover={ setPopover }
 							popoverAnchor={ popoverAnchor }
