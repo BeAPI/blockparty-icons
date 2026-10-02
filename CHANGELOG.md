@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.1.3 - 2026-10-02
+
+- Improved link editing with external link support and an edit button
+
 ### 1.1.2 - 2026-09-17
 
 - Fix `beapi/icon-block` migration skipping icons that have a name but no collection (registry lookup then generic fallback)
