@@ -6,6 +6,10 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
+### 1.1.4 - 2026-10-15
+
+- Stop preloading icon collection REST endpoints to reduce page generation time and HTML payload weight
+
 ### 1.1.3 - 2026-10-02
 
 - Improved link editing with external link support and an edit button
