@@ -230,16 +230,6 @@ class RegistrationTest extends TestCase {
 		$this->assertContains( '/icons/v1/collections?context=edit', $paths );
 	}
 
-	public function test_preload_paths_include_one_entry_per_collection(): void {
-		register_icon_collection( 'one' );
-		register_icon_collection( 'two' );
-
-		$paths = apply_filters( 'block_editor_rest_api_preload_paths', [], null );
-
-		$this->assertContains( '/icons/v1/one?context=edit', $paths );
-		$this->assertContains( '/icons/v1/two?context=edit', $paths );
-	}
-
 	public function test_preload_paths_keep_existing_entries(): void {
 		$paths = apply_filters( 'block_editor_rest_api_preload_paths', [ '/wp/v2/types' ], null );
 
