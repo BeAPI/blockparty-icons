@@ -75,9 +75,6 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\rest' );
  */
 function preload_rest_endpoints( $paths ) {
 	$paths[] = '/icons/v1/collections?context=edit';
-	foreach ( get_icon_collections() as $collection ) {
-		$paths[] = sprintf( '/icons/v1/%s?context=edit', $collection->name() );
-	}
 
 	return $paths;
 }
