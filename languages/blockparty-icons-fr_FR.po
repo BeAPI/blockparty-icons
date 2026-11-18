@@ -211,6 +211,18 @@ msgstr ""
 "Décrivez brièvement le lien destiné aux utilisateurs de lecteurs d'écran."
 
 #: build/index.js:4
+msgid "Accessible label"
+msgstr "Libellé accessible"
+
+#: build/index.js:4
+msgid ""
+"Describe the icon for screen reader users. Leave empty if the icon is "
+"decorative."
+msgstr ""
+"Décrivez l'icône pour les utilisateurs de lecteurs d'écran. Laissez vide si "
+"l'icône est décorative."
+
+#: build/index.js:4
 msgid "Icon radius"
 msgstr "Arrondis de l’icône"
 
