@@ -106,15 +106,6 @@ class BlockRenderer {
 
 				$processor->set_attribute( $attr, $value );
 			}
-
-			foreach ( self::get_svg_a11y_attributes( $icon, $attributes ) as $attr => $value ) {
-				if ( null === $value ) {
-					$processor->remove_attribute( $attr );
-					continue;
-				}
-
-				$processor->set_attribute( $attr, $value );
-			}
 		}
 
 		return $processor->get_updated_html();
@@ -131,65 +122,10 @@ class BlockRenderer {
 			$html_attributes .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $value ) );
 		}
 
-		$a11y_attributes = '';
-		foreach ( self::get_svg_a11y_attributes( $icon, $attributes ) as $attr => $value ) {
-			if ( null === $value ) {
-				continue;
-			}
-
-			$a11y_attributes .= sprintf( ' %s="%s"', esc_attr( $attr ), esc_attr( $value ) );
-		}
-
 		return sprintf(
-			'<svg xmlns="http://www.w3.org/2000/svg"%s %s><use href="%s"></use></svg>',
-			$a11y_attributes,
+			'<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" %s><use href="%s"></use></svg>',
 			$html_attributes,
 			esc_url( $icon->content() )
-		);
-	}
-
-	/**
-	 * Accessibility attributes of the SVG element.
-	 *
-	 * A linked icon gets its accessible name from the link (`label` attribute), so its
-	 * SVG keeps the markup it always had. An unlinked icon is either named by
-	 * `iconLabel` or marked as decorative.
-	 *
-	 * A null value means the attribute must be removed from an inline SVG, so that
-	 * attributes already present in the file cannot contradict the chosen role.
-	 *
-	 * @param CollectionItem $icon
-	 * @param array $attributes
-	 *
-	 * @return array<string, string|null>
-	 */
-	private static function get_svg_a11y_attributes( CollectionItem $icon, array $attributes ): array {
-		$link_url   = (string) ( $attributes['url'] ?? '' );
-		$icon_label = trim( (string) ( $attributes['iconLabel'] ?? '' ) );
-
-		$decorative = [
-			'aria-hidden' => 'true',
-			'focusable'   => 'false',
-		];
-
-		if ( ! empty( $link_url ) ) {
-			return 'sprite' === $icon->type() ? $decorative : [];
-		}
-
-		if ( '' !== $icon_label ) {
-			return [
-				'role'        => 'img',
-				'aria-label'  => $icon_label,
-				'aria-hidden' => null,
-			];
-		}
-
-		return array_merge(
-			$decorative,
-			[
-				'role'       => null,
-				'aria-label' => null,
-			]
 		);
 	}
 
