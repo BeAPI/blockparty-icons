@@ -90,8 +90,16 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const { borderRadius, iconColor, icon, label, targetBlank, size, url } =
-		attributes;
+	const {
+		borderRadius,
+		iconColor,
+		icon,
+		iconLabel,
+		label,
+		targetBlank,
+		size,
+		url,
+	} = attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
@@ -145,14 +153,14 @@ export default function Edit( {
 			setStoredIcons( selectedIcon );
 
 			const {
-				label: iconLabel,
+				label: selectedIconLabel,
 				name: iconName,
 				type: iconType,
 			} = selectedIcon;
 
 			setAttributes( {
 				icon: {
-					label: iconLabel,
+					label: selectedIconLabel,
 					name: iconName,
 					type: iconType,
 					collection: collection.name,
@@ -293,15 +301,15 @@ export default function Edit( {
 							clientId={ clientId }
 						/>
 					) }
-					{ url && url.length > 0 && (
-						<InspectorControls>
-							<PanelBody
-								title={ sprintf(
-									/* translators: %s: name of the icon name. */
-									__( 'Label of %s', 'blockparty-icons' ),
-									capitalize( icon?.label || icon?.name )
-								) }
-							>
+					<InspectorControls>
+						<PanelBody
+							title={ sprintf(
+								/* translators: %s: name of the icon name. */
+								__( 'Label of %s', 'blockparty-icons' ),
+								capitalize( icon?.label || icon?.name )
+							) }
+						>
+							{ url && url.length > 0 ? (
 								<TextControl
 									label={ __(
 										'Link label',
@@ -316,9 +324,24 @@ export default function Edit( {
 										setAttributes( { label: value } )
 									}
 								/>
-							</PanelBody>
-						</InspectorControls>
-					) }
+							) : (
+								<TextControl
+									label={ __(
+										'Accessible label',
+										'blockparty-icons'
+									) }
+									help={ __(
+										'Describe the icon for screen reader users. Leave empty if the icon is decorative.',
+										'blockparty-icons'
+									) }
+									value={ iconLabel || '' }
+									onChange={ ( value ) =>
+										setAttributes( { iconLabel: value } )
+									}
+								/>
+							) }
+						</PanelBody>
+					</InspectorControls>
 					<InspectorControls group="color">
 						{ colorSettings.map(
 							( {

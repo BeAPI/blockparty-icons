@@ -52,6 +52,9 @@
 		"label": {
 			"type": "string"
 		},
+		"iconLabel": {
+			"type": "string"
+		},
 		"targetBlank": {
 			"type": "boolean",
 			"default": false
