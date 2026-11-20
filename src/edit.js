@@ -90,16 +90,8 @@ export default function Edit( {
 	isSelected,
 	setAttributes,
 } ) {
-	const {
-		borderRadius,
-		iconColor,
-		icon,
-		iconLabel,
-		label,
-		targetBlank,
-		size,
-		url,
-	} = attributes;
+	const { borderRadius, iconColor, icon, label, targetBlank, size, url } =
+		attributes;
 
 	const blockRef = useRef( null );
 	const [ icons, setIcons ] = useState( null );
@@ -153,14 +145,14 @@ export default function Edit( {
 			setStoredIcons( selectedIcon );
 
 			const {
-				label: selectedIconLabel,
+				label: iconLabel,
 				name: iconName,
 				type: iconType,
 			} = selectedIcon;
 
 			setAttributes( {
 				icon: {
-					label: selectedIconLabel,
+					label: iconLabel,
 					name: iconName,
 					type: iconType,
 					collection: collection.name,
@@ -301,15 +293,15 @@ export default function Edit( {
 							clientId={ clientId }
 						/>
 					) }
-					<InspectorControls>
-						<PanelBody
-							title={ sprintf(
-								/* translators: %s: name of the icon name. */
-								__( 'Label of %s', 'blockparty-icons' ),
-								capitalize( icon?.label || icon?.name )
-							) }
-						>
-							{ url && url.length > 0 ? (
+					{ url && url.length > 0 && (
+						<InspectorControls>
+							<PanelBody
+								title={ sprintf(
+									/* translators: %s: name of the icon name. */
+									__( 'Label of %s', 'blockparty-icons' ),
+									capitalize( icon?.label || icon?.name )
+								) }
+							>
 								<TextControl
 									label={ __(
 										'Link label',
@@ -324,24 +316,9 @@ export default function Edit( {
 										setAttributes( { label: value } )
 									}
 								/>
-							) : (
-								<TextControl
-									label={ __(
-										'Accessible label',
-										'blockparty-icons'
-									) }
-									help={ __(
-										'Describe the icon for screen reader users. Leave empty if the icon is decorative.',
-										'blockparty-icons'
-									) }
-									value={ iconLabel || '' }
-									onChange={ ( value ) =>
-										setAttributes( { iconLabel: value } )
-									}
-								/>
-							) }
-						</PanelBody>
-					</InspectorControls>
+							</PanelBody>
+						</InspectorControls>
+					) }
 					<InspectorControls group="color">
 						{ colorSettings.map(
 							( {

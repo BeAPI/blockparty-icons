@@ -6,10 +6,6 @@ This plugin **doesn't run any sanitization on SVGs** before using them. Only use
 
 ## Changelog
 
-### Unreleased
-
-- Add an "Accessible label" setting (`iconLabel` attribute) to icons without a link: when set, the SVG gets `role="img"` and an `aria-label`; when empty, the icon is marked as decorative with `aria-hidden="true"` and `focusable="false"`, for both raw and sprite icons. Linked icons are unchanged
-
 ### 1.1.4 - 2026-10-15
 
 - Stop preloading icon collection REST endpoints to reduce page generation time and HTML payload weight
